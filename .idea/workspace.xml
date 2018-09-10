@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="992fa06b-f368-412f-847d-66ca9ef8c162" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/myPython/baseline_features.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/baseline_features.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/myPython/branch_eltwise_retrieval.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/branch_eltwise_retrieval.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/myPython/fully_pca_concat_retrieval.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/fully_pca_concat_retrieval.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/myPython/pca_concat_retrieval.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/pca_concat_retrieval.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/myPython/pca_get_features.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/pca_get_features.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/myPython/raw_concat_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/raw_concat_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/myPython/test_script.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/test_script.py" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FUSProjectUsageTrigger">
+    <session id="1613817753">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="1" />
+          <entry key="project.open.time.2" value="1" />
+          <entry key="project.opened" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="py" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="Python" value="1" />
+        </counts>
+      </usages-collector>
+    </session>
+    <session id="393862593">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="4" />
+          <entry key="project.open.time.0" value="1" />
+          <entry key="project.open.time.3" value="2" />
+          <entry key="project.open.time.4" value="1" />
+          <entry key="project.open.time.6" value="1" />
+          <entry key="project.opened" value="5" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="py" value="66" />
+          <entry key="sh" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="Bash" value="1" />
+          <entry key="Python" value="66" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="py" value="3373" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="Python" value="3373" />
+        </counts>
+      </usages-collector>
+    </session>
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="133">
+              <caret line="236" column="111" selection-start-line="236" selection-start-column="8" selection-end-line="236" selection-end-column="111" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/myPython/pca_concat_retrieval.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="828">
+              <caret line="58" column="63" selection-start-line="58" selection-start-column="63" selection-end-line="58" selection-end-column="63" />
+              <folding>
+                <element signature="e#228#237#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/myPython/raw_concat_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="454">
+              <caret line="36" column="63" selection-start-line="36" selection-start-column="63" selection-end-line="36" selection-end-column="63" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/myPython/pca_get_features.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="608">
+              <caret line="37" column="63" selection-start-line="37" selection-start-column="33" selection-end-line="37" selection-end-column="63" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/myPython/pca_run_model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="361">
+              <caret line="22" column="86" selection-start-line="22" selection-start-column="86" selection-end-line="22" selection-end-column="86" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>features_queries</find>
+      <find>load_and_prepare_image</find>
+      <find>prepare_image_and_grid_regions_for_network</find>
+      <find>N_queries</find>
+      <find>get_query_filename</find>
+      <find>q_index</find>
+      <find>cv2</find>
+      <find>OrderedDict</find>
+      <find>os</find>
+      <find>pack_regions_for_network</find>
+      <find>sys</find>
+      <find>args.dbe</find>
+      <find>image_helper.S</find>
+      <find>out_queries_featuremap_fname</find>
+      <find>featuremap_queries</find>
+      <find>TEMP_DIR</find>
+      <find>args.means</find>
+      <find>net_forward</find>
+      <find>pooled_rois_queries</find>
+      <find>master_end_layer</find>
+      <find>hstack</find>
+      <find>self.S</find>
+      <find>get_rmac_features</find>
+      <find>_queries</find>
+      <find>self.q_names</find>
+      <find>self.name_to_filename</find>
+      <find>queries</find>
+      <find>features_master_queries</find>
+      <find>master</find>
+      <find>features_dir</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/check_caffemodel.py" />
+        <option value="$PROJECT_DIR$/multi-roi-retrieval.py" />
+        <option value="$PROJECT_DIR$/myPython/pca_branch_retrieval.py" />
+        <option value="$PROJECT_DIR$/test.py" />
+        <option value="$PROJECT_DIR$/myPython/load_caffemodel.py" />
+        <option value="$PROJECT_DIR$/myPython/check_caffemodel.py" />
+        <option value="$PROJECT_DIR$/myPython/branch_concat_retrieval.py" />
+        <option value="$PROJECT_DIR$/myPython/pca_features.py" />
+        <option value="$PROJECT_DIR$/myPython/class_helper.py" />
+        <option value="$PROJECT_DIR$/myPython/get_features.py" />
+        <option value="$PROJECT_DIR$/myPython/pca_run_model.py" />
+        <option value="$PROJECT_DIR$/myPython/make_caffemodel.py" />
+        <option value="$PROJECT_DIR$/myPython/baseline_features.py" />
+        <option value="$PROJECT_DIR$/myPython/pca_get_features.py" />
+        <option value="$PROJECT_DIR$/myPython/branch_eltwise_retrieval.py" />
+        <option value="$PROJECT_DIR$/myPython/test_script.py" />
+        <option value="$PROJECT_DIR$/myPython/fully_pca_concat_retrieval.py" />
+        <option value="$PROJECT_DIR$/myPython/pca_concat_retrieval.py" />
+        <option value="$PROJECT_DIR$/myPython/raw_concat_test.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="10" />
+    <option name="y" value="20" />
+    <option name="width" value="1346" />
+    <option name="height" value="688" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="deep-retrieval" type="b2602c69:ProjectViewProjectNode" />
+              <item name="deep-retrieval" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="deep-retrieval" type="b2602c69:ProjectViewProjectNode" />
+              <item name="deep-retrieval" type="462c0819:PsiDirectoryNode" />
+              <item name="myPython" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="992fa06b-f368-412f-847d-66ca9ef8c162" name="Default Changelist" comment="" />
+      <created>1536029516769</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1536029516769</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16757642" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/custom_layers.py" />
+    <entry file="file://$PROJECT_DIR$/check_caffemodel.py" />
+    <entry file="file://$PROJECT_DIR$/multi-roi-retrieval.py" />
+    <entry file="file://$PROJECT_DIR$/myPython/pca_branch_retrieval.py" />
+    <entry file="file://$PROJECT_DIR$/test.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="456">
+          <caret line="24" selection-start-line="24" selection-end-line="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/load_caffemodel.py" />
+    <entry file="file://$PROJECT_DIR$/myPython/branch_concat_retrieval.py" />
+    <entry file="file://$USER_HOME$/anaconda3/envs/caffe/lib/python2.7/site-packages/sklearn/decomposition/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="703">
+          <caret line="132" column="52" selection-start-line="132" selection-start-column="52" selection-end-line="132" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="236" column="111" selection-start-line="236" selection-start-column="8" selection-end-line="236" selection-end-column="111" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/pca_features.py" />
+    <entry file="file://$PROJECT_DIR$/myPython/get_features.py" />
+    <entry file="file://$PROJECT_DIR$/myPython/custom_layers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="627">
+          <caret line="33" column="8" selection-start-line="33" selection-start-column="8" selection-end-line="33" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/test_num_regions.py" />
+    <entry file="file://$PROJECT_DIR$/myPython/baseline_features.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="456">
+          <caret line="33" column="33" lean-forward="true" selection-start-line="33" selection-start-column="33" selection-end-line="33" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/branch_eltwise_retrieval.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="646">
+          <caret line="85" column="63" selection-start-line="85" selection-start-column="63" selection-end-line="85" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/pca_get_features.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="608">
+          <caret line="37" column="63" selection-start-line="37" selection-start-column="33" selection-end-line="37" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/test_script.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="11" column="41" selection-start-line="11" selection-start-column="41" selection-end-line="11" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/check_caffemodel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="23" selection-start-column="23" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/class_helper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="733">
+          <caret line="214" column="86" selection-start-line="214" selection-start-column="73" selection-end-line="214" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/fully_pca_concat_retrieval.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="58" column="63" selection-start-line="58" selection-start-column="63" selection-end-line="58" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/make_caffemodel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+          <folding>
+            <element signature="e#26#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/pca_run_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="22" column="86" selection-start-line="22" selection-start-column="86" selection-end-line="22" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/pca_concat_retrieval.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="828">
+          <caret line="58" column="63" selection-start-line="58" selection-start-column="63" selection-end-line="58" selection-end-column="63" />
+          <folding>
+            <element signature="e#228#237#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/raw_concat_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="454">
+          <caret line="36" column="63" selection-start-line="36" selection-start-column="63" selection-end-line="36" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
