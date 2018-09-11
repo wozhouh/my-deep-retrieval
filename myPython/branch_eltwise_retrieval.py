@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# usage: python ./myPython/raw_concat_test.py
+# usage: python ./myPython/branch_eltwise_retrieval.py
 #   --proto ./proto/branch_concat_resnet101_normpython.prototxt
 #   --weights ./caffemodel/deep_image_retrieval_model_branch_concat.caffemodel
 #   --temp_dir ./eval/eval_test/

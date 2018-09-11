@@ -427,7 +427,7 @@ radcliffe_camera_5: 97.89
 Mean: 76.56
 
 
-# baseline ex9
+# baseline ex9.1
 
 all_souls_1: 51.91
 all_souls_2: 58.01
@@ -488,9 +488,69 @@ radcliffe_camera_5: 53.89
 Mean: 21.26
 
 
-# baseline ex10
+# baseline ex9.3
 
-all_souls_1: 45.87                                                                                                                                                                                          
+all_souls_1: 48.19
+all_souls_2: 51.61
+all_souls_3: 63.40
+all_souls_4: 94.64
+all_souls_5: 70.80
+ashmolean_1: 86.83
+ashmolean_2: 85.64
+ashmolean_3: 47.45
+ashmolean_4: 88.24
+ashmolean_5: 75.29
+balliol_1: 93.90
+balliol_2: 59.86
+balliol_3: 74.78
+balliol_4: 60.36
+balliol_5: 64.28
+bodleian_1: 27.54
+bodleian_2: 83.64
+bodleian_3: 53.65
+bodleian_4: 13.66
+bodleian_5: 3.90
+christ_church_1: 90.70
+christ_church_2: 91.34
+christ_church_3: 84.36
+christ_church_4: 92.23
+christ_church_5: 88.94
+cornmarket_1: 79.04
+cornmarket_2: 67.45
+cornmarket_3: 69.87
+cornmarket_4: 78.76
+cornmarket_5: 80.33
+hertford_1: 92.74
+hertford_2: 90.33
+hertford_3: 90.76
+hertford_4: 89.20
+hertford_5: 90.02
+keble_1: 100.00
+keble_2: 98.09
+keble_3: 100.00
+keble_4: 92.80
+keble_5: 96.63
+magdalen_1: 65.36
+magdalen_2: 88.49
+magdalen_3: 76.28
+magdalen_4: 77.64
+magdalen_5: 62.02
+pitt_rivers_1: 100.00
+pitt_rivers_2: 100.00
+pitt_rivers_3: 100.00
+pitt_rivers_4: 100.00
+pitt_rivers_5: 100.00
+radcliffe_camera_1: 98.62
+radcliffe_camera_2: 99.57
+radcliffe_camera_3: 98.84
+radcliffe_camera_4: 99.26
+radcliffe_camera_5: 98.76
+--------------------
+Mean: 79.57
+
+
+# baseline ex10
+                                                                                                                    all_souls_1: 45.87                                                 
 all_souls_2: 49.39
 all_souls_3: 61.58
 all_souls_4: 96.89
