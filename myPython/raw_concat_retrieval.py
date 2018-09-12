@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # usage: python ./myPython/raw_concat_test.py
-#   --proto ./proto/branch_features_resnet101_normpython.prototxt
+#   --proto ./proto/raw_concat_resnet101_normpython.prototxt
 #   --weights ./caffemodel/deep_image_retrieval_model.caffemodel
-#   --temp_dir ./eval/eval_test/
 
 import os
 import sys
@@ -26,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset_name', type=str, required=False, help='Dataset name')
     parser.add_argument('--eval_binary', type=str, required=False,
                         help='Path to the compute_ap binary to evaluate Oxford / Paris')
-    parser.add_argument('--temp_dir', type=str, required=True,
+    parser.add_argument('--temp_dir', type=str, required=False,
                         help='Path to a temporary directory to store features and scores')
     parser.add_argument('--features_dir', type=str, required=False,
                         help='Path to a temporary directory to store ROI-pooling features and PCA transformation')
@@ -36,7 +35,8 @@ if __name__ == '__main__':
     parser.set_defaults(dataset_name='Oxford')
     parser.set_defaults(dataset='/home/processyuan/data/Oxford/')
     parser.set_defaults(eval_binary='/home/processyuan/NetworkOptimization/deep-retrieval/eval/compute_ap')
-    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/deep-retrieval/features/')
+    parser.set_defaults(temp_dir='/home/processyuan/NetworkOptimization/deep-retrieval/eval/eval_test/')
+    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/deep-retrieval/features/raw_concat/')
     args = parser.parse_args()
     if not os.path.exists(args.temp_dir):
         os.makedirs(args.temp_dir)

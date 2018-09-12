@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# copy the PCA transform from master to branch first and merge them element-wise
+
 # usage: python ./myPython/branch_eltwise_retrieval.py
 #   --proto ./proto/branch_concat_resnet101_normpython.prototxt
 #   --weights ./caffemodel/deep_image_retrieval_model_branch_concat.caffemodel

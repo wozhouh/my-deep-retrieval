@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# Common class function from original code test.py
+
 # Python usage:
 # from class_helper import *
 

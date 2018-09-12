@@ -4525,6 +4525,84 @@ layer {
 	type: "ReLU"
 }
 
+### New branch from a middle layer (res4b22) to extract features
+## Get rmac regions with a RoiPooling layer. If batch size was 1, we end up with N_regions x D x pooled_h x pooled_w 
+layer {
+   name: "pooled_rois_branch_16"
+   type: "ROIPooling"
+   bottom: "res4b22"
+   bottom: "rois"
+   top: "pooled_rois_branch_16"
+   roi_pooling_param {
+     pooled_w: 1
+     pooled_h: 1
+    spatial_scale: 0.0625 # 1/16
+   }
+ }
+layer {
+  name: "pooled_rois_branch_16/normalized"
+  type: "Python"
+  bottom: "pooled_rois_branch_16"
+  top: "pooled_rois_branch_16/normalized"
+  python_param {
+    module: 'custom_layers'
+    layer: 'NormalizeLayer'
+    param_str: "{}"
+  }
+}
+
+### New branch from a middle layer (res3b3) to extract features
+## Get rmac regions with a RoiPooling layer. If batch size was 1, we end up with N_regions x D x pooled_h x pooled_w 
+layer {
+   name: "pooled_rois_branch_8"
+   type: "ROIPooling"
+   bottom: "res3b3"
+   bottom: "rois"
+   top: "pooled_rois_branch_8"
+   roi_pooling_param {
+     pooled_w: 1
+     pooled_h: 1
+    spatial_scale: 0.125 # 1/8
+   }
+ }
+layer {
+  name: "pooled_rois_branch_8/normalized"
+  type: "Python"
+  bottom: "pooled_rois_branch_8"
+  top: "pooled_rois_branch_8/normalized"
+  python_param {
+    module: 'custom_layers'
+    layer: 'NormalizeLayer'
+    param_str: "{}"
+  }
+}
+
+### New branch from a middle layer (res3b3) to extract features
+## Get rmac regions with a RoiPooling layer. If batch size was 1, we end up with N_regions x D x pooled_h x pooled_w 
+layer {
+   name: "pooled_rois_branch_4"
+   type: "ROIPooling"
+   bottom: "res2c"
+   bottom: "rois"
+   top: "pooled_rois_branch_4"
+   roi_pooling_param {
+     pooled_w: 1
+     pooled_h: 1
+    spatial_scale: 0.250 # 1/4
+   }
+ }
+layer {
+  name: "pooled_rois_branch_4/normalized"
+  type: "Python"
+  bottom: "pooled_rois_branch_4"
+  top: "pooled_rois_branch_4/normalized"
+  python_param {
+    module: 'custom_layers'
+    layer: 'NormalizeLayer'
+    param_str: "{}"
+  }
+}
+
 ## Get rmac regions with a RoiPooling layer. If batch size was 1, we end up with N_regions x D x pooled_h x pooled_w 
 layer {
    name: "pooled_rois"
@@ -4612,192 +4690,6 @@ layer {
   type: "Python"
   bottom: "rmac"
   top: "rmac/normalized"
-  python_param {
-    module: 'custom_layers'
-    layer: 'NormalizeLayer'
-    param_str: "{}"
-  }
-}
-
-### New branch from a middle layer (res4b22) to extract features
-## Get rmac regions with a RoiPooling layer. If batch size was 1, we end up with N_regions x D x pooled_h x pooled_w 
-layer {
-   name: "pooled_rois_branch_16"
-   type: "ROIPooling"
-   bottom: "res4b22"
-   bottom: "rois"
-   top: "pooled_rois_branch_16"
-   roi_pooling_param {
-     pooled_w: 1
-     pooled_h: 1
-    spatial_scale: 0.0625 # 1/16
-   }
- }
-layer {
-  name: "pooled_rois_branch_16/normalized"
-  type: "Python"
-  bottom: "pooled_rois_branch_16"
-  top: "pooled_rois_branch_16/normalized"
-  python_param {
-    module: 'custom_layers'
-    layer: 'NormalizeLayer'
-    param_str: "{}"
-  }
-}
-layer {
-	name: "pooled_rois_branch_16/normalized_flat"
-	type: "Reshape"
-	reshape_param{
-	shape{
-		dim: 0
-		dim: 1024 # feat x spx (1) x spy (1)
-		}    
-	}
-	bottom: "pooled_rois_branch_16/normalized"
-	top: "pooled_rois_branch_16/normalized_flat"
-}
-
-layer {
-  name: "rmac_branch_16"
-  type: "Python"
-  bottom: "pooled_rois_branch_16/normalized_flat"
-  top: "rmac_branch_16"
-  python_param {
-    module: 'custom_layers'
-    layer: 'AggregateLayer'
-    param_str: "{}"
-  }
-}
-## L2, one last time
-layer {
-  name: "rmac_branch_16/normalized"
-  type: "Python"
-  bottom: "rmac_branch_16"
-  top: "rmac_branch_16/normalized"
-  python_param {
-    module: 'custom_layers'
-    layer: 'NormalizeLayer'
-    param_str: "{}"
-  }
-}
-
-### New branch from a middle layer (res3b3) to extract features
-## Get rmac regions with a RoiPooling layer. If batch size was 1, we end up with N_regions x D x pooled_h x pooled_w 
-layer {
-   name: "pooled_rois_branch_8"
-   type: "ROIPooling"
-   bottom: "res3b3"
-   bottom: "rois"
-   top: "pooled_rois_branch_8"
-   roi_pooling_param {
-     pooled_w: 1
-     pooled_h: 1
-    spatial_scale: 0.125 # 1/8
-   }
- }
-layer {
-  name: "pooled_rois_branch_8/normalized"
-  type: "Python"
-  bottom: "pooled_rois_branch_8"
-  top: "pooled_rois_branch_8/normalized"
-  python_param {
-    module: 'custom_layers'
-    layer: 'NormalizeLayer'
-    param_str: "{}"
-  }
-}
-layer {
-	name: "pooled_rois_branch_8/normalized_flat"
-	type: "Reshape"
-	reshape_param{
-	shape{
-		dim: 0
-		dim: 512 # feat x spx (1) x spy (1)
-		}    
-	}
-	bottom: "pooled_rois_branch_8/normalized"
-	top: "pooled_rois_branch_8/normalized_flat"
-}
-
-layer {
-  name: "rmac_branch_8"
-  type: "Python"
-  bottom: "pooled_rois_branch_8/normalized_flat"
-  top: "rmac_branch_8"
-  python_param {
-    module: 'custom_layers'
-    layer: 'AggregateLayer'
-    param_str: "{}"
-  }
-}
-## L2, one last time
-layer {
-  name: "rmac_branch_8/normalized"
-  type: "Python"
-  bottom: "rmac_branch_8"
-  top: "rmac_branch_8/normalized"
-  python_param {
-    module: 'custom_layers'
-    layer: 'NormalizeLayer'
-    param_str: "{}"
-  }
-}
-
-### New branch from a middle layer (res3b3) to extract features
-## Get rmac regions with a RoiPooling layer. If batch size was 1, we end up with N_regions x D x pooled_h x pooled_w 
-layer {
-   name: "pooled_rois_branch_4"
-   type: "ROIPooling"
-   bottom: "res2c"
-   bottom: "rois"
-   top: "pooled_rois_branch_4"
-   roi_pooling_param {
-     pooled_w: 1
-     pooled_h: 1
-    spatial_scale: 0.250 # 1/4
-   }
- }
-layer {
-  name: "pooled_rois_branch_4/normalized"
-  type: "Python"
-  bottom: "pooled_rois_branch_4"
-  top: "pooled_rois_branch_4/normalized"
-  python_param {
-    module: 'custom_layers'
-    layer: 'NormalizeLayer'
-    param_str: "{}"
-  }
-}
-layer {
-	name: "pooled_rois_branch_4/normalized_flat"
-	type: "Reshape"
-	reshape_param{
-	shape{
-		dim: 0
-		dim: 256 # feat x spx (1) x spy (1)
-		}    
-	}
-	bottom: "pooled_rois_branch_4/normalized"
-	top: "pooled_rois_branch_4/normalized_flat"
-}
-
-layer {
-  name: "rmac_branch_4"
-  type: "Python"
-  bottom: "pooled_rois_branch_4/normalized_flat"
-  top: "rmac_branch_4"
-  python_param {
-    module: 'custom_layers'
-    layer: 'AggregateLayer'
-    param_str: "{}"
-  }
-}
-## L2, one last time
-layer {
-  name: "rmac_branch_4/normalized"
-  type: "Python"
-  bottom: "rmac_branch_4"
-  top: "rmac_branch_4/normalized"
   python_param {
     module: 'custom_layers'
     layer: 'NormalizeLayer'

@@ -1,4 +1,4 @@
-# baseline ex1
+# origin ex1.1
 
 all_souls_1: 50.27
 all_souls_2: 55.39
@@ -60,7 +60,8 @@ Mean: 81.11
 Speed: (Nvidia Titan X pascal) 16.00 it/s ~62.5ms
 
 
-# baseline ex2
+
+# origin ex1.2
 
 all_souls_1: 55.56
 all_souls_2: 67.21
@@ -122,7 +123,8 @@ Mean: 82.88
 Speed: (Nvidia Titan X pascal) 29.60 it/s -> 16.00it/s -> 10.38 it/s ~192.6ms
 
 
-# baseline ex3
+
+# raw baseline ex2.1
 
 all_souls_1: 46.45
 all_souls_2: 53.05
@@ -183,7 +185,8 @@ radcliffe_camera_5: 98.07
 Mean: 76.75
 
 
-# baseline ex4
+
+# raw baseline ex2.2
 
 all_souls_1: 39.92
 all_souls_2: 42.33
@@ -244,7 +247,8 @@ radcliffe_camera_5: 95.58
 Mean: 68.33
 
 
-# baseline ex5
+
+# raw concat ex3.1
 
 all_souls_1: 45.86
 all_souls_2: 50.69
@@ -305,7 +309,8 @@ radcliffe_camera_5: 97.80
 Mean: 76.21
 
 
-# baseline ex7
+
+# raw concat ex3.3
 
 all_souls_1: 46.29
 all_souls_2: 50.29
@@ -366,7 +371,8 @@ radcliffe_camera_5: 97.63
 Mean: 76.08
 
 
-# baseline ex8
+
+# raw concat ex3.4
 
 all_souls_1: 46.22
 all_souls_2: 51.68
@@ -427,7 +433,70 @@ radcliffe_camera_5: 97.89
 Mean: 76.56
 
 
-# baseline ex9.1
+
+# raw/master concat ex4.1
+
+all_souls_1: 50.28                       
+all_souls_2: 55.22
+all_souls_3: 69.78
+all_souls_4: 95.65
+all_souls_5: 76.55
+ashmolean_1: 89.04
+ashmolean_2: 88.58
+ashmolean_3: 73.05
+ashmolean_4: 88.93
+ashmolean_5: 79.01
+balliol_1: 95.98
+balliol_2: 66.22
+balliol_3: 77.65
+balliol_4: 66.82
+balliol_5: 65.80
+bodleian_1: 26.21
+bodleian_2: 71.73
+bodleian_3: 48.27
+bodleian_4: 16.42
+bodleian_5: 8.96
+christ_church_1: 90.86
+christ_church_2: 91.55
+christ_church_3: 84.55
+christ_church_4: 92.20
+christ_church_5: 90.61
+cornmarket_1: 82.24
+cornmarket_2: 68.76
+cornmarket_3: 72.30
+cornmarket_4: 79.99
+cornmarket_5: 87.29
+hertford_1: 94.76
+hertford_2: 92.92
+hertford_3: 93.66
+hertford_4: 92.13
+hertford_5: 92.53
+keble_1: 100.00
+keble_2: 100.00
+keble_3: 100.00
+keble_4: 90.18
+keble_5: 100.00
+magdalen_1: 64.02
+magdalen_2: 88.18
+magdalen_3: 76.63
+magdalen_4: 76.03
+magdalen_5: 61.87
+pitt_rivers_1: 100.00
+pitt_rivers_2: 100.00
+pitt_rivers_3: 100.00
+pitt_rivers_4: 100.00
+pitt_rivers_5: 100.00
+radcliffe_camera_1: 98.61
+radcliffe_camera_2: 99.45
+radcliffe_camera_3: 98.83
+radcliffe_camera_4: 99.16
+radcliffe_camera_5: 98.74
+--------------------
+Mean: 81.24
+
+
+
+# PCA concat ex5.1
 
 all_souls_1: 51.91
 all_souls_2: 58.01
@@ -488,7 +557,8 @@ radcliffe_camera_5: 53.89
 Mean: 21.26
 
 
-# baseline ex9.3
+
+# PCA concat ex5.3
 
 all_souls_1: 48.19
 all_souls_2: 51.61
@@ -549,8 +619,72 @@ radcliffe_camera_5: 98.76
 Mean: 79.57
 
 
-# baseline ex10
-                                                                                                                    all_souls_1: 45.87                                                 
+
+# PCA concat ex5.4
+
+all_souls_1: 50.40                  
+all_souls_2: 55.61
+all_souls_3: 70.27
+all_souls_4: 94.73
+all_souls_5: 76.96
+ashmolean_1: 88.66
+ashmolean_2: 87.86
+ashmolean_3: 72.41
+ashmolean_4: 88.50
+ashmolean_5: 78.51
+balliol_1: 97.43
+balliol_2: 66.43
+balliol_3: 78.30
+balliol_4: 66.81
+balliol_5: 65.85
+bodleian_1: 25.09
+bodleian_2: 71.61
+bodleian_3: 47.17
+bodleian_4: 15.72
+bodleian_5: 8.24
+christ_church_1: 90.79
+christ_church_2: 91.41
+christ_church_3: 84.51
+christ_church_4: 92.17
+christ_church_5: 91.05
+cornmarket_1: 80.99
+cornmarket_2: 67.76
+cornmarket_3: 72.07
+cornmarket_4: 79.36
+cornmarket_5: 86.15
+hertford_1: 94.72
+hertford_2: 92.89
+hertford_3: 93.30
+hertford_4: 92.08
+hertford_5: 92.64
+keble_1: 100.00
+keble_2: 100.00
+keble_3: 100.00
+keble_4: 90.18
+keble_5: 100.00
+magdalen_1: 65.50
+magdalen_2: 88.59
+magdalen_3: 77.70
+magdalen_4: 76.41
+magdalen_5: 62.81
+pitt_rivers_1: 100.00
+pitt_rivers_2: 100.00
+pitt_rivers_3: 100.00
+pitt_rivers_4: 100.00
+pitt_rivers_5: 100.00
+radcliffe_camera_1: 98.57
+radcliffe_camera_2: 99.53
+radcliffe_camera_3: 98.83
+radcliffe_camera_4: 99.16
+radcliffe_camera_5: 98.71
+--------------------
+Mean: 81.17
+
+
+
+# PCA concat ex6
+
+all_souls_1: 45.87                                                 
 all_souls_2: 49.39
 all_souls_3: 61.58
 all_souls_4: 96.89
@@ -609,4 +743,3 @@ radcliffe_camera_5: 98.33
 Mean: 78.13
 Speed: (Nvidia Titan X pascal) 62.8ms/it
 Memory: 2297MB
-

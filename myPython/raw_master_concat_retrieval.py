@@ -3,7 +3,6 @@
 # usage: python ./myPython/raw_concat_test.py
 #   --proto ./proto/branch_features_resnet101_normpython.prototxt
 #   --weights ./caffemodel/deep_image_retrieval_model.caffemodel
-#   --temp_dir ./eval/eval_test/
 
 import os
 import sys
@@ -26,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset_name', type=str, required=False, help='Dataset name')
     parser.add_argument('--eval_binary', type=str, required=False,
                         help='Path to the compute_ap binary to evaluate Oxford / Paris')
-    parser.add_argument('--temp_dir', type=str, required=True,
+    parser.add_argument('--temp_dir', type=str, required=False,
                         help='Path to a temporary directory to store features and scores')
     parser.add_argument('--features_dir', type=str, required=False,
                         help='Path to a temporary directory to store ROI-pooling features and PCA transformation')
@@ -36,10 +35,12 @@ if __name__ == '__main__':
     parser.set_defaults(dataset_name='Oxford')
     parser.set_defaults(dataset='/home/processyuan/data/Oxford/')
     parser.set_defaults(eval_binary='/home/processyuan/NetworkOptimization/deep-retrieval/eval/compute_ap')
-    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/deep-retrieval/features/')
+    parser.set_defaults(temp_dir='/home/processyuan/NetworkOptimization/deep-retrieval/eval/eval_test/')
+    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/deep-retrieval/features/raw_master_concat/')
     args = parser.parse_args()
     if not os.path.exists(args.temp_dir):
         os.makedirs(args.temp_dir)
+
     S = args.S
     L = args.L
 
@@ -54,7 +55,7 @@ if __name__ == '__main__':
 
     N_queries = dataset.N_queries
     N_dataset = dataset.N_images
-    master = 'rmac_master_32/normalized'
+    master = 'rmac/normalized'
     branch = ['rmac_branch_16/normalized',
               'rmac_branch_8/normalized',
               'rmac_branch_4/normalized']
@@ -76,10 +77,14 @@ if __name__ == '__main__':
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])
         net.blobs['rois'].data[:] = R.astype(np.float32)
-        net.forward()
+        net.forward(end=master)
         features_queries_master[i] = np.squeeze(net.blobs[master].data) * dim_master
         for k in range(num_branch):
             (features_queries_list[k])[i] = np.squeeze(net.blobs[branch[k]].data) * dim_branch[k]
+
+    features_queries_list.append(features_queries_master)
+    features_queries = np.hstack((features_queries_list[k] for k in range(num_branch + 1)))
+    features_queries /= np.sqrt((features_queries * features_queries).sum(axis=1))[:, None]
 
     # dataset: get ROI-pooling features
     for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
@@ -89,7 +94,7 @@ if __name__ == '__main__':
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])
         net.blobs['rois'].data[:] = R.astype(np.float32)
-        net.forward()
+        net.forward(end=master)
         features_dataset_master[i] = np.squeeze(net.blobs[master].data) * dim_master
         for k in range(num_branch):
             (features_dataset_list[k])[i] = np.squeeze(net.blobs[branch[k]].data) * dim_branch[k]
@@ -102,12 +107,10 @@ if __name__ == '__main__':
     np.save(features_queries_master_fname, features_queries_master)
     np.save(features_dataset_master_fname, features_dataset_master)
 
-    features_queries_list.append(features_queries_master)
     features_dataset_list.append(features_dataset_master)
 
     # Concatenation and normalization
-    features_queries = np.hstack((features_queries_list[k] for k in range(num_branch+1)))
-    features_queries /= np.sqrt((features_queries * features_queries).sum(axis=1))[:, None]
+
     features_dataset = np.hstack((features_dataset_list[k] for k in range(num_branch+1)))
     features_dataset /= np.sqrt((features_dataset * features_dataset).sum(axis=1))[:, None]
 

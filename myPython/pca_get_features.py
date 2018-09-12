@@ -12,7 +12,6 @@ import argparse
 from tqdm import tqdm
 from class_helper import *
 
-
 if __name__ == '__main__':
 
     # Config
@@ -26,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset_name', type=str, required=False, help='Dataset name')
     parser.add_argument('--eval_binary', type=str, required=False,
                         help='Path to the compute_ap binary to evaluate Oxford / Paris')
-    parser.add_argument('--features_dir', type=str, required=True,
+    parser.add_argument('--features_dir', type=str, required=False,
                         help='Path to a temporary directory to store ROI-pooling features and PCA transformation')
     parser.set_defaults(gpu=0)
     parser.set_defaults(S=512)
@@ -34,7 +33,7 @@ if __name__ == '__main__':
     parser.set_defaults(dataset_name='Oxford')
     parser.set_defaults(dataset='/home/processyuan/data/Oxford/')
     parser.set_defaults(eval_binary='/home/processyuan/NetworkOptimization/deep-retrieval/eval/compute_ap')
-    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/deep-retrieval/features/')
+    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/deep-retrieval/features/pca_concat/')
     args = parser.parse_args()
 
     S = args.S
@@ -50,12 +49,18 @@ if __name__ == '__main__':
     image_helper = ImageHelper(S, L)
 
     # Features are extracted here
-    end_layer = 'pooled_rois_branch/normalized_flat'
+    branch = ['pooled_rois_branch_16/normalized',
+              'pooled_rois_branch_8/normalized',
+              'pooled_rois_branch_4/normalized']
+    num_branch = len(branch)
 
     N_queries = dataset.N_queries
     N_dataset = dataset.N_images
     pooled_rois_queries_list = []
     pooled_rois_dataset_list = []
+    for k in range(num_branch):
+        pooled_rois_queries_list.append([])
+        pooled_rois_dataset_list.append([])
 
     # queries: get ROI-pooling features
     for i in tqdm(range(N_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
@@ -65,15 +70,18 @@ if __name__ == '__main__':
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])
         net.blobs['rois'].data[:] = R.astype(np.float32)
-        net.forward(end=end_layer)
-        pooled_rois_queries_temp = np.squeeze(net.blobs[end_layer].data)
-        for k in range(pooled_rois_queries_temp.shape[0]):
-            pooled_rois_queries_list.append(pooled_rois_queries_temp[k, :])
+        net.forward(end=branch[0])
 
-    pooled_rois_queries = np.array(pooled_rois_queries_list)
-    pooled_rois_queries_fname = "{0}{1}_S{2}_L{3}_ROIpooling_queries.npy". \
-        format(args.features_dir, args.dataset_name, S, L)
-    np.save(pooled_rois_queries_fname, pooled_rois_queries)
+        for k in range(num_branch):
+            pooled_rois_queries_temp = np.squeeze(net.blobs[branch[k]].data)
+            for l in range(pooled_rois_queries_temp.shape[0]):
+                (pooled_rois_queries_list[k]).append(pooled_rois_queries_temp[l, :])
+
+    pooled_rois_queries = [np.array(pooled_rois_queries_list[k]) for k in range(num_branch)]
+    pooled_rois_queries_fname = ["{0}{1}_S{2}_L{3}_ROIpooling_branch{4}_queries.npy".
+                                     format(args.features_dir, args.dataset_name, S, L, k) for k in range(num_branch)]
+    for k in range(num_branch):
+        np.save(pooled_rois_queries_fname[k], pooled_rois_queries[k])
 
     # dataset: get ROI-pooling features
     for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
@@ -83,12 +91,15 @@ if __name__ == '__main__':
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])
         net.blobs['rois'].data[:] = R.astype(np.float32)
-        net.forward(end=end_layer)
-        pooled_rois_dataset_temp = np.squeeze(net.blobs[end_layer].data)
-        for k in range(pooled_rois_dataset_temp.shape[0]):
-            pooled_rois_dataset_list.append(pooled_rois_dataset_temp[k, :])
+        net.forward(end=branch[0])
 
-    pooled_rois_dataset = np.array(pooled_rois_dataset_list)
-    pooled_rois_dataset_fname = "{0}{1}_S{2}_L{3}_ROIpooling_dataset.npy". \
-        format(args.features_dir, args.dataset_name, S, L)
-    np.save(pooled_rois_dataset_fname, pooled_rois_dataset)
+        for k in range(num_branch):
+            pooled_rois_dataset_temp = np.squeeze(net.blobs[branch[k]].data)
+            for l in range(pooled_rois_dataset_temp.shape[0]):
+                (pooled_rois_dataset_list[k]).append(pooled_rois_dataset_temp[l, :])
+
+    pooled_rois_dataset = [np.array(pooled_rois_dataset_list[k]) for k in range(num_branch)]
+    pooled_rois_dataset_fname = ["{0}{1}_S{2}_L{3}_ROIpooling_branch{4}_dataset.npy".
+                                     format(args.features_dir, args.dataset_name, S, L, k) for k in range(num_branch)]
+    for k in range(num_branch):
+        np.save(pooled_rois_dataset_fname[k], pooled_rois_dataset[k])
