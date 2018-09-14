@@ -60,9 +60,10 @@ if __name__ == '__main__':
 
     # features are extracted here, keep the same with pca_get_features.py
     master = 'rmac/normalized'
-    branch = ['pooled_rois_branch_16/normalized',
-              'pooled_rois_branch_8/normalized',
-              'pooled_rois_branch_4/normalized']
+    # branch = ['pooled_rois_branch_16/normalized',
+    #           'pooled_rois_branch_8/normalized',
+    #           'pooled_rois_branch_4/normalized']
+    branch = ['pooled_rois_branch_16/normalized']
 
     num_branch = len(branch)
     dim_master = net.blobs[master].data.shape[1]
@@ -84,12 +85,14 @@ if __name__ == '__main__':
     for k in range(num_branch):
         q, d = np.load(pooled_rois_queries_fname[k]), np.load(pooled_rois_dataset_fname[k])
         pooled_rois_features = np.vstack((q, d))
-        scaler.append(preprocessing.StandardScaler().fit(pooled_rois_features))
+        scaler_temp = preprocessing.StandardScaler().fit(pooled_rois_features)
+        pooled_rois_features_scaler = scaler_temp.transform(pooled_rois_features)
         pca_temp = PCA(n_components=pooled_rois_features.shape[1], copy=True, whiten=True)
-        pca_temp.fit(pooled_rois_features)
+        pca_temp.fit(pooled_rois_features_scaler)
         np.save("{0}branch{1}_ROIpooling_PCA_components.npy".format(args.features_dir, k), pca_temp.components_)
         np.save("{0}branch{1}_ROIpooling_PCA_mean.npy".format(args.features_dir, k), pca_temp.mean_)
         np.save("{0}branch{1}_ROIpooling_PCA_variance.npy".format(args.features_dir, k), pca_temp.explained_variance_)
+        scaler.append(scaler_temp)
         pca.append(pca_temp)
 
     # First part, queries

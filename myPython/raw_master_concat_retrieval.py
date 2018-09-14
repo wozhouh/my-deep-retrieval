@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # usage: python ./myPython/raw_concat_test.py
-#   --proto ./proto/branch_features_resnet101_normpython.prototxt
+#   --proto ./proto/raw_master_concat_resnet101_normpython.prototxt
 #   --weights ./caffemodel/deep_image_retrieval_model.caffemodel
 
 import os
@@ -59,9 +59,9 @@ if __name__ == '__main__':
     branch = ['rmac_branch_16/normalized',
               'rmac_branch_8/normalized',
               'rmac_branch_4/normalized']
-    dim_master = net.blobs[master].data.shape[1]
-    dim_branch = [net.blobs[branch[k]].data.shape[1] for k in range(len(branch))]
     num_branch = len(branch)
+    dim_master = net.blobs[master].data.shape[1]
+    dim_branch = [net.blobs[branch[k]].data.shape[1] for k in range(num_branch)]
     eps = 1e-8
 
     features_queries_master = np.zeros((N_queries, dim_master), dtype=np.float32)

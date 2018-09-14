@@ -57,9 +57,9 @@ class ImageHelper:
         # the image once again
         if roi is not None:
             roi = np.round(roi * ratio).astype(np.int32)
-            im_resized = im_resized[roi[1]:roi[3], roi[0]:roi[2], :]
+            im_resized = im_resized[roi[1]:roi[3], roi[0]:roi[2], :]  # crop
         # Transpose for network and subtract mean
-        I = im_resized.transpose(2, 0, 1) - self.means
+        I = im_resized.transpose(2, 0, 1) - self.means  # 3 x H x W
         return I, im_resized
 
     def pack_regions_for_network(self, all_regions):
