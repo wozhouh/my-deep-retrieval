@@ -15,7 +15,7 @@ from class_helper import *
 if __name__ == '__main__':
 
     # Configure
-    parser = argparse.ArgumentParser(description='Evaluate Oxford / Paris')
+    parser = argparse.ArgumentParser(description='Evaluate')
     parser.add_argument('--gpu', type=int, required=False, help='GPU ID to use (e.g. 0)')
     parser.add_argument('--S', type=int, required=False, help='Resize larger side of image to S pixels (e.g. 800)')
     parser.add_argument('--L', type=int, required=False, help='Use L spatial levels (e.g. 2)')

@@ -2,71 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="992fa06b-f368-412f-847d-66ca9ef8c162" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/deep-retrieval.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deep-retrieval.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/compute_ap" beforeDir="false" afterPath="$PROJECT_DIR$/eval/compute_ap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/all_souls_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/all_souls_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/all_souls_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/all_souls_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/all_souls_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/ashmolean_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/ashmolean_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/ashmolean_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/ashmolean_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/ashmolean_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/balliol_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/balliol_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/balliol_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/balliol_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/balliol_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/bodleian_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/bodleian_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/bodleian_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/bodleian_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/bodleian_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/christ_church_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/christ_church_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/christ_church_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/christ_church_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/christ_church_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/cornmarket_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/cornmarket_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/cornmarket_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/cornmarket_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/cornmarket_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/hertford_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/hertford_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/hertford_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/hertford_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/hertford_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/keble_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/keble_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/keble_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/keble_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/keble_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/magdalen_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/magdalen_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/magdalen_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/magdalen_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/magdalen_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/pitt_rivers_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/pitt_rivers_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/pitt_rivers_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/pitt_rivers_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/pitt_rivers_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/radcliffe_camera_1.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/radcliffe_camera_2.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/radcliffe_camera_3.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/radcliffe_camera_4.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/eval_test/radcliffe_camera_5.rnk" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/log/Oxford_baseline_512.txt" beforeDir="false" afterPath="$PROJECT_DIR$/eval/log/Oxford_baseline_512.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/log/Oxford_baseline_512.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/eval/log/Oxford_baseline_512.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myPython/class_helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/class_helper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myPython/pca_concat_retrieval.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/pca_concat_retrieval.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myPython/raw_master_concat_retrieval.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/raw_master_concat_retrieval.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proto/pca_features_resnet101_normpython.prototxt" beforeDir="false" afterPath="$PROJECT_DIR$/proto/pca_features_resnet101_normpython.prototxt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/myPython/branch_eltwise_retrieval.py" beforeDir="false" afterPath="$PROJECT_DIR$/myPython/branch_eltwise_retrieval.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -131,12 +68,13 @@
     <session id="-1806680634">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="2" />
+          <entry key="project.closed" value="4" />
           <entry key="project.open.time.12" value="1" />
           <entry key="project.open.time.23" value="1" />
           <entry key="project.open.time.27" value="1" />
           <entry key="project.open.time.35" value="1" />
-          <entry key="project.opened" value="4" />
+          <entry key="project.open.time.64" value="1" />
+          <entry key="project.opened" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
@@ -166,7 +104,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-414">
+            <state relative-caret-position="275">
               <caret line="19" column="51" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="51" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
@@ -178,8 +116,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/myPython/pca_get_features.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="105" lean-forward="true" selection-start-line="105" selection-end-line="105" />
+            <state relative-caret-position="2500">
+              <caret line="105" selection-start-line="105" selection-end-line="105" />
             </state>
           </provider>
         </entry>
@@ -187,7 +125,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/myPython/raw_master_concat_retrieval.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="520">
+            <state relative-caret-position="2325">
               <caret line="99" column="54" selection-start-line="99" selection-start-column="47" selection-end-line="99" selection-end-column="54" />
             </state>
           </provider>
@@ -197,7 +135,7 @@
         <entry file="file://$PROJECT_DIR$/myPython/class_helper.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="275">
-              <caret line="15" column="4" lean-forward="true" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="29" />
+              <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="29" />
             </state>
           </provider>
         </entry>
@@ -205,8 +143,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/myPython/pca_eltwise_get_features.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="62" column="37" lean-forward="true" selection-start-line="62" selection-start-column="37" selection-end-line="62" selection-end-column="37" />
+            <state relative-caret-position="1425">
+              <caret line="62" column="37" selection-start-line="62" selection-start-column="37" selection-end-line="62" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -223,8 +161,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/myPython/pca_eltwise_retrieval.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="66" column="33" lean-forward="true" selection-end-line="148" />
+            <state relative-caret-position="1475">
+              <caret line="66" column="33" selection-end-line="148" />
             </state>
           </provider>
         </entry>
@@ -232,7 +170,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/myPython/rmac_eltwise_retrieval.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-855">
+            <state relative-caret-position="2125">
               <caret line="92" column="11" selection-start-line="92" selection-start-column="4" selection-end-line="92" selection-end-column="11" />
             </state>
           </provider>
@@ -311,7 +249,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="10" />
     <option name="y" value="20" />
     <option name="width" value="1346" />
@@ -323,6 +261,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -339,7 +278,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -372,8 +310,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1382" height="744" extended-state="7" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19642857" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -488,23 +425,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/myPython/pca_eltwise_retrieval.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="66" column="33" lean-forward="true" selection-end-line="148" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/myPython/pca_get_features.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="105" lean-forward="true" selection-start-line="105" selection-end-line="105" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/pca_test.py" />
+    <entry file="file://$PROJECT_DIR$/myPython/img_test.py" />
     <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-414">
+        <state relative-caret-position="275">
           <caret line="19" column="51" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="51" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
@@ -512,51 +437,45 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/myPython/rmac_eltwise_retrieval.py">
+    <entry file="file://$PROJECT_DIR$/myPython/pca_get_features.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-855">
-          <caret line="92" column="11" selection-start-line="92" selection-start-column="4" selection-end-line="92" selection-end-column="11" />
+        <state relative-caret-position="2500">
+          <caret line="105" selection-start-line="105" selection-end-line="105" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/myPython/raw_master_concat_retrieval.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="520">
+        <state relative-caret-position="2325">
           <caret line="99" column="54" selection-start-line="99" selection-start-column="47" selection-end-line="99" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/myPython/pca_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2950">
-          <caret line="118" column="56" selection-start-line="118" selection-start-column="56" selection-end-line="118" selection-end-column="56" />
-          <folding>
-            <element signature="e#239#249#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/myPython/img_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="51" column="35" lean-forward="true" selection-start-line="51" selection-start-column="31" selection-end-line="51" selection-end-column="73" />
-          <folding>
-            <element signature="e#25#35#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/myPython/pca_eltwise_get_features.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="62" column="37" lean-forward="true" selection-start-line="62" selection-start-column="37" selection-end-line="62" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/myPython/class_helper.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="275">
-          <caret line="15" column="4" lean-forward="true" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="29" />
+          <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/pca_eltwise_get_features.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1425">
+          <caret line="62" column="37" selection-start-line="62" selection-start-column="37" selection-end-line="62" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/pca_eltwise_retrieval.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1475">
+          <caret line="66" column="33" selection-end-line="148" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/myPython/rmac_eltwise_retrieval.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2125">
+          <caret line="92" column="11" selection-start-line="92" selection-start-column="4" selection-end-line="92" selection-end-column="11" />
         </state>
       </provider>
     </entry>

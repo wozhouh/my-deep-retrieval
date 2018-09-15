@@ -3,7 +3,7 @@
 # copy the PCA transform from master to branch first and merge them element-wise
 
 # usage: python ./myPython/branch_eltwise_retrieval.py
-#   --proto ./proto/branch_concat_resnet101_normpython.prototxt
+#   --proto ./proto/branch_eltwise_deploy_resnet101_normpython.prototxt
 #   --weights ./caffemodel/deep_image_retrieval_model_branch_concat.caffemodel
 #   --temp_dir ./eval/eval_test/
 
@@ -69,7 +69,7 @@ def extract_features(dataset, image_helper, net, args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Evaluate Oxford / Paris')
+    parser = argparse.ArgumentParser(description='Evaluate Oxford')
     parser.add_argument('--gpu', type=int, required=False, help='GPU ID to use (e.g. 0)')
     parser.add_argument('--S', type=int, required=False, help='Resize larger side of image to S pixels (e.g. 800)')
     parser.add_argument('--L', type=int, required=False, help='Use L spatial levels (e.g. 2)')

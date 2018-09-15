@@ -18,7 +18,7 @@ from sklearn import preprocessing
 if __name__ == '__main__':
 
     # Config
-    parser = argparse.ArgumentParser(description='PCA features preprocessing')
+    parser = argparse.ArgumentParser(description='Evaluate Oxford')
     parser.add_argument('--gpu', type=int, required=False, help='GPU ID to use (e.g. 0)')
     parser.add_argument('--S', type=int, required=False, help='Resize larger side of image to S pixels (e.g. 800)')
     parser.add_argument('--L', type=int, required=False, help='Use L spatial levels (e.g. 2)')
