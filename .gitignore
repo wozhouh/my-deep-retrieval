@@ -1,0 +1,5 @@
+features/
+caffemodel/
+.idea/
+eval/compute_ap
+eval/eval_*/
