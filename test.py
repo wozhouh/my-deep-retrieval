@@ -179,9 +179,9 @@ class Dataset:
         self.q_roi = {}
         for e in lab_filenames:
             if e.endswith('_query.txt'):
-                q_name = e[:-len('_query.txt')]
+                q_name = e[:-len('_query.txt')]   # name in queries list e.g. all_souls_1
                 q_data = file("{0}/{1}".format(self.lab_root, e)).readline().split(" ")
-                q_filename = q_data[0][5:] if q_data[0].startswith('oxc1_') else q_data[0]
+                q_filename = q_data[0][5:] if q_data[0].startswith('oxc1_') else q_data[0]  # image file name e.g. all_souls_000013
                 self.filename_to_name[q_filename] = q_name
                 self.name_to_filename[q_name] = q_filename
                 good = set([e.strip() for e in file("{0}/{1}_ok.txt".format(self.lab_root, q_name))])
@@ -191,7 +191,7 @@ class Dataset:
                 self.relevants[q_name] = [i for i in range(len(self.img_filenames)) if self.img_filenames[i] in good]
                 self.junk[q_name] = [i for i in range(len(self.img_filenames)) if self.img_filenames[i] in junk]
                 self.non_relevants[q_name] = [i for i in range(len(self.img_filenames)) if self.img_filenames[i] not in good_plus_junk]
-                self.q_roi[q_name] = np.array(map(float, q_data[1:]), dtype=np.float32)
+                self.q_roi[q_name] = np.array(map(float, q_data[1:]), dtype=np.float32)  # only exist in '*_query.txt'
 
         self.q_names = self.name_to_filename.keys()
         self.q_index = np.array([self.img_filenames.index(self.name_to_filename[qn]) for qn in self.q_names])

@@ -3,3 +3,7 @@ caffemodel/
 .idea/
 eval/compute_ap
 eval/eval_*/
+myTest/
+myPython/img_test.py
+myPython/*.pyc
+*.pyc
