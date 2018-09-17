@@ -136,9 +136,8 @@ class ImageHelper:
 
 
 class Dataset:
-    def __init__(self, path, eval_binary_path):
+    def __init__(self, path):
         self.path = path
-        self.eval_binary_path = eval_binary_path
         # Parse the label files. Some challenges as filenames do not correspond
         # exactly to query names. Go through all the labels to:
         # i) map names to filenames and vice versa

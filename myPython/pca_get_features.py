@@ -45,7 +45,7 @@ if __name__ == '__main__':
     net = caffe.Net(args.proto, args.weights, caffe.TEST)
 
     # Load the dataset and the image helper
-    dataset = Dataset(args.dataset, args.eval_binary)
+    dataset = Dataset(args.dataset)
     image_helper = ImageHelper(S, L)
 
     # Features are extracted here
