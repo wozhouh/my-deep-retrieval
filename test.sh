@@ -2,7 +2,7 @@
 
 # baseline
 source activate caffe
-PROTO=/home/processyuan/NetworkOptimization/deep-retrieval/proto/deploy_resnet101_normpython.prototxt
+PROTO=/home/processyuan/NetworkOptimization/deep-retrieval/proto/deploy_resnet101.prototxt
 MODEL=/home/processyuan/NetworkOptimization/deep-retrieval/caffemodel/deep_image_retrieval_model.caffemodel
 DATASET=/home/processyuan/data/Oxford/
 EVAL_BINARY=/home/processyuan/NetworkOptimization/deep-retrieval/eval/compute_ap

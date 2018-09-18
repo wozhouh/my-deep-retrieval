@@ -59,6 +59,9 @@ radcliffe_camera_5: 98.73
 Mean: 81.11
 Speed: (Nvidia Titan X pascal) 16.00 it/s ~62.5ms
 
+### train/test
+Mean: 84.65
+
 
 
 # origin ex1.2
@@ -804,6 +807,9 @@ radcliffe_camera_5: 98.79
 --------------------
 Mean: 81.78
 
+### train/test
+Mean: 85.43
+
 
 
 # PCA concat ex6.1
@@ -991,3 +997,4 @@ radcliffe_camera_4: 99.16
 radcliffe_camera_5: 98.61
 --------------------
 Mean: 80.98
+

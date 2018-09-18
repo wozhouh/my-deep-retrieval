@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # usage: python ./myPython/pca_get_features.py
-#   --proto ./proto/branch_features_resnet101_normpython.prototxt
+#   --proto ./proto/pca_features_resnet101_normpython.prototxt
 #   --weights ./caffemodel/deep_image_retrieval_model.caffemodel
 #   --features_dir ./features/pca_concat/
 

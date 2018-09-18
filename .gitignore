@@ -7,3 +7,4 @@ myTest/
 myPython/img_test.py
 myPython/*.pyc
 *.pyc
+custom_layers.py

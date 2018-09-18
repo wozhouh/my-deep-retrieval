@@ -60,10 +60,10 @@ if __name__ == '__main__':
 
     # features are extracted here, keep the same with pca_get_features.py
     master = 'rmac/normalized'
-    # branch = ['pooled_rois_branch_16/normalized',
-    #           'pooled_rois_branch_8/normalized',
-    #           'pooled_rois_branch_4/normalized']
-    branch = ['pooled_rois_branch_16/normalized']
+    branch = ['pooled_rois_branch_16/normalized',
+              'pooled_rois_branch_8/normalized',
+              'pooled_rois_branch_4/normalized']
+    # branch = ['pooled_rois_branch_16/normalized']
 
     num_branch = len(branch)
     dim_master = net.blobs[master].data.shape[1]

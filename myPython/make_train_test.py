@@ -94,8 +94,9 @@ if __name__ == '__main__':
         f_train_lab = open(os.path.join(args.train_dir, lab_dir, f), 'w')
         f_test_lab = open(os.path.join(args.test_dir, lab_dir, f), 'w')
         if f.endswith('_query.txt'):
-            f_train_lab.write(f_lab.read())
-            f_test_lab.write(f_lab.read())
+            content = f_lab.read()
+            f_train_lab.write(content)
+            f_test_lab.write(content)
         else:
             for line in f_lab.readlines():
                 img_filename = line.strip() + '.jpg'
