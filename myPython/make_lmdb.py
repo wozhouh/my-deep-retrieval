@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# usage: python make_lmdb.py --dataset ...
+#     then run the command:
+
 import os
 import argparse
 import random
@@ -7,7 +10,7 @@ from class_helper import *
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Make the training data of lmdb format')
+    parser = argparse.ArgumentParser(description='Make the data into lmdb format')
     parser.add_argument('--dataset', type=str, required=False, help='Path to the Oxford / Paris directory')
     parser.set_defaults(dataset='/home/processyuan/data/myOxford/train/')
     args = parser.parse_args()
@@ -21,7 +24,7 @@ if __name__ == '__main__':
     cls_dir = 'cls'
     img_root = os.path.join(args.dataset, img_dir)
     lab_root = os.path.join(args.dataset, lab_dir)
-    train_txt = os.path.join(args.dataset, 'train.txt')
+    train_txt = os.path.join(args.dataset, 'train.txt')  # Remeber to change when deployed to test set
     # f_train_txt = open(train_txt, 'r')
     lines_train_txt = []
 

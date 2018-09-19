@@ -14,7 +14,7 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "home/processyuan/data/myOxford/train/oxford_train_lmdb"
+		source: "/home/processyuan/data/myOxford/train/oxford_train_lmdb"
 		batch_size: 1
 		backend: LMDB
 	}
@@ -35,9 +35,21 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "home/processyuan/data/myOxford/test/oxford_test_lmdb"
+		source: "/home/processyuan/data/myOxford/test/oxford_test_lmdb"
 		batch_size: 1
 		backend: LMDB
+	}
+}
+
+layer {
+	name: "rois"
+	type: "Python"
+	bottom: "data"
+	top: "rois"
+	python_param {
+		module: 'custom_layers'
+		layer: 'RigidGridLayer'
+		param_str: "{}"
 	}
 }
 
@@ -6384,11 +6396,11 @@ layer {
 
 ## Get rmac regions with a RoiPooling layer. If batch size was 1, we end up with N_regions x D x pooled_h x pooled_w 
 layer {
-   name: "pooled_rois"
+   name: "pooled_rois_branch_1"
    type: "ROIPooling"
    bottom: "res4b22"
    bottom: "rois"
-   top: "pooled_rois"
+   top: "pooled_rois_branch_1"
    roi_pooling_param {
      pooled_w: 1
      pooled_h: 1
@@ -6396,13 +6408,13 @@ layer {
    }
  }
 layer {
-  name: "pooled_rois/normalized"
+  name: "pooled_rois_branch_1/normalized"
   type: "Normalize"
-  bottom: "pooled_rois"
-  top: "pooled_rois/normalized"
+  bottom: "pooled_rois_branch_1"
+  top: "pooled_rois_branch_1/normalized"
 }
 layer {
-	name: "pooled_rois/normalized_flat"
+	name: "pooled_rois_branch_1/normalized_flat"
 	type: "Reshape"
 	reshape_param{
 	shape{
@@ -6412,15 +6424,23 @@ layer {
 		dim: 1
 		}    
 	}
-	bottom: "pooled_rois/normalized"
-	top: "pooled_rois/normalized_flat"
+	bottom: "pooled_rois_branch_1/normalized"
+	top: "pooled_rois_branch_1/normalized_flat"
 }
 # Mean center done with a scaling (at 1) + shifting. The shifting needs to be copied into the model weights.
 layer {
-  name: "pooled_rois/centered"
-  bottom: "pooled_rois/normalized_flat"
-  top: "pooled_rois/centered"
+  name: "pooled_rois_branch_1/centered"
+  bottom: "pooled_rois_branch_1/normalized_flat"
+  top: "pooled_rois_branch_1/centered"
   type: "Scale"
+  param {
+    lr_mult: 0.0
+    decay_mult: 0.0
+  }
+  param {
+    lr_mult: 2.0
+    decay_mult: 1.0
+  }
   scale_param {
       bias_term: true
       filler {
@@ -6435,8 +6455,16 @@ layer {
 }
 # And then the PCA, which is another FC layer
 layer {
-  name: "pooled_rois/pca"
+  name: "pooled_rois_branch_1/pca"
   type: "InnerProduct"
+  param {
+    lr_mult: 1.0
+    decay_mult: 1.0
+  }
+  param {
+    lr_mult: 2.0
+    decay_mult: 1.0
+  }
   inner_product_param {
     num_output: 1024 # output PCA dimensionality 
     weight_filler {
@@ -6447,8 +6475,559 @@ layer {
       value: 0
     }
   }
-  bottom: "pooled_rois/centered"
-  top: "pooled_rois/pca"
+  bottom: "pooled_rois_branch_1/centered"
+  top: "pooled_rois_branch_1/pca"
+}
+# After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
+layer {
+	name: "pooled_rois_branch_1/pca/reshaped"
+	type: "Reshape"
+	reshape_param{
+	shape{
+		dim: 0 
+		dim: 1024
+		dim: 1
+		dim: 1
+		}    
+	}
+	bottom: "pooled_rois_branch_1/pca"
+	top: "pooled_rois_branch_1/pca/reshaped"
+}
+layer {
+  name: "pooled_rois_branch_1/pca/normalized"
+  type: "Normalize"
+  bottom: "pooled_rois_branch_1/pca/reshaped"
+  top: "pooled_rois_branch_1/pca/normalized"
+}
+layer {
+  name: "rmac_branch_1"
+  type: "Python"
+  bottom: "pooled_rois_branch_1/pca/normalized"
+  top: "rmac_branch_1"
+  python_param {
+    module: 'custom_layers'
+    layer: 'AggregateLayer'
+    param_str: "{}"
+  }
+}
+## L2, one last time
+layer {
+  name: "rmac_branch_1/normalized"
+  type: "Normalize"
+  bottom: "rmac_branch_1"
+  top: "rmac_branch_1/normalized"
+}
+
+layer {
+	bottom: "res4b22"
+	top: "res5a_branch1"
+	name: "res5a_branch1"
+	type: "Convolution"
+	convolution_param {
+		num_output: 2048
+		kernel_size: 1
+		pad: 0
+		stride: 2
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5a_branch1"
+	top: "res5a_branch1"
+	name: "bn5a_branch1"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5a_branch1"
+	top: "res5a_branch1"
+	name: "scale5a_branch1"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	bottom: "res4b22"
+	top: "res5a_branch2a"
+	name: "res5a_branch2a"
+	type: "Convolution"
+	convolution_param {
+		num_output: 512
+		kernel_size: 1
+		pad: 0
+		stride: 2
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5a_branch2a"
+	top: "res5a_branch2a"
+	name: "bn5a_branch2a"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5a_branch2a"
+	top: "res5a_branch2a"
+	name: "scale5a_branch2a"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	top: "res5a_branch2a"
+	bottom: "res5a_branch2a"
+	name: "res5a_branch2a_relu"
+	type: "ReLU"
+}
+
+layer {
+	bottom: "res5a_branch2a"
+	top: "res5a_branch2b"
+	name: "res5a_branch2b"
+	type: "Convolution"
+	convolution_param {
+		num_output: 512
+		kernel_size: 3
+		pad: 1
+		stride: 1
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5a_branch2b"
+	top: "res5a_branch2b"
+	name: "bn5a_branch2b"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5a_branch2b"
+	top: "res5a_branch2b"
+	name: "scale5a_branch2b"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	top: "res5a_branch2b"
+	bottom: "res5a_branch2b"
+	name: "res5a_branch2b_relu"
+	type: "ReLU"
+}
+
+layer {
+	bottom: "res5a_branch2b"
+	top: "res5a_branch2c"
+	name: "res5a_branch2c"
+	type: "Convolution"
+	convolution_param {
+		num_output: 2048
+		kernel_size: 1
+		pad: 0
+		stride: 1
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5a_branch2c"
+	top: "res5a_branch2c"
+	name: "bn5a_branch2c"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5a_branch2c"
+	top: "res5a_branch2c"
+	name: "scale5a_branch2c"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	bottom: "res5a_branch1"
+	bottom: "res5a_branch2c"
+	top: "res5a"
+	name: "res5a"
+	type: "Eltwise"
+}
+
+layer {
+	bottom: "res5a"
+	top: "res5a"
+	name: "res5a_relu"
+	type: "ReLU"
+}
+
+layer {
+	bottom: "res5a"
+	top: "res5b_branch2a"
+	name: "res5b_branch2a"
+	type: "Convolution"
+	convolution_param {
+		num_output: 512
+		kernel_size: 1
+		pad: 0
+		stride: 1
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5b_branch2a"
+	top: "res5b_branch2a"
+	name: "bn5b_branch2a"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5b_branch2a"
+	top: "res5b_branch2a"
+	name: "scale5b_branch2a"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	top: "res5b_branch2a"
+	bottom: "res5b_branch2a"
+	name: "res5b_branch2a_relu"
+	type: "ReLU"
+}
+
+layer {
+	bottom: "res5b_branch2a"
+	top: "res5b_branch2b"
+	name: "res5b_branch2b"
+	type: "Convolution"
+	convolution_param {
+		num_output: 512
+		kernel_size: 3
+		pad: 1
+		stride: 1
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5b_branch2b"
+	top: "res5b_branch2b"
+	name: "bn5b_branch2b"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5b_branch2b"
+	top: "res5b_branch2b"
+	name: "scale5b_branch2b"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	top: "res5b_branch2b"
+	bottom: "res5b_branch2b"
+	name: "res5b_branch2b_relu"
+	type: "ReLU"
+}
+
+layer {
+	bottom: "res5b_branch2b"
+	top: "res5b_branch2c"
+	name: "res5b_branch2c"
+	type: "Convolution"
+	convolution_param {
+		num_output: 2048
+		kernel_size: 1
+		pad: 0
+		stride: 1
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5b_branch2c"
+	top: "res5b_branch2c"
+	name: "bn5b_branch2c"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5b_branch2c"
+	top: "res5b_branch2c"
+	name: "scale5b_branch2c"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	bottom: "res5a"
+	bottom: "res5b_branch2c"
+	top: "res5b"
+	name: "res5b"
+	type: "Eltwise"
+}
+
+layer {
+	bottom: "res5b"
+	top: "res5b"
+	name: "res5b_relu"
+	type: "ReLU"
+}
+
+layer {
+	bottom: "res5b"
+	top: "res5c_branch2a"
+	name: "res5c_branch2a"
+	type: "Convolution"
+	convolution_param {
+		num_output: 512
+		kernel_size: 1
+		pad: 0
+		stride: 1
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5c_branch2a"
+	top: "res5c_branch2a"
+	name: "bn5c_branch2a"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5c_branch2a"
+	top: "res5c_branch2a"
+	name: "scale5c_branch2a"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	top: "res5c_branch2a"
+	bottom: "res5c_branch2a"
+	name: "res5c_branch2a_relu"
+	type: "ReLU"
+}
+
+layer {
+	bottom: "res5c_branch2a"
+	top: "res5c_branch2b"
+	name: "res5c_branch2b"
+	type: "Convolution"
+	convolution_param {
+		num_output: 512
+		kernel_size: 3
+		pad: 1
+		stride: 1
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5c_branch2b"
+	top: "res5c_branch2b"
+	name: "bn5c_branch2b"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5c_branch2b"
+	top: "res5c_branch2b"
+	name: "scale5c_branch2b"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	top: "res5c_branch2b"
+	bottom: "res5c_branch2b"
+	name: "res5c_branch2b_relu"
+	type: "ReLU"
+}
+
+layer {
+	bottom: "res5c_branch2b"
+	top: "res5c_branch2c"
+	name: "res5c_branch2c"
+	type: "Convolution"
+	convolution_param {
+		num_output: 2048
+		kernel_size: 1
+		pad: 0
+		stride: 1
+		bias_term: false
+	}
+}
+
+layer {
+	bottom: "res5c_branch2c"
+	top: "res5c_branch2c"
+	name: "bn5c_branch2c"
+	type: "BatchNorm"
+	batch_norm_param {
+		use_global_stats: true
+	}
+}
+
+layer {
+	bottom: "res5c_branch2c"
+	top: "res5c_branch2c"
+	name: "scale5c_branch2c"
+	type: "Scale"
+	scale_param {
+		bias_term: true
+	}
+}
+
+layer {
+	bottom: "res5b"
+	bottom: "res5c_branch2c"
+	top: "res5c"
+	name: "res5c"
+	type: "Eltwise"
+}
+
+layer {
+	bottom: "res5c"
+	top: "res5c"
+	name: "res5c_relu"
+	type: "ReLU"
+}
+
+## Get rmac regions with a RoiPooling layer. If batch size was 1, we end up with N_regions x D x pooled_h x pooled_w 
+layer {
+	name: "pooled_rois"
+	type: "ROIPooling"
+	bottom: "res5c"
+	bottom: "rois"
+	top: "pooled_rois"
+	roi_pooling_param {
+	 pooled_w: 1
+	 pooled_h: 1
+	spatial_scale: 0.03125 # 1/32
+	}
+ }
+layer {
+	name: "pooled_rois/normalized"
+	type: "Normalize"
+	bottom: "pooled_rois"
+	top: "pooled_rois/normalized"
+}
+layer {
+	name: "pooled_rois/normalized_flat"
+	type: "Reshape"
+	reshape_param{
+	shape{
+		dim: 0
+		dim: 2048 # feat x spx (1) x spy (1)
+		dim: 1
+		dim: 1
+		}    
+	}
+	bottom: "pooled_rois/normalized"
+	top: "pooled_rois/normalized_flat"
+}
+# Mean center done with a scaling (at 1) + shifting. The shifting needs to be copied into the model weights.
+layer {
+	name: "pooled_rois/centered"
+	bottom: "pooled_rois/normalized_flat"
+	top: "pooled_rois/centered"
+	type: "Scale"
+	param {
+		lr_mult: 0.0
+		decay_mult: 0.0
+	}
+	param {
+		lr_mult: 0.0
+		decay_mult: 0.0
+	}
+	scale_param {
+	  bias_term: true
+	  filler {
+		type: "constant"
+		value: 1
+	  }
+	  bias_filler {
+	    type: "constant"
+		value: 0
+	  }
+	}
+}
+# And then the PCA, which is another FC layer
+layer {
+	name: "pooled_rois/pca"
+	type: "InnerProduct"
+	param {
+		lr_mult: 0.0
+		decay_mult: 0.0
+	}
+	param {
+		lr_mult: 0.0
+		decay_mult: 0.0
+	}
+	inner_product_param {
+		num_output: 2048 # output PCA dimensionality 
+		weight_filler {
+	  		type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+			value: 0
+		}
+	}
+	bottom: "pooled_rois/centered"
+	top: "pooled_rois/pca"
 }
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
 layer {
@@ -6457,7 +7036,7 @@ layer {
 	reshape_param{
 	shape{
 		dim: 0 
-		dim: 0
+		dim: 2048
 		dim: 1
 		dim: 1
 		}    
@@ -6466,21 +7045,76 @@ layer {
 	top: "pooled_rois/pca/reshaped"
 }
 layer {
-  name: "pooled_rois/pca/normalized"
-  type: "Normalize"
-  bottom: "pooled_rois/pca/reshaped"
-  top: "pooled_rois/pca/normalized"
+	name: "pooled_rois/pca/normalized"
+	type: "Normalize"
+	bottom: "pooled_rois/pca/reshaped"
+	top: "pooled_rois/pca/normalized"
 }
+layer {
+	name: "rmac"
+	type: "Python"
+	bottom: "pooled_rois/pca/normalized"
+	top: "rmac"
+	python_param {
+	module: 'custom_layers'
+		layer: 'AggregateLayer'
+		param_str: "{}"
+	}
+}
+## L2, one last time
+layer {
+  name: "rmac/normalized"
+  type: "Normalize"
+  bottom: "rmac"
+  top: "rmac/normalized"
+}
+
+layer {
+	name: "rmac/concat"
+	type: "Concat"
+	bottom: "rmac/normalized"
+	bottom: "rmac_branch_1/normalized"
+	top: "rmac/concat"
+	concat_param {
+		axis: 1
+	}
+}
+
+layer {
+	name: "rmac/pca"
+	type: "InnerProduct"
+	param {
+		lr_mult: 1.0
+		decay_mult: 1.0
+	}
+	param {
+		lr_mult: 2.0
+		decay_mult: 1.0
+	}
+	inner_product_param {
+		num_output: 2048 # output PCA dimensionality 
+		weight_filler {
+	  		type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+			value: 0
+		}
+	}
+	bottom: "rmac/concat"
+	top: "rmac/pca"
+}
+
 layer {
   name: "logits"
   type: "InnerProduct"
-  bottom: "pooled_rois/pca/normalized"
+  bottom: "rmac/pca"
   top: "logits"
   param {
-    lr_mult: 1
+    lr_mult: 1.0
   }
   param {
-    lr_mult: 2
+    lr_mult: 2.0
   }
   inner_product_param {
     num_output: 11
