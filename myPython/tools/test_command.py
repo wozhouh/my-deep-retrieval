@@ -10,7 +10,6 @@ from class_helper import *
 PROTO = '/home/processyuan/NetworkOptimization/deep-retrieval/proto/deploy_resnet101_normpython.prototxt'
 MODEL = '/home/processyuan/NetworkOptimization/deep-retrieval/caffemodel/deep_image_retrieval_model.caffemodel'
 DATASET = '/home/processyuan/data/Oxford/'
-EVAL_BINARY = '/home/processyuan/NetworkOptimization/deep-retrieval/eval/compute_ap'
 
 S = 512
 L = 2
@@ -19,7 +18,7 @@ caffe.set_mode_gpu()
 
 net = caffe.Net(PROTO, MODEL, caffe.TEST)
 
-dataset = Dataset(DATASET, EVAL_BINARY)
+dataset = Dataset(DATASET)
 image_helper = ImageHelper(S, L)
 
 

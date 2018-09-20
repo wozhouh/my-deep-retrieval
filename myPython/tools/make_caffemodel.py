@@ -20,7 +20,7 @@ if __name__ == "__main__":
     parser.add_argument('--features', type=str, required=True, help='Path to the extracted features vectors '
                                                                          'on the whole dataset')
     args = parser.parse_args()
-    caffemodel_out = args.weights[0:-11] + '_init.caffemodel'
+    caffemodel_out = args.weights[0:-11] + 'pca.caffemodel'
 
     # setting
     caffe.set_mode_cpu()
@@ -37,10 +37,9 @@ if __name__ == "__main__":
     pca = PCA(n_components=features.shape[1], copy=True, whiten=True)
     pca.fit(features_scale)
     ip_weight = pca.components_
-    # ip_weight = pca.components_ / (var_value.reshape(1, -1))
 
     # copy the weight from master to branch
-    net.params['pooled_rois_branch_1/pca'][0].data[...] = ip_weight
+    net.params['pooled_rois_branch_1/pca'][0].data[...] = ip_weight.T
     net.params['pooled_rois_branch_1/centered'][1].data[...] = -mean_value
 
     # print for checking

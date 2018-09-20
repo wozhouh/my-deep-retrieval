@@ -26,6 +26,7 @@ if __name__ == '__main__':
     N_queries = dataset.N_queries
     N_dataset = dataset.N_images
     num_test = 30
+    min_num = 100
 
     for i in range(N_dataset):
         # I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i),
@@ -41,9 +42,12 @@ if __name__ == '__main__':
 
         # cv2.imwrite('/home/processyuan/NetworkOptimization/deep-retrieval/myTest/' + str(i) + '.jpg', im)
 
+
         all_regions = [image_helper.get_rmac_region_coordinates(im_resized.shape[0], im_resized.shape[1], L)]
         R = image_helper.pack_regions_for_network(all_regions)
-        print(R.shape[0])
+        if min_num > R.shape[0]:
+            min_num = R.shape[0]
+        print("shape: %d  min: %d" % (R.shape[0], min_num))
 
         # for k in range(R.shape[0]):
         #     cv2.rectangle(im_resized, (R[k, 1], R[k, 2]), (R[k, 3], R[k, 4]), (0, 255, 0), 3)

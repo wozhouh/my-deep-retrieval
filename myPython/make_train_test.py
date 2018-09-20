@@ -1,18 +1,38 @@
 # -*- coding: utf-8 -*-
 
 # Python script that divide the Oxford dataset into the training set and the test set (size controlled by --train_ratio)
+# It makes the training/test division of jpg and lab directory
+
+# usage:  python ./myPython/make_train_test.py
+#   --S 512
+#   --train_dir /home/processyuan/data/myOxford/train-512/
+#   --test_dir /home/processyuan/data/myOxford/test-512/
 
 import os
+import cv2
 import argparse
 import random
+import numpy as np
 from class_helper import *
+
+
+def transform_image(size, src, dst):
+    im = cv2.imread(src)
+    im_size_hw = np.array(im.shape[0:2])
+    ratio = float(size) / np.max(im_size_hw)
+    new_size = tuple(np.round(im_size_hw * ratio).astype(np.int32))
+    im_resized = cv2.resize(im, (new_size[1], new_size[0]))
+    cv2.imwrite(dst, im_resized)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Divide the dataset into training/test')
+    parser.add_argument('--S', type=int, required=True, help='Resize larger side of image to S pixels (e.g. 800)')
     parser.add_argument('--dataset', type=str, required=False, help='Path to the Oxford / Paris directory')
     parser.add_argument('--train_ratio', type=float, required=False, help='ratio of the training set in the dataset')
     parser.add_argument('--train_dir', type=str, required=False, help='Path to directory of training set')
     parser.add_argument('--test_dir', type=str, required=False, help='Path to directory of test set')
+    parser.set_defaults(S=512)
     parser.set_defaults(dataset='/home/processyuan/data/Oxford/')
     parser.set_defaults(train_ratio=0.5)
     parser.set_defaults(train_dir='/home/processyuan/data/myOxford/train/')
@@ -34,6 +54,8 @@ if __name__ == '__main__':
     # delete first
     if not os.path.exists(args.train_dir):
         os.makedirs(args.train_dir)
+        os.makedirs(os.path.join(args.train_dir, img_dir))
+        os.makedirs(os.path.join(args.train_dir, lab_dir))
     else:
         train_jpg_path = os.path.join(args.train_dir, img_dir)
         for f in os.listdir(train_jpg_path):
@@ -43,6 +65,8 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.test_dir):
         os.makedirs(args.test_dir)
+        os.makedirs(os.path.join(args.test_dir, img_dir))
+        os.makedirs(os.path.join(args.test_dir, lab_dir))
     else:
         test_jpg_path = os.path.join(args.test_dir, img_dir)
         for f in os.listdir(test_jpg_path):
@@ -66,10 +90,12 @@ if __name__ == '__main__':
         src_file = os.path.join(img_root, img_train[k])
         dst_file = os.path.join(args.train_dir, img_dir, img_train[k])
         if os.path.isfile(src_file):
-            open(dst_file, 'wb').write(open(src_file, 'rb').read())
+            transform_image(args.S, src_file, dst_file)
+            # open(dst_file, 'wb').write(open(src_file, 'rb').read())  # save the origin image
             if img_train[k] in q_filename:
                 q_file = os.path.join(args.test_dir, img_dir, img_train[k])
-                open(q_file, 'wb').write(open(src_file, 'rb').read())
+                transform_image(args.S, src_file, q_file)
+                # open(q_file, 'wb').write(open(src_file, 'rb').read())  # save the origin image
                 img_test.append(img_train[k])
         else:
             print('image not found: %s' % src_file)
@@ -79,10 +105,12 @@ if __name__ == '__main__':
         src_file = os.path.join(img_root, img_test[k])
         dst_file = os.path.join(args.test_dir, img_dir, img_test[k])
         if os.path.isfile(src_file):
-            open(dst_file, 'wb').write(open(src_file, 'rb').read())
+            transform_image(args.S, src_file, dst_file)
+            # open(dst_file, 'wb').write(open(src_file, 'rb').read())   # save the origin image
             if img_test[k] in q_filename:
                 q_file = os.path.join(args.train_dir, img_dir, img_test[k])
-                open(q_file, 'wb').write(open(src_file, 'rb').read())
+                transform_image(args.S, src_file, q_file)
+                # open(q_file, 'wb').write(open(src_file, 'rb').read())  # save the origin image
                 img_train.append(img_test[k])
         else:
             print('image not found: %s' % src_file)

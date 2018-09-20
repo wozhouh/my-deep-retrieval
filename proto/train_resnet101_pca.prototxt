@@ -14,7 +14,7 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/processyuan/data/myOxford/train/oxford_train_lmdb"
+		source: "/home/processyuan/data/myOxford/train-512/oxford_train_lmdb"
 		batch_size: 1
 		backend: LMDB
 	}
@@ -35,7 +35,7 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/processyuan/data/myOxford/test/oxford_test_lmdb"
+		source: "/home/processyuan/data/myOxford/test-512/oxford_test_lmdb"
 		batch_size: 1
 		backend: LMDB
 	}
