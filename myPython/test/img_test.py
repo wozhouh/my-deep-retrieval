@@ -43,8 +43,8 @@ if __name__ == '__main__':
         # cv2.imwrite('/home/processyuan/NetworkOptimization/deep-retrieval/myTest/' + str(i) + '.jpg', im)
 
 
-        all_regions = [image_helper.get_rmac_region_coordinates(im_resized.shape[0], im_resized.shape[1], L)]
-        R = image_helper.pack_regions_for_network(all_regions)
+        all_regions = [get_rmac_region_coordinates(im_resized.shape[0], im_resized.shape[1], L)]
+        R = pack_regions_for_network(all_regions)
         if min_num > R.shape[0]:
             min_num = R.shape[0]
         print("shape: %d  min: %d" % (R.shape[0], min_num))

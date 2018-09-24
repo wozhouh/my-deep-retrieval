@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-# Python script that generates the annotation file (image file name + class index)
+# Python script that generates the annotation file (image file name + class index) and
+# classify the images of different classes into their own directory
 # Run the make_train_test.py first or you are sure about having the training/test set data already
 
 # usage: python ./myPython/make_annotation.py
@@ -18,7 +19,7 @@ from make_train_test import transform_image
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make the data into lmdb format')
-    parser.add_argument('--S', type=int, required=True, help='Resize larger side of image to S pixels (e.g. 800)')
+    parser.add_argument('--S', type=int, required=False, help='Resize larger side of image to S pixels (e.g. 800)')
     parser.add_argument('--dataset', type=str, required=False, help='Path to the Oxford / Paris directory')
     parser.add_argument('--file', type=str, required=False, help='Path to the generated annotation file')
     parser.set_defaults(S=512)

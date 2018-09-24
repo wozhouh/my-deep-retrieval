@@ -281,7 +281,7 @@ if __name__ == '__main__':
     parser.add_argument('--multires', dest='multires', action='store_true', help='Enable multiresolution features')
     parser.add_argument('--aqe', type=int, required=False, help='Average query expansion with k neighbors')
     parser.add_argument('--dbe', type=int, required=False, help='Database expansion with k neighbors')
-    parser.set_defaults(multires=False)
+    parser.set_defaults(multires=True)
     args = parser.parse_args()
 
     if not os.path.exists(args.temp_dir):

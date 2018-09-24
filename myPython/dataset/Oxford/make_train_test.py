@@ -13,6 +13,8 @@ import cv2
 import argparse
 import random
 import numpy as np
+import sys
+sys.path.append("/home/processyuan/NetworkOptimization/deep-retrieval/myPython")
 from class_helper import *
 
 
@@ -27,7 +29,7 @@ def transform_image(size, src, dst):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Divide the dataset into training/test')
-    parser.add_argument('--S', type=int, required=True, help='Resize larger side of image to S pixels (e.g. 800)')
+    parser.add_argument('--S', type=int, required=False, help='Resize larger side of image to S pixels (e.g. 800)')
     parser.add_argument('--dataset', type=str, required=False, help='Path to the Oxford / Paris directory')
     parser.add_argument('--train_ratio', type=float, required=False, help='ratio of the training set in the dataset')
     parser.add_argument('--train_dir', type=str, required=False, help='Path to directory of training set')
@@ -85,33 +87,31 @@ if __name__ == '__main__':
     img_train = img_all[0: train_num]
     img_test = img_all[train_num:]
 
-    # make the "jpg" directory of training set
-    for k in range(train_num):
+    # make the "jpg" directory of training set (Note that images in queries is shared by both training and test set)
+    for k in range(len(img_train)):
         src_file = os.path.join(img_root, img_train[k])
         dst_file = os.path.join(args.train_dir, img_dir, img_train[k])
         if os.path.isfile(src_file):
-            transform_image(args.S, src_file, dst_file)
-            # open(dst_file, 'wb').write(open(src_file, 'rb').read())  # save the origin image
             if img_train[k] in q_filename:
-                q_file = os.path.join(args.test_dir, img_dir, img_train[k])
-                transform_image(args.S, src_file, q_file)
-                # open(q_file, 'wb').write(open(src_file, 'rb').read())  # save the origin image
                 img_test.append(img_train[k])
+            else:
+                transform_image(args.S, src_file, dst_file)
         else:
             print('image not found: %s' % src_file)
 
     # make the "jpg" directory of test set
-    for k in range(test_num):
+    for k in range(len(img_test)):
         src_file = os.path.join(img_root, img_test[k])
         dst_file = os.path.join(args.test_dir, img_dir, img_test[k])
         if os.path.isfile(src_file):
-            transform_image(args.S, src_file, dst_file)
-            # open(dst_file, 'wb').write(open(src_file, 'rb').read())   # save the origin image
             if img_test[k] in q_filename:
                 q_file = os.path.join(args.train_dir, img_dir, img_test[k])
-                transform_image(args.S, src_file, q_file)
-                # open(q_file, 'wb').write(open(src_file, 'rb').read())  # save the origin image
-                img_train.append(img_test[k])
+                open(q_file, 'wb').write(open(src_file, 'rb').read())  # save the origin image
+                open(dst_file, 'wb').write(open(src_file, 'rb').read())
+                if img_test[k] not in img_train:
+                    img_train.append(img_test[k])
+            else:
+                transform_image(args.S, src_file, dst_file)
         else:
             print('image not found: %s' % src_file)
 

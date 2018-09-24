@@ -3,15 +3,8 @@
 import os
 import argparse
 
-
-def get_param_to_prototxt(type):
-    param = '\tparam {\n\t\tlr_mult: 0.0\n\t\tdecay_mult: 0.0\n\t}\n'  # string to be written
-    if type == 'conv':
-        return param
-    if type == 'bn':
-        return param * 3
-    if type == 'scale':
-        return param * 2
+# Python script that add ParamSpec block for training to layers with weights in caffemodel
+# but still should revise the data layer and the feature-extraction layer (rmac) by hand
 
 
 if __name__ == '__main__':
@@ -20,19 +13,24 @@ if __name__ == '__main__':
     parser.add_argument('--old_proto', type=str, required=False, help='Path to the old prototxt file')
     parser.add_argument('--new_proto', type=str, required=False, help='Path to the new prototxt file')
     parser.set_defaults(dir='/home/processyuan/NetworkOptimization/deep-retrieval/')
-    parser.set_defaults(old_proto='proto/train_resnet101_template.prototxt')
-    parser.set_defaults(new_proto='proto/train_resnet101_normpython.prototxt')
+    parser.set_defaults(old_proto='proto/deploy_resnet101.prototxt')
+    parser.set_defaults(new_proto='proto/train_resnet101_pca_template.prototxt')
     args = parser.parse_args()
 
     f_old = open(os.path.join(args.dir, args.old_proto), 'r')
     f_new = open(os.path.join(args.dir, args.new_proto), 'w')
-
     lines = f_old.readlines()
+
+    learning_param = '\tparam {\n\t\tlr_mult: 0.0\n\t\tdecay_mult: 0.0\n\t}\n'  # string to be written
+
+    # For ResNet-101, a Convolution layer has 1 learnable param (without bias_term)
+    # while a BatchNorm layer has 3 and a Scale layer has 2
     for line in lines:
         f_new.write(line)
-        if line.startswith('\ttype: "Convolution"'):
-            f_new.write(get_param_to_prototxt('conv'))
-        if line.startswith('\ttype: "BatchNorm"'):
-            f_new.write(get_param_to_prototxt('bn'))
-        if line.startswith('\ttype: "Scale"'):
-            f_new.write(get_param_to_prototxt('scale'))
+        if "Convolution" in line:
+            f_new.write(learning_param)
+        if "BatchNorm" in line:
+            f_new.write(learning_param * 3)
+        if "Scale" in line:
+            f_new.write(learning_param * 2)
+

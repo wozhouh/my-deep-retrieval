@@ -10,6 +10,8 @@ import numpy as np
 import caffe
 import argparse
 from tqdm import tqdm
+import sys
+sys.path.append('/home/processyuan/NetworkOptimization/deep-retrieval/myPython')
 from class_helper import *
 
 if __name__ == '__main__':

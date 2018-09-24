@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# usage: python ./myPython/pca_get_features.py
-#   --proto ./proto/pca_features_resnet101_normpython.prototxt
-#   --weights ./caffemodel/deep_image_retrieval_model.caffemodel
+# usage: python ./myPython/pca_concat/pca_get_features.py
+#   --proto ./proto/pca/pca_features_resnet101_normpython.prototxt
+#   --weights ./caffemodel/deep_image_retrieval_model
 #   --features_dir ./features/pca_concat/
 
 import sys
@@ -10,6 +10,8 @@ import numpy as np
 import caffe
 import argparse
 from tqdm import tqdm
+import sys
+sys.path.append('/home/processyuan/NetworkOptimization/deep-retrieval/myPython')
 from class_helper import *
 
 if __name__ == '__main__':

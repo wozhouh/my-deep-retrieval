@@ -7,3 +7,4 @@ myTest/
 myPython/*.pyc
 *.pyc
 custom_layers.py
+eval/cover_*/
