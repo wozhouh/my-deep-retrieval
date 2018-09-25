@@ -5,48 +5,54 @@
 # when adds weight of new layer to caffemodel, need to build a net by Python first then assign values
 # (also a corresponding prototxt is needed)
 
+# usage: python ./tools/make_caffemodel.py
+#   --old_proto ../proto/deploy_resnet101.prototxt
+#   --new_proto ../proto/train-distilling/resnet101_TeacherStudent.prototxt
+#   --weights ../caffemodel/deep_image_retrieval_model.caffemodel
+
 import caffe
-import numpy as np
 import argparse
-from sklearn.decomposition import PCA
-from sklearn import preprocessing
+
 
 if __name__ == "__main__":
     # configure
     parser = argparse.ArgumentParser(description='revise a caffemodel for training')
-    parser.add_argument('--proto', type=str, required=True, help='Path to the prototxt file for a network with branch '
-                                                                 'concatenation')
+    parser.add_argument('--old_proto', type=str, required=True, help='Path to the old prototxt file')
+    parser.add_argument('--new_proto', type=str, required=True, help='Path to the new prototxt file')
     parser.add_argument('--weights', type=str, required=True, help='Path to the original caffemodel file')
-    parser.add_argument('--features', type=str, required=True, help='Path to the extracted features vectors '
-                                                                         'on the whole dataset')
+
     args = parser.parse_args()
-    caffemodel_out = args.weights[0:-11] + 'pca.caffemodel'
+    caffemodel_out = args.weights[0:-11] + '_distilling.caffemodel'
 
     # setting
     caffe.set_mode_cpu()
 
     # build the net
-    net = caffe.Net(args.proto, args.weights, caffe.TEST)
+    net_in = caffe.Net(args.old_proto, args.weights, caffe.TEST)
+    net_out = caffe.Net(args.new_proto, args.weights, caffe.TEST)
 
-    # pre-process the features by scaling and PCA, which used to initialized the weight later
-    features = np.load(args.features)
-    scaler = preprocessing.StandardScaler().fit(features)
-    mean_value = scaler.mean_
-    # var_value = scaler.scale_
-    features_scale = scaler.transform(features)
-    pca = PCA(n_components=features.shape[1], copy=True, whiten=True)
-    pca.fit(features_scale)
-    ip_weight = pca.components_
+    # check_model = True
+    # for k in net_in.params.keys():
+    #     if not net_out.params.has_key(k):
+    #         check_model = False
+    #         print(k)
+    # print(check_model)
 
-    # copy the weight from master to branch
-    net.params['pooled_rois_branch_1/pca'][0].data[...] = ip_weight.T
-    net.params['pooled_rois_branch_1/centered'][1].data[...] = -mean_value
+    for l in net_in.params.keys():
+        for k in range(len(net_in.params[l])):
+            net_out.params[l][k].data[...] = net_in.params[l][k].data[...]
+            net_out.params['l_' + l][k].data[...] = net_in.params[l][k].data[...]
+            net_out.params['m_' + l][k].data[...] = net_in.params[l][k].data[...]
+            net_out.params['h_' + l][k].data[...] = net_in.params[l][k].data[...]
 
-    # print for checking
-    layers = ['pooled_rois_branch_1/pca', 'pooled_rois_branch_1/centered']
-    for l in layers:
-        for k in range(len(net.params[l])):
-            print(net.params[l][k].data)
+    # # print for checking
+    # layers = ['res4b3_branch2b', 'res4b21_branch2a', 'pooled_rois/centered', 'pooled_rois/pca']
+    # for l in layers:
+    #     for k in range(len(net_out.params[l])):
+    #         print(net_in.params[l][k].data)
+    #         print(net_out.params[l][k].data)
+    #         print(net_out.params['l_'+l][k].data)
+    #     print('\n')
 
     # save the model
-    net.save(caffemodel_out)
+    net_out.save(caffemodel_out)

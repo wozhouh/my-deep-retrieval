@@ -5,9 +5,9 @@
 
 import numpy as np
 import caffe
-from class_helper import *
+# from class_helper import *
 
-PROTO = '/home/processyuan/NetworkOptimization/deep-retrieval/proto/deploy_resnet101_normpython.prototxt'
+PROTO = '/home/processyuan/NetworkOptimization/deep-retrieval/proto/train-distilling/resnet101_TeacherStudent.prototxt'
 MODEL = '/home/processyuan/NetworkOptimization/deep-retrieval/caffemodel/deep_image_retrieval_model.caffemodel'
 DATASET = '/home/processyuan/data/Oxford/'
 

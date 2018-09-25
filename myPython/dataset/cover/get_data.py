@@ -68,21 +68,31 @@ def make_test_set(csmid, test_dir, cls_dir, start=0):
         os.makedirs(test_dir)
     if not os.path.exists(cls_dir):
         os.makedirs(cls_dir)
-    for k, imgs in enumerate(csmid):
-        k += start
-        print('Downloading images of class %s' % str(k))
+    # for k, imgs in enumerate(csmid):
+    #     k += start
+    #     print('Downloading images of class %s' % str(k))
         cls = os.path.join(cls_dir, str(k))
-        if not os.path.exists(cls):
-            os.makedirs(cls)
-        else:
-            for ff in os.listdir(cls):
-                os.remove(os.path.join(cls, ff))
+        # if not os.path.exists(cls):
+        #     os.makedirs(cls)
+        # else:
+        #     for ff in os.listdir(cls):
+        #         os.remove(os.path.join(cls, ff))
         # for i, img_id in enumerate(imgs):
         #     img_name = 'cls' + str(k) + '_img' + str(i) + '.jpg'
         #     cls_path = os.path.join(cls, img_name)
         #     data_helper.get_img_by_cmsid(img_id, cls_path)
 
-    make_queries_for_test(cls_dir, test_dir, len(csmid), num_query=2)
+    clean_test_set(cls_dir, len(csmid))
+
+    # make_queries_for_test(cls_dir, test_dir, len(csmid), num_query=2)
+
+
+def clean_test_set(cls_dir, cls_num):
+    for k in range(cls_num):
+        cls = os.path.join(cls_dir, str(k))
+        for f in os.listdir(cls):
+            if f.startswith('test'):
+                os.remove(os.path.join(cls, f))
 
 
 # Download the images for the training set
@@ -183,10 +193,10 @@ if __name__ == '__main__':
     # print(len(csmid_training))  # number of items for training set
     # print(len(csmid_test))  # number of class for test set
 
-    # # Download the images for the test set
-    # make_test_set(csmid_test, args.test_dir, args.cls_dir, start=0)
+    # Download the images for the test set
+    make_test_set(csmid_test, args.test_dir, args.cls_dir, start=0)
 
     # # Download the training set
     # # img1652: URLerror
-    make_training_set(csmid_training, args.training_dir, start=39510)
+    # make_training_set(csmid_training, args.training_dir, start=39510)
 

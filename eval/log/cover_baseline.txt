@@ -1,11 +1,10 @@
 # single-pass
 
 precision: 72.927326
-mAP: 69.947946
+mAP: 74.215347
 
 
 # 3-pass
 precision: 73.210168
-mAP: 70.152831
-
+mAP: 74.399233
 

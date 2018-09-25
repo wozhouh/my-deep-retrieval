@@ -12,20 +12,20 @@ if __name__ == "__main__":
     # configure
     parser = argparse.ArgumentParser(description='print the shape of weights stored in caffemodel')
     parser.add_argument('--proto', type=str, required=True, help='Path to the prototxt file')
-    parser.add_argument('--model', type=str, required=True, help='Path to the caffemodel file')
+    parser.add_argument('--weights', type=str, required=True, help='Path to the caffemodel file')
     args = parser.parse_args()
 
     # setting
     caffe.set_mode_cpu()
 
-    # import the model
-    model = caffe.proto.caffe_pb2.NetParameter()
-    f_caffemodel = open(args.model, 'rb')
-    model.ParseFromString(f_caffemodel.read())
-    f_caffemodel.close()
+    # # import the model
+    # model = caffe.proto.caffe_pb2.NetParameter()
+    # f_caffemodel = open(args.model, 'rb')
+    # model.ParseFromString(f_caffemodel.read())
+    # f_caffemodel.close()
 
     # build the net
-    net = caffe.Net(args.proto, args.model, caffe.TEST)
+    net = caffe.Net(args.proto, args.weights, caffe.TEST)
 
     # print the shape of weight blob stored in caffemodel
     for layer in net.params.keys():

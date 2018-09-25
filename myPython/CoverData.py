@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import numpy as np
-import caffe
 import cv2
-import argparse
-from tqdm import tqdm
 
 
 def get_rmac_region_coordinates(H, W, L):
@@ -175,82 +171,3 @@ class CoverData:
             q_AP[q] = recall_max.mean(axis=0)
             print("AP of query %d: %f" % (q, q_AP[q]))  # print for checking as the function is too slow ...
         return q_AP.mean(axis=0) * 100.0
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Evaluate on the cover dataset')
-    parser.add_argument('--gpu', type=int, required=False, help='GPU ID to use (e.g. 0)')
-    parser.add_argument('--L', type=int, required=False, help='Use L spatial levels (e.g. 2)')
-    parser.add_argument('--proto', type=str, required=False, help='Path to the prototxt file')
-    parser.add_argument('--weights', type=str, required=False, help='Path to the caffemodel file')
-    parser.add_argument('--dataset', type=str, required=False, help='Path to the directory of cover data')
-    parser.add_argument('--temp_dir', type=str, required=False,
-                        help='Path to a temporary directory to store features and ranking')
-    parser.set_defaults(gpu=0)
-    parser.set_defaults(L=2)
-    parser.set_defaults(proto='/home/processyuan/NetworkOptimization/deep-retrieval/proto/deploy_resnet101.prototxt')
-    parser.set_defaults(weights='/home/processyuan/NetworkOptimization/deep-retrieval/'
-                                'caffemodel/deep_image_retrieval_model.caffemodel')
-    parser.set_defaults(dataset='/home/processyuan/NetworkOptimization/cover')
-    parser.set_defaults(temp_dir='/home/processyuan/NetworkOptimization/deep-retrieval/eval/eval_test/')
-
-    args = parser.parse_args()
-
-    # # Configure caffe and load the network ResNet-101
-    # caffe.set_device(args.gpu)
-    # caffe.set_mode_gpu()
-    # net = caffe.Net(args.proto, args.weights, caffe.TEST)
-
-    # Load the cover dataset
-    cData = CoverData(args.dataset, args.L)
-
-    # # Output of ResNet-101
-    # output_layer = 'rmac/normalized'  # suppose that the layer name is always the same as the blob name
-    # dim_features = net.blobs[output_layer].data.shape[1]
-    # features_queries = np.zeros((cData.num_queries, dim_features), dtype=np.float32)
-    # features_dataset = np.zeros((cData.num_dataset, dim_features), dtype=np.float32)
-
-    # Ss = [246, 496, 746]  # multi-solution
-    # # First part, queries
-    # for S in Ss:
-    #     for k in tqdm(range(cData.num_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
-    #         cData.S = S
-    #         img, reg = cData.prepare_image_and_grid_regions_for_network('queries', cData.q_fname[k])
-    #         net.blobs['data'].reshape(img.shape[0], int(img.shape[1]), int(img.shape[2]), int(img.shape[3]))
-    #         net.blobs['data'].data[:] = img
-    #         net.blobs['rois'].reshape(reg.shape[0], reg.shape[1])
-    #         net.blobs['rois'].data[:] = reg.astype(np.float32)
-    #         net.forward(end=output_layer)
-    #         features_queries[k] = np.squeeze(net.blobs[output_layer].data)
-    #     features_queries_fname = os.path.join(args.temp_dir, "queries_S{0}.npy".format(S))
-    #     np.save(features_queries_fname, features_queries)
-    # features_queries = np.dstack(
-    #     [np.load((args.temp_dir, "queries_S{0}.npy".format(S))) for S in Ss]).sum(axis=2)
-    # # np.save(os.path.join(args.temp_dir, 'queries_baseline.npy'), features_queries)
-    #
-    # # Second part, dataset
-    # for S in Ss:
-    #     for k in tqdm(range(cData.num_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
-    #         cData.S = S
-    #         img, reg = cData.prepare_image_and_grid_regions_for_network('dataset', cData.dataset[k])
-    #         net.blobs['data'].reshape(img.shape[0], int(img.shape[1]), int(img.shape[2]), int(img.shape[3]))
-    #         net.blobs['data'].data[:] = img
-    #         net.blobs['rois'].reshape(reg.shape[0], reg.shape[1])
-    #         net.blobs['rois'].data[:] = reg.astype(np.float32)
-    #         net.forward(end=output_layer)
-    #         features_dataset[k] = np.squeeze(net.blobs[output_layer].data)
-    #     features_dataset_fname = os.path.join(args.temp_dir, "dataset_S{0}.npy".format(S))
-    #     np.save(features_dataset_fname, features_dataset)
-    # features_dataset = np.dstack(
-    #     [np.load("dataset_S{0}.npy".format(S)) for S in Ss]).sum(axis=2)
-    # # np.save(os.path.join(args.temp_dir, 'dataset_baseline.npy'), features_dataset)
-    #
-    # # Compute similarity
-    # sim = features_queries.dot(features_dataset.T)
-    # np.save(os.path.join(args.temp_dir, 'sim.npy'), sim)
-    sim = np.load(os.path.join(args.temp_dir, 'sim.npy'))  # test
-
-    # Calculates the precision and mAP
-    print('precision: %f' % cData.cal_precision(sim, True))
-    # print('mAP: %f' % cData.cal_mAP(sim))
-

@@ -67,5 +67,8 @@ if __name__ == '__main__':
                 if 'Scale' in line:
                     layer_block += (learning_param[0] + layer_name + '_1' + learning_param[1])
                     layer_block += (learning_param[0] + layer_name + '_2' + learning_param[1])
+                if 'InnerProduct' in line:
+                    layer_block += (learning_param[0] + layer_name + '_w' + learning_param[1])
+                    layer_block += (learning_param[0] + layer_name + '_b' + learning_param[1])
 
             f_new.write(layer_block)
