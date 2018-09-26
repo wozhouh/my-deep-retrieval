@@ -71,7 +71,7 @@ def make_test_set(csmid, test_dir, cls_dir, start=0):
     # for k, imgs in enumerate(csmid):
     #     k += start
     #     print('Downloading images of class %s' % str(k))
-        cls = os.path.join(cls_dir, str(k))
+    #     cls = os.path.join(cls_dir, str(k))
         # if not os.path.exists(cls):
         #     os.makedirs(cls)
         # else:
@@ -83,8 +83,7 @@ def make_test_set(csmid, test_dir, cls_dir, start=0):
         #     data_helper.get_img_by_cmsid(img_id, cls_path)
 
     clean_test_set(cls_dir, len(csmid))
-
-    # make_queries_for_test(cls_dir, test_dir, len(csmid), num_query=2)
+    make_queries_for_test(cls_dir, test_dir, len(csmid), num_query=2)
 
 
 def clean_test_set(cls_dir, cls_num):

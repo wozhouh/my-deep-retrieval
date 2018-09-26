@@ -27,27 +27,65 @@ class NormalizeLayer(caffe.Layer):
         else:
             pass
 
-
+# make some changes to the rmac layer so that it can input batch size > 1
 class AggregateLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
         assert len(top) == 1, 'This layer can only have one top'
+        params = yaml.load(self.param_str_)
+        self.batch_size = params['batch_size']
+        self.num_rois = params['num_rois']
+        assert bottom[0].data.shape[0] == self.batch_size * self.num_rois, 'batch_size * num_rois != num_regions'
 
     def reshape(self, bottom, top):
         tmp_shape = list(bottom[0].data.shape)
-        tmp_shape[0] = 1
+        tmp_shape[0] = self.batch_size
         top[0].reshape(*tmp_shape)
 
     def forward(self, bottom, top):
-        top[0].data[:] = bottom[0].data.sum(axis=0)
+        # top[0].data[:] = bottom[0].data.sum(axis=0)
+        for k in range(self.batch_size):
+            bottom_data = bottom[0].data[k * self.num_rois: (k+1) * self.num_rois, ...]
+            top[0].data[k, ...] = bottom_data.sum(axis=0)
 
     def backward(self, top, propagate_down, bottom):
         """Get top diff and compute diff in bottom."""
+        # if propagate_down[0]:
+        #     num = bottom[0].data.shape[0]
+        #     for k in range(num):
+        #         bottom[0].diff[k] = top[0].diff[0]
         if propagate_down[0]:
-            num = bottom[0].data.shape[0]
-            for k in range(num):
-                bottom[0].diff[k] = top[0].diff[0]
+            for k in range(self.batch_size):
+                for j in range(self.num_rois):
+                    bottom[0].diff[k * self.num_rois + j] = top[0].diff[k]
 
+
+class LabelLayer(caffe.Layer):
+    def setup(self, bottom, top):
+        assert len(bottom) == 1, 'This layer can only have one bottom'
+        assert len(top) == 1, 'This layer can only have one top'
+        params = yaml.load(self.param_str_)
+        self.dim = params['dim']
+        self.features_file = params['features']
+        self.batch_size = bottom[0].shape[0]
+        self.features = np.load(self.features_file)
+        self.batch_features = np.zeros((self.batch_size, self.dim, 1, 1), dtype=np.float32)
+
+    def reshape(self, bottom, top):
+        top[0].reshape(*[self.batch_size, self.dim, 1, 1])
+
+    def forward(self, bottom, top):
+        feature_idx = np.squeeze(bottom[0].data)
+        for k in range(self.batch_size):
+            self.batch_features[k] = (self.features[int(feature_idx[k]), :]).reshape(self.dim, 1, 1)
+        top[0].data[...] = self.batch_features
+
+    def backward(self, top, propagate_down, bottom):
+        if propagate_down[0]:
+            raise NotImplementedError(
+                "Backward pass not supported with this implementation")
+        else:
+            pass
 
 class RigidGridLayer(caffe.Layer):
     def setup(self, bottom, top):
@@ -119,7 +157,7 @@ class ResizeLayer(caffe.Layer):
         params = yaml.load(self.param_str_)
         self.s = params['s']
         mean_list = params['mean']
-        # param = eval(self.param_str)
+        # param = eval(self.param_str_)
         # self.s = param.get('s', 496)  # what size to resize
         # mean_list = param.get('mean', None)
         self.mean = np.array(mean_list, dtype=np.float32)[:, None, None]

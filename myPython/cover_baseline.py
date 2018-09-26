@@ -196,61 +196,61 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # # Configure caffe and load the network ResNet-101
-    # caffe.set_device(args.gpu)
-    # caffe.set_mode_gpu()
-    # net = caffe.Net(args.proto, args.weights, caffe.TEST)
+    # Configure caffe and load the network ResNet-101
+    caffe.set_device(args.gpu)
+    caffe.set_mode_gpu()
+    net = caffe.Net(args.proto, args.weights, caffe.TEST)
 
     # Load the cover dataset
     cData = CoverData(args.dataset, args.L)
 
-    # # Output of ResNet-101
-    # output_layer = 'rmac/normalized'  # suppose that the layer name is always the same as the blob name
-    # dim_features = net.blobs[output_layer].data.shape[1]
-    # features_queries = np.zeros((cData.num_queries, dim_features), dtype=np.float32)
-    # features_dataset = np.zeros((cData.num_dataset, dim_features), dtype=np.float32)
+    # Output of ResNet-101
+    output_layer = 'rmac/normalized'  # suppose that the layer name is always the same as the blob name
+    dim_features = net.blobs[output_layer].data.shape[1]
+    features_queries = np.zeros((cData.num_queries, dim_features), dtype=np.float32)
+    features_dataset = np.zeros((cData.num_dataset, dim_features), dtype=np.float32)
 
-    # Ss = [246, 496, 746]  # multi-solution
-    # # First part, queries
-    # for S in Ss:
-    #     for k in tqdm(range(cData.num_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
-    #         cData.S = S
-    #         img, reg = cData.prepare_image_and_grid_regions_for_network('queries', cData.q_fname[k])
-    #         net.blobs['data'].reshape(img.shape[0], int(img.shape[1]), int(img.shape[2]), int(img.shape[3]))
-    #         net.blobs['data'].data[:] = img
-    #         net.blobs['rois'].reshape(reg.shape[0], reg.shape[1])
-    #         net.blobs['rois'].data[:] = reg.astype(np.float32)
-    #         net.forward(end=output_layer)
-    #         features_queries[k] = np.squeeze(net.blobs[output_layer].data)
-    #     features_queries_fname = os.path.join(args.temp_dir, "queries_S{0}.npy".format(S))
-    #     np.save(features_queries_fname, features_queries)
-    # features_queries = np.dstack(
-    #     [np.load((args.temp_dir, "queries_S{0}.npy".format(S))) for S in Ss]).sum(axis=2)
-    # # np.save(os.path.join(args.temp_dir, 'queries_baseline.npy'), features_queries)
-    #
-    # # Second part, dataset
-    # for S in Ss:
-    #     for k in tqdm(range(cData.num_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
-    #         cData.S = S
-    #         img, reg = cData.prepare_image_and_grid_regions_for_network('dataset', cData.dataset[k])
-    #         net.blobs['data'].reshape(img.shape[0], int(img.shape[1]), int(img.shape[2]), int(img.shape[3]))
-    #         net.blobs['data'].data[:] = img
-    #         net.blobs['rois'].reshape(reg.shape[0], reg.shape[1])
-    #         net.blobs['rois'].data[:] = reg.astype(np.float32)
-    #         net.forward(end=output_layer)
-    #         features_dataset[k] = np.squeeze(net.blobs[output_layer].data)
-    #     features_dataset_fname = os.path.join(args.temp_dir, "dataset_S{0}.npy".format(S))
-    #     np.save(features_dataset_fname, features_dataset)
-    # features_dataset = np.dstack(
-    #     [np.load("dataset_S{0}.npy".format(S)) for S in Ss]).sum(axis=2)
-    # # np.save(os.path.join(args.temp_dir, 'dataset_baseline.npy'), features_dataset)
-    #
-    # # Compute similarity
-    # sim = features_queries.dot(features_dataset.T)
-    # np.save(os.path.join(args.temp_dir, 'sim.npy'), sim)
-    sim = np.load(os.path.join(args.temp_dir, 'sim.npy'))  # test
+    Ss = [248, 496, 744]  # multi-solution
+    # First part, queries
+    for S in Ss:
+        for k in tqdm(range(cData.num_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
+            cData.S = S
+            img, reg = cData.prepare_image_and_grid_regions_for_network('queries', cData.q_fname[k])
+            net.blobs['data'].reshape(img.shape[0], int(img.shape[1]), int(img.shape[2]), int(img.shape[3]))
+            net.blobs['data'].data[:] = img
+            net.blobs['rois'].reshape(reg.shape[0], reg.shape[1])
+            net.blobs['rois'].data[:] = reg.astype(np.float32)
+            net.forward(end=output_layer)
+            features_queries[k] = np.squeeze(net.blobs[output_layer].data)
+        features_queries_fname = os.path.join(args.temp_dir, "queries_S{0}.npy".format(S))
+        np.save(features_queries_fname, features_queries)
+    features_queries = np.dstack(
+        [np.load((args.temp_dir, "queries_S{0}.npy".format(S))) for S in Ss]).sum(axis=2)
+    # np.save(os.path.join(args.temp_dir, 'queries_baseline.npy'), features_queries)
+
+    # Second part, dataset
+    for S in Ss:
+        for k in tqdm(range(cData.num_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
+            cData.S = S
+            img, reg = cData.prepare_image_and_grid_regions_for_network('dataset', cData.dataset[k])
+            net.blobs['data'].reshape(img.shape[0], int(img.shape[1]), int(img.shape[2]), int(img.shape[3]))
+            net.blobs['data'].data[:] = img
+            net.blobs['rois'].reshape(reg.shape[0], reg.shape[1])
+            net.blobs['rois'].data[:] = reg.astype(np.float32)
+            net.forward(end=output_layer)
+            features_dataset[k] = np.squeeze(net.blobs[output_layer].data)
+        features_dataset_fname = os.path.join(args.temp_dir, "dataset_S{0}.npy".format(S))
+        np.save(features_dataset_fname, features_dataset)
+    features_dataset = np.dstack(
+        [np.load("dataset_S{0}.npy".format(S)) for S in Ss]).sum(axis=2)
+    # np.save(os.path.join(args.temp_dir, 'dataset_baseline.npy'), features_dataset)
+
+    # Compute similarity
+    sim = features_queries.dot(features_dataset.T)
+    np.save(os.path.join(args.temp_dir, 'sim.npy'), sim)
+    # sim = np.load(os.path.join(args.temp_dir, 'sim.npy'))  # test
 
     # Calculates the precision and mAP
     print('precision: %f' % cData.cal_precision(sim, True))
-    # print('mAP: %f' % cData.cal_mAP(sim))
+    print('mAP: %f' % cData.cal_mAP(sim))
 

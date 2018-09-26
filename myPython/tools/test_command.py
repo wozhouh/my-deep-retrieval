@@ -7,14 +7,14 @@ import numpy as np
 import caffe
 # from class_helper import *
 
-PROTO = '/home/processyuan/NetworkOptimization/deep-retrieval/proto/train-distilling/resnet101_TeacherStudent.prototxt'
+PROTO = '/home/processyuan/NetworkOptimization/deep-retrieval/proto/train-distilling/deploy_resnet101_student.prototxt'
 MODEL = '/home/processyuan/NetworkOptimization/deep-retrieval/caffemodel/deep_image_retrieval_model.caffemodel'
 DATASET = '/home/processyuan/data/Oxford/'
 
 S = 512
 L = 2
 caffe.set_device(0)
-caffe.set_mode_gpu()
+caffe.set_mode_cpu()
 
 net = caffe.Net(PROTO, MODEL, caffe.TEST)
 
