@@ -7832,7 +7832,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'AggregateLayer'
-		param_str: "{}"
+		param_str: "{'batch_size': 1, 'num_rois': 8}"
 	}
 }
 
@@ -15592,7 +15592,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'AggregateLayer'
-		param_str: "{}"
+		param_str: "{'batch_size': 1, 'num_rois': 8}"
 	}
 }
 
@@ -23352,7 +23352,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'AggregateLayer'
-		param_str: "{}"
+		param_str: "{'batch_size': 1, 'num_rois': 8}"
 	}
 }
 

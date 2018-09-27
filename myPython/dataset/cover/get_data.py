@@ -190,11 +190,11 @@ if __name__ == '__main__':
     # class with item number between (20, 24) is put into test set while the others into training set
     csmid_training, csmid_test = get_item_list(open(args.file, 'r'), cnt_min=20, cnt_max=24)
 
-    # print for checking
-    print(csmid_training)  # just a list
-    print(csmid_test)  # list in list
-    print(len(csmid_training))  # number of items for training set
-    print(len(csmid_test))  # number of class for test set
+    # # print for checking
+    # print(csmid_training)  # just a list
+    # print(csmid_test)  # list in list
+    # print(len(csmid_training))  # number of items for training set
+    # print(len(csmid_test))  # number of class for test set
 
     # Download the images for the test set
     make_test_set(csmid_test, args.test_dir, args.cls_dir, start=0)

@@ -1,5 +1,16 @@
 # -*- coding: utf-8 -*-
 
+'''
+usage:
+python ./myPython/cover_convert_traingset.py \
+    --proto ./proto/train-distilling/deploy_resnet101_teacher.prototxt \
+    --weights ./caffemodel/deep_image_retrieval_model_distilling.caffemodel \
+    --img_dir ~/data/cover/training/img/ \
+    --features_dir ~/data/cover/training/ \
+    --features_txt ~/data/cover/training/train.txt
+'''
+
+
 import os
 import sys
 import numpy as np
