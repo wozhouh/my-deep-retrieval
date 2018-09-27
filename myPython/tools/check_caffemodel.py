@@ -29,9 +29,9 @@ if __name__ == "__main__":
 
     # print the shape of weight blob stored in caffemodel
     for layer in net.params.keys():
-        print layer
+        print(layer)
         for dim in range(len(net.params[layer])):
-            print net.params[layer][dim].data.shape
+            print(net.params[layer][dim].data.shape)
 
     # # layers which follow ResNet-101 and have parameters in caffemodel
     # print net.params['pooled_rois/centered'][0].data

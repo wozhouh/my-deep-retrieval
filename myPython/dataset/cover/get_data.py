@@ -82,7 +82,7 @@ def make_test_set(csmid, test_dir, cls_dir, start=0):
         #     cls_path = os.path.join(cls, img_name)
         #     data_helper.get_img_by_cmsid(img_id, cls_path)
 
-    clean_test_set(cls_dir, len(csmid))
+    # clean_test_set(cls_dir, len(csmid))
     make_queries_for_test(cls_dir, test_dir, len(csmid), num_query=2)
 
 
@@ -177,20 +177,24 @@ if __name__ == '__main__':
                         help='directory path to download the images for test set')
     parser.add_argument('--training_dir', type=str, required=False,
                         help='directory path to download the images for training set')
-    parser.set_defaults(file='/home/processyuan/NetworkOptimization/cover/demo_shortv.txt')
-    parser.set_defaults(cls_dir='/home/processyuan/NetworkOptimization/cover/cls')
-    parser.set_defaults(test_dir='/home/processyuan/NetworkOptimization/cover/test')
-    parser.set_defaults(training_dir='/home/processyuan/NetworkOptimization/cover/training')
+    # parser.set_defaults(file='D:\\Data\\cover\\demo_shortv.txt')
+    # parser.set_defaults(cls_dir='D:\\Data\\cover\\cls')
+    # parser.set_defaults(test_dir='D:\\Data\\cover\\test')
+    # parser.set_defaults(training_dir='D:\\Data\\cover\\training')
+    parser.set_defaults(file='/home/gordonwzhe/data/cover/demo_shortv.txt')
+    parser.set_defaults(cls_dir='/home/gordonwzhe/data/cover/cls')
+    parser.set_defaults(test_dir='/home/gordonwzhe/data/cover/test')
+    parser.set_defaults(training_dir='/home/gordonwzhe/data/cover/training')
     args = parser.parse_args()
 
     # class with item number between (20, 24) is put into test set while the others into training set
     csmid_training, csmid_test = get_item_list(open(args.file, 'r'), cnt_min=20, cnt_max=24)
 
-    # # print for checking
-    # print(csmid_training)  # just a list
-    # print(csmid_test)  # list in list
-    # print(len(csmid_training))  # number of items for training set
-    # print(len(csmid_test))  # number of class for test set
+    # print for checking
+    print(csmid_training)  # just a list
+    print(csmid_test)  # list in list
+    print(len(csmid_training))  # number of items for training set
+    print(len(csmid_test))  # number of class for test set
 
     # Download the images for the test set
     make_test_set(csmid_test, args.test_dir, args.cls_dir, start=0)

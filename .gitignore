@@ -4,7 +4,5 @@ caffemodel/
 eval/compute_ap
 eval/eval_*/
 myTest/
-myPython/*.pyc
 *.pyc
-custom_layers.py
 eval/cover_*/
