@@ -9,9 +9,7 @@ dim: 224
 
 input: "rois"
 input_shape{
-dim: 1
-dim: 1
-dim: 1
+dim: 8
 dim: 5
 }
 
@@ -4624,7 +4622,7 @@ layer {
   python_param {
     module: 'custom_layers'
     layer: 'AggregateLayer'
-    param_str: "{}"
+    param_str: "{'batch_size': 1, 'num_rois': 8}"
   }
 }
 ## L2, one last time

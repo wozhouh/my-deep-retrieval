@@ -34,10 +34,12 @@ class ImageHelper:
     def get_rmac_features(self, I, R, net):
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
-        net.blobs['rois'].reshape(R.shape[0], R.shape[1])
-        net.blobs['rois'].data[:] = R.astype(np.float32)
-        net.forward(end='rmac/normalized')
-        return np.squeeze(net.blobs['rmac/normalized'].data)
+        # net.blobs['rois'].reshape(R.shape[0], R.shape[1])
+        # net.blobs['rois'].data[:] = R.astype(np.float32)
+        # net.forward(end='rmac/normalized')
+        # return np.squeeze(net.blobs['rmac/normalized'].data)
+        net.forward(end='rmac/pca/normalized')
+        return np.squeeze(net.blobs['rmac/pca/normalized'].data)
 
     def load_and_prepare_image(self, fname, roi=None):
         # Read image, get aspect ratio, and resize such as the largest side equals S
@@ -236,7 +238,8 @@ def extract_features(dataset, image_helper, net, args):
         image_helper.S = S
         out_queries_fname = "{0}/{1}_S{2}_L{3}_queries.npy".format(args.temp_dir, args.dataset_name, S, args.L)
         if not os.path.exists(out_queries_fname):
-            dim_features = net.blobs['rmac/normalized'].data.shape[1]
+            # dim_features = net.blobs['rmac/normalized'].data.shape[1]
+            dim_features = net.blobs['rmac/pca/normalized'].data.shape[1]
             N_queries = dataset.N_queries
             features_queries = np.zeros((N_queries, dim_features), dtype=np.float32)
             for i in tqdm(range(N_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
@@ -252,7 +255,8 @@ def extract_features(dataset, image_helper, net, args):
         image_helper.S = S
         out_dataset_fname = "{0}/{1}_S{2}_L{3}_dataset.npy".format(args.temp_dir, args.dataset_name, S, args.L)
         if not os.path.exists(out_dataset_fname):
-            dim_features = net.blobs['rmac/normalized'].data.shape[1]
+            # dim_features = net.blobs['rmac/normalized'].data.shape[1]
+            dim_features = net.blobs['rmac/pca/normalized'].data.shape[1]
             N_dataset = dataset.N_images
             features_dataset = np.zeros((N_dataset, dim_features), dtype=np.float32)
             for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
@@ -281,7 +285,7 @@ if __name__ == '__main__':
     parser.add_argument('--multires', dest='multires', action='store_true', help='Enable multiresolution features')
     parser.add_argument('--aqe', type=int, required=False, help='Average query expansion with k neighbors')
     parser.add_argument('--dbe', type=int, required=False, help='Database expansion with k neighbors')
-    parser.set_defaults(multires=True)
+    parser.set_defaults(multires=False)
     args = parser.parse_args()
 
     if not os.path.exists(args.temp_dir):

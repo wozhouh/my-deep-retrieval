@@ -2,7 +2,7 @@ name: "ResNet-101"
 
 input: "data"
 	input_shape{
-	dim: 8
+	dim: 1
 	dim: 3
 	dim: 280
 	dim: 496
@@ -4629,7 +4629,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'AggregateLayer'
-		param_str: "{'batch_size': 8, 'num_rois': 8}"
+		param_str: "{'batch_size': 1, 'num_rois': 8}"
 	}
 }
 ## L2, one last time
@@ -4737,7 +4737,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'AggregateLayer'
-		param_str: "{'batch_size': 8, 'num_rois': 8}"
+		param_str: "{'batch_size': 1, 'num_rois': 8}"
 	}
 }
 ## L2, one last time

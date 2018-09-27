@@ -15105,7 +15105,6 @@ I0926 22:32:22.171644 13862 solver.cpp:258]     Train net output #0: loss = 0.09
 I0926 22:32:22.171658 13862 sgd_solver.cpp:112] Iteration 79900, lr = 0.0025
 I0926 22:32:36.956873 13862 solver.cpp:464] Snapshotting to binary proto file /home/processyuan/NetworkOptimization/deep-retrieval/caffemodel/distilling_resnet101_iter_80000.caffemodel
 I0926 22:32:37.774082 13862 sgd_solver.cpp:284] Snapshotting solver state to binary proto file /home/processyuan/NetworkOptimization/deep-retrieval/caffemodel/distilling_resnet101_iter_80000.solverstate
-
 *** Aborted at 1537973331 (unix time) try "date -d @1537973331" if you are using GNU date ***
 PC: @     0x7fff4dfe5b6d ([vdso]+0xb6c)
 *** SIGTERM (@0x3e800004292) received by PID 13862 (TID 0x7f9745831740) from PID 17042; stack trace: ***
