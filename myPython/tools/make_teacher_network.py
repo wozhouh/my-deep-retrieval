@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# Python script that makes the 3-resolution ResNet-101 and
+# adds the param to each layer with 'name', 'lr_mult' and 'decay_mult'
+
 import os
 import argparse
-
-
-def get_param_add_to_layer(line, param, type):
-    param = '\tparam {\n\t\tlr_mult: 0.0\n\t\tdecay_mult: 0.0\n\t}\n'  # string to be written as learning parameters
-    if type == 'conv':
-        return param
-    if type == 'bn':
-        return param * 3
-    if type == 'scale':
-        return param * 2
 
 
 if __name__ == '__main__':

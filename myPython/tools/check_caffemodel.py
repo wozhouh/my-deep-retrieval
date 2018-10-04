@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# Python script for printing the shape of weight blob in the caffemodel
+
 # usage: python ./myPython/check_caffemodel.py
 #   --proto ./proto/branch_features_resnet101_normpython.prototxt
 #   --weights ./caffemodel/deep_image_retrieval_model.caffemodel
@@ -18,12 +20,6 @@ if __name__ == "__main__":
     # setting
     caffe.set_mode_cpu()
 
-    # # import the model
-    # model = caffe.proto.caffe_pb2.NetParameter()
-    # f_caffemodel = open(args.model, 'rb')
-    # model.ParseFromString(f_caffemodel.read())
-    # f_caffemodel.close()
-
     # build the net
     net = caffe.Net(args.proto, args.weights, caffe.TEST)
 
@@ -33,8 +29,9 @@ if __name__ == "__main__":
         for dim in range(len(net.params[layer])):
             print(net.params[layer][dim].data.shape)
 
-    # # layers which follow ResNet-101 and have parameters in caffemodel
-    # print net.params['pooled_rois/centered'][0].data
-    # print net.params['pooled_rois/centered'][1].data
-    # print net.params['pooled_rois/pca'][0].data
-    # print net.params['pooled_rois/pca'][1].data
+    # print the weights for checking
+    layers = ['pooled_rois/centered', 'pooled_rois_branch_1/centered']
+    for l in layers:
+        for k in range(len(net.params[l])):
+            print(net.params[l][k].data)
+        print('\n')

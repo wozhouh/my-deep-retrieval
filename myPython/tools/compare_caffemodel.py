@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# usage:
+# Python script to compare whether two net described in prototxt are different from each other
 
 import caffe
 import argparse
@@ -21,6 +21,7 @@ if __name__ == "__main__":
     net_new = caffe.Net(args.new_proto, args.weights, caffe.TEST)
     net_old = caffe.Net(args.old_proto, args.weights, caffe.TEST)
 
+    # compare the weights
     for l in net_new.params.keys():
         if l not in net_old.params.keys():
             print(l)

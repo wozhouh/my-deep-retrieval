@@ -36,12 +36,12 @@ if __name__ == '__main__':
     parser.set_defaults(gpu=0)
     parser.set_defaults(L=2)
     parser.set_defaults(proto='/home/processyuan/NetworkOptimization/deep-retrieval/proto/'
-                              'train-distilling/resnet101_teacher.prototxt')
+                              'distilling/deploy_resnet101_teacher.prototxt')
     parser.set_defaults(weights='/home/processyuan/NetworkOptimization/deep-retrieval/'
-                                'caffemodel/deep_image_retrieval_model_distilling.caffemodel')
+                                'caffemodel/deploy_resnet101_teacher.caffemodel')
     parser.set_defaults(img_dir='/home/processyuan/NetworkOptimization/cover/training/img')
     parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/cover/training/')
-    parser.set_defaults(features_txt='/home/processyuan/NetworkOptimization/cover/training/train.txt')
+    parser.set_defaults(features_txt='/home/processyuan/NetworkOptimization/cover/training/training.txt')
 
     args = parser.parse_args()
 
@@ -59,6 +59,7 @@ if __name__ == '__main__':
     img_idx = 0
     f_lines = []
 
+    # convert the images into features vectors by ResNet-101 and R-MAC and save them into numpy array
     for img_file in tqdm(images, file=sys.stdout, leave=False, dynamic_ncols=True):
         img_path = os.path.join(args.img_dir, img_file)
         img_temp = cv2.imread(img_path).transpose(2, 0, 1)
@@ -71,6 +72,7 @@ if __name__ == '__main__':
         f_lines.append(label)
         img_idx += 1
 
+    # save the features and write the txt filesop
     features_fname = os.path.join(args.features_dir, 'features.npy')
     np.save(features_fname, features)
     random.shuffle(f_lines)

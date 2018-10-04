@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import caffe
-import numpy as np
-import cv2
 import yaml
 from CoverData import *
 
-
+# Layer that performs normalization to the input features vector
 class NormalizeLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -27,6 +25,7 @@ class NormalizeLayer(caffe.Layer):
         else:
             pass
 
+# Layer that sum up the bottom blob along the axis=0
 # make some changes to the rmac layer so that it can input batch size > 1
 class AggregateLayer(caffe.Layer):
     def setup(self, bottom, top):
@@ -59,16 +58,16 @@ class AggregateLayer(caffe.Layer):
                 for j in range(self.num_rois):
                     bottom[0].diff[k * self.num_rois + j] = top[0].diff[k]
 
-
-class LabelLayer(caffe.Layer):
+# Layer that fetch pre-calculated features from disk for loss calculation
+class FeatureLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
         assert len(top) == 1, 'This layer can only have one top'
         params = yaml.load(self.param_str_)
-        self.dim = params['dim']
-        self.features_file = params['features']
+        self.features_npy = params['features']
         self.batch_size = bottom[0].shape[0]
-        self.features = np.load(self.features_file)
+        self.features = np.load(self.features_npy)
+        self.dim = self.features.shape[1]
         self.batch_features = np.zeros((self.batch_size, self.dim, 1, 1), dtype=np.float32)
 
     def reshape(self, bottom, top):
@@ -77,7 +76,7 @@ class LabelLayer(caffe.Layer):
     def forward(self, bottom, top):
         feature_idx = np.squeeze(bottom[0].data)
         for k in range(self.batch_size):
-            self.batch_features[k] = (self.features[int(feature_idx[k]), :]).reshape(self.dim, 1, 1)
+            self.batch_features[k, :] = (self.features[int(feature_idx[k]), :]).reshape(self.dim, 1, 1)
         top[0].data[...] = self.batch_features
 
     def backward(self, top, propagate_down, bottom):
@@ -87,6 +86,8 @@ class LabelLayer(caffe.Layer):
         else:
             pass
 
+# Layers that generates rigid grid of bottom blob (batch size and number of rois should be given as param_str)
+# within the batch, the image size should be the same (which results in the same number of rois)
 class RigidGridLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -150,36 +151,34 @@ class RigidGridLayer(caffe.Layer):
         else:
             pass
 
-
+# Layer that substracts the mean value of channels and resizes the image to the given height and width a
 class ResizeLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
         params = yaml.load(self.param_str_)
-        self.s = params['s']
-        mean_list = params['mean']
-        # param = eval(self.param_str_)
-        # self.s = param.get('s', 496)  # what size to resize
-        # mean_list = param.get('mean', None)
-        self.mean = np.array(mean_list, dtype=np.float32)[:, None, None]
-        self.img_size = np.array(bottom[0].data.shape[2: 4])  # for the cover images, h = 280, w = 496
-        self.ratio = float(self.s) / np.max(self.img_size)
-        self.new_size = tuple(np.round(self.img_size * self.ratio).astype(np.int32))
+        self.h = (params['h'])
+        self.w = (params['w'])
+        self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
+        # assert len(bottom) == 1, 'This layer can only have one bottom'
+        # params = yaml.load(self.param_str_)
+        # self.s = params['s']
+        # mean_list = params['mean']
+        # # param = eval(self.param_str_)
+        # # self.s = param.get('s', 496)  # what size to resize
+        # # mean_list = param.get('mean', None)
+        # self.mean = np.array(mean_list, dtype=np.float32)[:, None, None]
+        # self.img_size = np.array(bottom[0].data.shape[2: 4])  # for the cover images, h = 280, w = 496
+        # self.ratio = float(self.s) / np.max(self.img_size)
+        # self.new_size = tuple(np.round(self.img_size * self.ratio).astype(np.int32))
 
     def reshape(self, bottom, top):
-        # tmp_shape = list(bottom[0].data.shape)
-        # tmp_shape[2] = self.new_size[0]  # new height
-        # tmp_shape[3] = self.new_size[1]  # new width
-        # # No registered converter was able to produce a C++ rvalue of type int
-        # # from this Python object of type numpy.int32
-        # top[0].reshape(*tmp_shape)
-        top[0].reshape(*[bottom[0].data.shape[0], bottom[0].data.shape[1],
-                       int(self.new_size[0]), int(self.new_size[1])])
+        top[0].reshape(*[bottom[0].data.shape[0], bottom[0].data.shape[1], self.h, self.w])
 
     def forward(self, bottom, top):
         for k in range(bottom[0].data.shape[0]):
             img_bottom = bottom[0].data[k, ...]
             img = img_bottom.transpose(1, 2, 0)  # h x w x 3
-            img_resized = cv2.resize(img, (self.new_size[1], self.new_size[0]))
+            img_resized = cv2.resize(img, (self.w, self.h))
             top[0].data[k, ...] = img_resized.transpose(2, 0, 1) - self.mean  # 3 x h x w
 
     def backward(self, top, propagate_down, bottom):

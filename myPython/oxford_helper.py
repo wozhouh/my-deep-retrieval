@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 
-# Common class function from original code test.py
-
-# Python usage:
-# from class_helper import *
+# Python class with common operations on the Oxford dataset
 
 import numpy as np
-import cv2
+import argparse
 import os
+import cv2
+import random
 import subprocess
 from collections import OrderedDict
+
+
+def transform_image(size, src, dst):
+    im = cv2.imread(src)
+    im_size_hw = np.array(im.shape[0:2])
+    ratio = float(size) / np.max(im_size_hw)
+    new_size = tuple(np.round(im_size_hw * ratio).astype(np.int32))
+    im_resized = cv2.resize(im, (new_size[1], new_size[0]))
+    cv2.imwrite(dst, im_resized)
 
 
 class ImageHelper:
@@ -135,7 +143,7 @@ class ImageHelper:
         return np.array(regions_xywh).astype(np.float32)
 
 
-class Dataset:
+class OxfordDataset:
     def __init__(self, path):
         self.path = path
         # Parse the label files. Some challenges as filenames do not correspond
@@ -144,6 +152,7 @@ class Dataset:
         # ii) get the relevant regions of interest of the queries,
         # iii) get the indexes of the dataset images that are queries
         # iv) get the relevants / non-relevants list
+
         self.name_to_filename = OrderedDict()
         self.filename_to_name = {}
         self.non_relevants = {}
@@ -217,3 +226,90 @@ class Dataset:
 
     def get_query_roi(self, i):
         return self.q_roi[self.q_names[i]]
+
+    def make_training_test_set(self, training_dir, test_dir, img_size, training_ratio=0.5):
+        img_dir = 'jpg'
+        lab_dir = 'lab'
+        img_all = []  # list of all image files: 5063 images in total
+        img_root = os.path.join(self.path, img_dir)  # Path to images of original dataset
+        lab_root = os.path.join(self.path, lab_dir)  # Path to txt of original dataset
+        q_filename_temp = self.filename_to_name.keys()
+        q_filename = [q_filename_temp[k] + '.jpg' for k in range(self.N_queries)]
+        # delete first
+        if not os.path.exists(training_dir):
+            os.makedirs(training_dir)
+            os.makedirs(os.path.join(training_dir, img_dir))
+            os.makedirs(os.path.join(training_dir, lab_dir))
+        else:
+            train_jpg_path = os.path.join(training_dir, img_dir)
+            for f in os.listdir(train_jpg_path):
+                full_name = os.path.join(train_jpg_path, f)
+                if os.path.isfile(full_name):
+                    os.remove(full_name)
+
+        if not os.path.exists(test_dir):
+            os.makedirs(test_dir)
+            os.makedirs(os.path.join(test_dir, img_dir))
+            os.makedirs(os.path.join(test_dir, lab_dir))
+        else:
+            test_jpg_path = os.path.join(test_dir, img_dir)
+            for f in os.listdir(test_jpg_path):
+                full_name = os.path.join(test_jpg_path, f)
+                if os.path.isfile(full_name):
+                    os.remove(full_name)
+
+        # get the list of all image files
+        for f in os.listdir(img_root):
+            img_all.append(f)
+
+        random.shuffle(img_all)  # shuffle
+        img_num = len(img_all)
+        training_num = int(img_num * training_ratio)
+        img_training = img_all[0: training_num]
+        img_test = img_all[training_num:]
+
+        # make the "jpg" directory of training set (Note that images in queries is shared by both training and test set)
+        for k in range(len(img_training)):
+            src_file = os.path.join(img_root, img_training[k])
+            dst_file = os.path.join(training_dir, img_dir, img_training[k])
+            if os.path.isfile(src_file):
+                if img_training[k] in q_filename:
+                    img_test.append(img_training[k])
+                else:
+                    transform_image(img_size, src_file, dst_file)
+            else:
+                print('image not found: %s' % src_file)
+
+        # make the "jpg" directory of test set
+        for k in range(len(img_test)):
+            src_file = os.path.join(img_root, img_test[k])
+            dst_file = os.path.join(test_dir, img_dir, img_test[k])
+            if os.path.isfile(src_file):
+                if img_test[k] in q_filename:
+                    q_file = os.path.join(training_dir, img_dir, img_test[k])
+                    open(q_file, 'wb').write(open(src_file, 'rb').read())  # save the origin image
+                    open(dst_file, 'wb').write(open(src_file, 'rb').read())
+                    if img_test[k] not in img_training:
+                        img_training.append(img_test[k])
+                else:
+                    transform_image(img_size, src_file, dst_file)
+            else:
+                print('image not found: %s' % src_file)
+
+        # make the "lab" directory
+        for f in os.listdir(lab_root):
+            full_name = os.path.join(lab_root, f)
+            f_lab = open(full_name, 'r')
+            f_train_lab = open(os.path.join(training_dir, lab_dir, f), 'w')
+            f_test_lab = open(os.path.join(test_dir, lab_dir, f), 'w')
+            if f.endswith('_query.txt'):
+                content = f_lab.read()
+                f_train_lab.write(content)
+                f_test_lab.write(content)
+            else:
+                for line in f_lab.readlines():
+                    img_filename = line.strip() + '.jpg'
+                    if img_filename in img_training:
+                        f_train_lab.write(line)
+                    if img_filename in img_test:
+                        f_test_lab.write(line)
