@@ -26,8 +26,7 @@ class ImageHelper:
             R[0, 4] = im_resized.shape[0] - 1
         else:
             # Get the region coordinates and feed them to the network.
-            all_regions = []
-            all_regions.append(self.get_rmac_region_coordinates(im_resized.shape[0], im_resized.shape[1], self.L))
+            all_regions = [self.get_rmac_region_coordinates(im_resized.shape[0], im_resized.shape[1], self.L)]
             R = self.pack_regions_for_network(all_regions)
         return I, R
 

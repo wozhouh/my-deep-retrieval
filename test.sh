@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # baseline
-source activate caffe
+# source ~/anaconda3/bin/activate caffe
 PROTO=/home/processyuan/NetworkOptimization/deep-retrieval/proto/deploy_resnet101.prototxt
 MODEL=/home/processyuan/NetworkOptimization/deep-retrieval/caffemodel/deep_image_retrieval_model.caffemodel
 DATASET=/home/processyuan/data/Oxford/

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import os
+# Python script that tests the model on the cover dataset by mean precision and mAP
+
 import sys
-import numpy as np
 import caffe
-import argparse
 from tqdm import tqdm
-from CoverData import *
+from cover_helper import *
 
 
 if __name__ == '__main__':
@@ -34,7 +33,8 @@ if __name__ == '__main__':
     net = caffe.Net(args.proto, args.weights, caffe.TEST)
 
     # Load the cover dataset
-    cData = CoverData(args.dataset, args.L)
+    cData = CoverDataset(args.dataset, args.L)
+    cData.make_queries_answer_list():
 
     # Output of ResNet-101
     output_layer = 'rmac/normalized'  # suppose that the layer name is always the same as the blob name

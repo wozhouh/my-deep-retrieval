@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# Python script that convert the images in the dataset into feature vectors (numpy array) saved in 'features.npy'
+# and generates a .txt file indicating the image filename correspond to which row of the numpy array
+
 '''
 usage:
 python ./myPython/cover_convert_traingset.py \

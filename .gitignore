@@ -3,6 +3,5 @@ caffemodel/
 .idea/
 eval/compute_ap
 eval/eval_*/
-myTest/
 *.pyc
 eval/cover_*/

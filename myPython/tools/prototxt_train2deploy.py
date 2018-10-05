@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Python script that removes the learning params from each layer in the prototxt
+# That is, the block surrounded by 'param{}'
 
 import os
 import argparse

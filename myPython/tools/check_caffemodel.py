@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Python script for printing the shape of weight blob in the caffemodel
+# Python script for printing the shape of every weight blob in the caffemodel
+# as well as the data stored in weight blob in the given list
 
 # usage: python ./myPython/check_caffemodel.py
 #   --proto ./proto/branch_features_resnet101_normpython.prototxt
 #   --weights ./caffemodel/deep_image_retrieval_model.caffemodel
+
 
 import caffe
 import argparse

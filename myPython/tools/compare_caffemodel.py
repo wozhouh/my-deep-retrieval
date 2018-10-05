@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-# Python script to compare whether two net described in prototxt are different from each other
+# Python script to compare whether the weight blobs in the net described in the new prototxt
+# have pre-trained value provided by caffemodel in the net described in the old prototxt
 
 import caffe
 import argparse
