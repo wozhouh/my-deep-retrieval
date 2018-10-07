@@ -2,7 +2,7 @@
 
 # Python script that generates the annotation file (image file name + class index) and
 # classify the images of different classes into their own directory
-# Run the make_train_test.py first or you are sure about having the training/test set data already
+# Run the make_train_test.py first or you are sure about having images of the training/test set already
 
 # usage: python ./myPython/make_annotation.py
 #   --S 512
