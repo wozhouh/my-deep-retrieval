@@ -8,6 +8,9 @@ import os
 from collections import OrderedDict
 import subprocess
 
+# Python script modified from the original test.py but different that the query doesn't use a roi to crop
+# usage: refer to test.sh at the root of directory
+
 class ImageHelper:
     def __init__(self, S, L, means):
         self.S = S
