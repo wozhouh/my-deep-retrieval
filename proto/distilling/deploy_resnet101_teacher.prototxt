@@ -1,10 +1,10 @@
 name: "ResNet-101"
-input: "data"
-input_shape{
-dim: 1
-dim: 3
-dim: 280
-dim: 496
+	input: "data"
+	input_shape{
+	dim: 1
+	dim: 3
+	dim: 384
+	dim: 512
 }
 
 # my Python layer: ResizeLayer
@@ -16,9 +16,9 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'ResizeLayer'
-		param_str: "{'h': 140, 'w': 248, 'mean': [117.80904, 130.27611, 134.65074]}"  # cover
+		# param_str: "{'h': 140, 'w': 248, 'mean': [117.80904, 130.27611, 134.65074]}"  # cover
 		# param_str: "{'h': 192, 'w': 256, 'mean': [103.93900299, 116.77899933, 123.68000031]}"  # Oxford
-		# param_str: "{'h': 192, 'w': 256, 'mean': [107.464, 111.302, 114.55]}"  # Paris		
+		param_str: "{'h': 192, 'w': 256, 'mean': [107.464, 111.302, 114.55]}"  # Paris		
 	}
 }
 
@@ -30,9 +30,9 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'ResizeLayer'
-		param_str: "{'h': 280, 'w': 496, 'mean': [117.80904, 130.27611, 134.65074]}"  # cover
+		# param_str: "{'h': 280, 'w': 496, 'mean': [117.80904, 130.27611, 134.65074]}"  # cover
 		# param_str: "{'h': , 'w': 256, 'mean': [103.93900299, 116.77899933, 123.68000031]}"  # Oxford
-		# param_str: "{'h': 384, 'w': 512, 'mean': [107.464, 111.302, 114.55]}"  # Paris	
+		param_str: "{'h': 384, 'w': 512, 'mean': [107.464, 111.302, 114.55]}"  # Paris	
 	}
 }
 
@@ -44,9 +44,9 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'ResizeLayer'
-		param_str: "{'h': 420, 'w': 744, 'mean': [117.80904, 130.27611, 134.65074]}"  # cover
+		# param_str: "{'h': 420, 'w': 744, 'mean': [117.80904, 130.27611, 134.65074]}"  # cover
 		# param_str: "{'h': 192, 'w': 256, 'mean': [103.93900299, 116.77899933, 123.68000031]}"  # Oxford
-		# param_str: "{'h': 576, 'w': 768, 'mean': [107.464, 111.302, 114.55]}"  # Paris	
+		param_str: "{'h': 576, 'w': 768, 'mean': [107.464, 111.302, 114.55]}"  # Paris	
 	}
 }
 

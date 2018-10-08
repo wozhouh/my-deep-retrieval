@@ -15,7 +15,7 @@ layer {
 	}
 	data_param {
 		# source: "/home/processyuan/NetworkOptimization/cover/training/img_train_lmdb"  # 64234 images (280x496)
-		source: "/home/processyuan/data/Paris/training/img_paris_lmdb"  # 6392 images (384x512)
+		source: "/home/processyuan/data/Paris/training/paris_lmdb"  # 6392 images (384x512)
 		batch_size: 8
 		backend: LMDB
 	}
@@ -7137,7 +7137,7 @@ layer {
 		decay_mult: 0.0
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 1.0
 		decay_mult: 1.0
 	}
 	scale_param {
@@ -7161,7 +7161,7 @@ layer {
 		decay_mult: 1.0
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 1.0
 		decay_mult: 1.0
 	}
 	inner_product_param {
@@ -7209,7 +7209,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'AggregateLayer'
-		param_str: "{'batch_size': 8, 'num_rois': 8}"
+		param_str: "{'num_rois': 8}"
 	}
 }
 # layer {
@@ -7278,7 +7278,7 @@ layer {
 		decay_mult: 0.0
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 1.0
 		decay_mult: 1.0
 	}
 	scale_param {
@@ -7302,7 +7302,7 @@ layer {
 		decay_mult: 1.0
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 1.0
 		decay_mult: 1.0
 	}
 	inner_product_param {
@@ -7350,7 +7350,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'AggregateLayer'
-		param_str: "{'batch_size': 8, 'num_rois': 8}"
+		param_str: "{'num_rois': 8}"
 	}
 }
 # layer {
@@ -7397,7 +7397,7 @@ layer {
 		decay_mult: 0.0
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 1.0
 		decay_mult: 1.0
 	}
 	scale_param {
@@ -7421,7 +7421,7 @@ layer {
 		decay_mult: 1.0
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 1.0
 		decay_mult: 1.0
 	}
 	inner_product_param {

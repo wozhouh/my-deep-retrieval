@@ -10,7 +10,7 @@ python ./myPython/cover_convert_traingset.py \
     --weights ./caffemodel/deep_image_retrieval_model_distilling.caffemodel \
     --img_dir ~/data/cover/training/img/ \
     --features_dir ~/data/cover/training/ \
-    --features_txt ~/data/cover/training/train.txt
+    --features_txt ~/data/cover/training/training.txt
 '''
 
 

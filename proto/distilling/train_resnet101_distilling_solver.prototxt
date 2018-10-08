@@ -15,9 +15,9 @@ lr_policy: "fixed"
 # Display every 100 iterations
 display: 100
 # The maximum number of iterations
-max_iter: 24000
+max_iter: 12000
 # snapshot intermediate results
-snapshot: 2000
-snapshot_prefix: "/home/processyuan/NetworkOptimization/deep-retrieval/caffemodel/train_resnet101_student"
+snapshot: 3500
+snapshot_prefix: "/home/processyuan/NetworkOptimization/deep-retrieval/caffemodel/paris-distilling/train_resnet101_student"
 # solver mode: CPU or GPU
 solver_mode: GPU
