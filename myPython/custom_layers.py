@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 
+# self-defined Python layers
+
+import os
 import caffe
 import yaml
-from cover_helper import *
+import random
+import cv2
+import numpy as np
+import region_generator
 
 
-# Layer that performs normalization to the input features vector
+# Layer that performs normalization to the input features blob
 class NormalizeLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -90,7 +96,7 @@ class FeatureLayer(caffe.Layer):
             pass
 
 
-# Layers that generates rigid grid of bottom blob (batch size and number of rois should be given as param_str)
+# Layer that generates rigid grid of bottom blob (batch size and number of rois should be given as param_str)
 # within the batch, the image size should be the same (which results in the same number of rois)
 class RigidGridLayer(caffe.Layer):
     def setup(self, bottom, top):
@@ -98,19 +104,18 @@ class RigidGridLayer(caffe.Layer):
         assert len(top) == 1, 'This layer can only have one top'
         # assert bottom[0].data.shape[0] == 1, 'Batch size is fixed to 1 as the size of images might be different'
         assert bottom[0].data.shape[1] == 3, 'The input should be a 3-channel RGB image in batch x 3 x H x W format'
-        self.num_region = 8  # typical number of rigid regions is 8 so fix it here
+        self.num_region = 8  # for regular images, the typical number of rigid regions is 8 so fix it here
         self.dim_rois = 5  # (index, xmin, ymin, xmax, ymax)
         self.img_h = bottom[0].data.shape[2]  # for the cover images, h = 280
         self.img_w = bottom[0].data.shape[3]  # for the cover images, w = 496
-        self.batch_size = bottom[0].data.shape[0]  # bottom: (batch_size, channel(3), h(280), w(496))
+        self.batch_size = bottom[0].data.shape[0]  # bottom: (batch_size, channels(3), h(280), w(496))
 
     def reshape(self, bottom, top):
-        top[0].reshape(*[self.batch_size * self.num_region,
-                         self.dim_rois])  # for the cover images, rois.shape = [11, 5], fix it here
+        top[0].reshape(*[self.batch_size * self.num_region, self.dim_rois])
 
     def forward(self, bottom, top):
-        all_regions = [get_rmac_region_coordinates(self.img_h, self.img_w, 2)]
-        R = pack_regions_for_network(all_regions)  # for the cover images, R,shape = [8, 5]
+        all_regions = [region_generator.get_rmac_region_coordinates(self.img_h, self.img_w, 2)]
+        R = region_generator.pack_regions_for_network(all_regions)  # for the cover images, R,shape = [8, 5]
         '''
         (1, 3, 280, 496)
         [[  0.   0.   0. 279. 279.]
@@ -122,6 +127,7 @@ class RigidGridLayer(caffe.Layer):
          [  0. 155.  94. 340. 279.]
          [  0. 310.  94. 495. 279.]
         '''
+        # iterate over a batch
         if self.batch_size == 1:
             top[0].data[:] = R[: self.num_region, :]
         else:
@@ -132,23 +138,6 @@ class RigidGridLayer(caffe.Layer):
                 reg[k * self.num_region: (k + 1) * self.num_region, :] = R_temp
             top[0].data[:] = reg
 
-        # # if number of regions is less than fixed value, pad it with used regions
-        # # if greater, drop the rest
-        # rois = R.shape[0]
-        # if rois < self.num_region:
-        #     ind = 0
-        #     diff = self.num_region - rois
-        #     top_data = np.zeros((self.num_region, self.dim_rois), dtype=np.float32)
-        #     top_data[: rois, :] = R
-        #     for k in range(diff):
-        #         top_data[rois+k, :] = R[ind, :]
-        #         ind += 1
-        #         if ind == rois:
-        #             ind = 0
-        #     top[0].data[:] = top_data
-        # else:
-        #     top[0].data[:] = R[: self.num_region, :]
-
     def backward(self, top, propagate_down, bottom):
         if propagate_down[0]:
             raise NotImplementedError(
@@ -157,7 +146,7 @@ class RigidGridLayer(caffe.Layer):
             pass
 
 
-# Layer that substracts the mean value of channels and resizes the image to the given height and width a
+# Layer that resizes the image to the given height and width and then substracts the mean value of channels
 class ResizeLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -189,19 +178,19 @@ class ResizeLayer(caffe.Layer):
 class TripletDataLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 0, 'Data layer should not have a bottom for input'
-        assert len(top) == 3, 'Data layer for the siamese network have 3 tops'
+        assert len(top) == 3, 'Data layer for the triplet-siamese network should have 3 tops'
         params = yaml.load(self.param_str_)
         self.batch_size = params['batch_size']
-        root_dir = params['root_dir']
-        self.img_dir = os.path.join(root_dir, 'triplet')
-        self.all_dir = os.path.join(root_dir, 'all')
+        self.cls_dir = params['cls_dir']
+        self.all_dir = params['all_dir']
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
-        self.cls = os.listdir(self.img_dir)
-        self.cls_ind = len(self.cls) - 1
-        self.img = []
-        self.img_ind = 0
+        self.cls = os.listdir(self.cls_dir)   # class list at current epoch
+        self.cls.remove('useless')
+        self.cls_ind = len(self.cls) - 1  # class in process
+        self.img = []  # image list within a class
+        self.img_ind = 0  # image in process
 
-    # No need for data layer to implement the 'reshape' function
+    # No need for a data layer to implement the 'reshape' function
     def reshape(self, bottom, top):
         pass
 
@@ -209,24 +198,24 @@ class TripletDataLayer(caffe.Layer):
         if self.img_ind >= len(self.img):
             self.cls_ind += 1
             if self.cls_ind == len(self.cls):
-                self.cls = os.listdir(self.img_dir)
-                self.cls.remove('useless')
                 random.shuffle(self.cls)
                 self.cls_ind = 0
                 print("INFO: an epoch done.")
-            self.img = os.listdir(os.path.join(self.img_dir, self.cls[self.cls_ind]))
+            self.img = os.listdir(os.path.join(self.cls_dir, self.cls[self.cls_ind]))
             random.shuffle(self.img)
             self.img_ind = 0
 
-        num_diff = self.batch_size + self.img_ind - len(self.img)
         t_img_name = []  # an image in process
         p_img_name = []  # a positive image which is in the same class as t_img
         n_img_name = []  # a negative image which is not in the same class as t_img
-        if num_diff <= 0:
+
+        # fetch an image in process
+        t_diff = self.batch_size + self.img_ind - len(self.img)
+        if t_diff <= 0:
             t_img_name = self.img[self.img_ind: self.img_ind + self.batch_size]
         else:
             t_img_name = self.img[self.img_ind: len(self.img)]
-            t_img_name.extend(self.img[: num_diff])  # pad the rest with the image from the beginning of the class
+            t_img_name.extend(self.img[: t_diff])  # pad the rest with the image from the beginning of the class
 
         # randomly sample a positive image from the same class
         p_diff = self.batch_size
@@ -235,8 +224,9 @@ class TripletDataLayer(caffe.Layer):
             for i in p_img_name_temp:
                 if i in t_img_name or i in p_img_name:
                     p_img_name_temp.remove(i)
-            p_diff = self.batch_size - len(p_img_name)
             p_img_name.extend(p_img_name_temp)
+            p_diff = self.batch_size - len(p_img_name)
+
         # randomly sample a negative image from a different class
         n_diff = self.batch_size
         while n_diff > 0:
@@ -244,25 +234,75 @@ class TripletDataLayer(caffe.Layer):
             for i in n_img_name_temp:
                 if i in self.img or i in n_img_name:
                     n_img_name_temp.remove(i)
-            n_diff = self.batch_size - len(n_img_name)
             n_img_name.extend(n_img_name_temp)
+            n_diff = self.batch_size - len(n_img_name)
+
         # load the images
-        t_img_temp = [cv2.imread(os.path.join(self.img_dir, self.cls[self.cls_ind], t_img_name[k]))
+        t_img_temp = [cv2.imread(os.path.join(self.cls_dir, self.cls[self.cls_ind], t_img_name[k]))
                       for k in range(self.batch_size)]
         t_img = [(t_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
-        p_img_temp = [cv2.imread(os.path.join(self.img_dir, self.cls[self.cls_ind], p_img_name[k]))
+        p_img_temp = [cv2.imread(os.path.join(self.cls_dir, self.cls[self.cls_ind], p_img_name[k]))
                       for k in range(self.batch_size)]
         p_img = [(p_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
-        n_img_temp = [cv2.imread(os.path.join(self.img_dir, self.cls[self.cls_ind], n_img_name[k]))
+        n_img_temp = [cv2.imread(os.path.join(self.all_dir, n_img_name[k]))
                       for k in range(self.batch_size)]
         n_img = [(n_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
+
         # iterate over a batch
         for k in range(self.batch_size):
             top[0].data[k, ...] = t_img[k]
             top[1].data[k, ...] = p_img[k]
             top[2].data[k, ...] = n_img[k]
-        self.img_num += self.batch_size
+        self.img_ind += self.batch_size
 
-    # No need for data layer to implement the 'reshape' function
+    # No need for a data layer to implement the 'reshape' function
+    def backward(self, top, propagate_down, bottom):
+        pass
+
+
+# Layer that fetches the images and feeds the siamese network
+class SiameseDataLayer(caffe.Layer):
+    def setup(self, bottom, top):
+        assert len(bottom) == 0, 'Data layer should not have a bottom for input'
+        assert len(top) == 2, 'Data layer for the siamese network should have 2 tops'
+        params = yaml.load(self.param_str_)
+        self.batch_size = params['batch_size']
+        self.cls_dir = params['cls_dir']
+        self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
+        self.cls = os.listdir(self.cls_dir)  # class list at current epoch
+        self.cls.remove('useless')
+        self.cls_ind = len(self.cls) - 1  # class in process
+        self.img = []  # image list within a class
+        self.img_ind = 0  # image in process
+
+    # No need for a data layer to implement the 'reshape' function
+    def reshape(self, bottom, top):
+        pass
+
+    def forward(self, bottom, top):
+        if self.img_ind >= len(self.img):
+            self.cls_ind += 1
+            if self.cls_ind == len(self.cls):
+                random.shuffle(self.cls)
+                self.cls_ind = 0
+                print("INFO: an epoch done.")
+            self.img = os.listdir(os.path.join(self.cls_dir, self.cls[self.cls_ind]))
+            random.shuffle(self.img)
+            self.img_ind = 0
+        p_img_name = []  # a image in process
+        n_img_name = []  # an image which is in the same of different class
+
+        # fetch an image in process
+        p_diff = self.batch_size + self.img_ind - len(self.img)
+        if p_diff <= 0:
+            p_img_name = self.img[self.img_ind: self.img_ind + self.batch_size]
+        else:
+            p_img_name = self.img[self.img_ind: len(self.img)]
+            p_img_name.extend(self.img[: p_diff])  # pad the rest with the image from the beginning of the class
+
+        
+
+
+    # No need for a data layer to implement the 'reshape' function
     def backward(self, top, propagate_down, bottom):
         pass
