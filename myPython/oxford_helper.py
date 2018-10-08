@@ -3,7 +3,6 @@
 # Python class with common operations on the Oxford dataset
 
 import numpy as np
-import argparse
 import os
 import cv2
 import random

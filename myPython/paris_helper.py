@@ -96,14 +96,13 @@ class ParisDataset:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='tool set for building the Paris dataset')
     parser.add_argument('--root_dir', type=str, required=False, help='root path to the Paris dataset')
-    parser.set_defaults(root_dir='/home/processyuan/data/Paris/')
+    parser.set_defaults(root_dir='/home/gordonwzhe/data/Paris/')
     args = parser.parse_args()
 
     paris_dataset = ParisDataset(args.root_dir)
 
-    # # Generates the test set with a uniform resolution
-    # paris_dataset.make_test_set(img_h=384, img_w=512)
+    # Generates the test set with a uniform resolution
+    paris_dataset.make_test_set(img_h=384, img_w=512)
 
     # Generates the triplet set
     paris_dataset.make_triplet_set()
-
