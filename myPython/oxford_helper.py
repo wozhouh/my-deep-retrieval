@@ -4,12 +4,13 @@
 
 import numpy as np
 import os
+import argparse
 import cv2
 import random
 import subprocess
 from collections import OrderedDict
 
-
+# resize the image so that the longer side equals the given size
 def transform_image(size, src, dst):
     im = cv2.imread(src)
     im_size_hw = np.array(im.shape[0:2])
@@ -161,16 +162,8 @@ class OxfordDataset:
         # Load the dataset GT
         self.lab_root = '{0}/lab/'.format(self.path)
         self.img_root = '{0}/jpg/'.format(self.path)
-        # Some images from the Paris dataset are corrupted. Standard practice is to ignore them
-        self.blacklisted = {"paris_louvre_000136", "paris_louvre_000146", "paris_moulinrouge_000422",
-                            "paris_museedorsay_001059", "paris_notredame_000188", "paris_pantheon_000284",
-                            "paris_pantheon_000960", "paris_pantheon_000974", "paris_pompidou_000195",
-                            "paris_pompidou_000196", "paris_pompidou_000201", "paris_pompidou_000467",
-                            "paris_pompidou_000640", "paris_sacrecoeur_000299", "paris_sacrecoeur_000330",
-                            "paris_sacrecoeur_000353", "paris_triomphe_000662", "paris_triomphe_000833",
-                            "paris_triomphe_000863", "paris_triomphe_000867"}
         # Get the filenames without the extension
-        self.img_filenames = [e[:-4] for e in np.sort(os.listdir(self.img_root)) if e[:-4] not in self.blacklisted]
+        self.img_filenames = [e[:-4] for e in np.sort(os.listdir(self.img_root))]
         self.load()
 
     def load(self):
@@ -312,3 +305,17 @@ class OxfordDataset:
                         f_train_lab.write(line)
                     if img_filename in img_test:
                         f_test_lab.write(line)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='tool set for building the Oxford dataset')
+    parser.add_argument('--root_dir', type=str, required=False, help='root path to the Oxford dataset')
+    parser.set_defaults(root_dir='/home/gordonwzhe/data/Oxford')
+    args = parser.parse_args()
+
+    oxford_dataset = OxfordDataset(args.root_dir)
+
+    # make the training set and the test set of the Oxford dataset
+    training_dir = '/home/gordonwzhe/data/Oxford/training/'
+    test_dir = '/home/gordonwzhe/data/Oxford/test/'
+    oxford_dataset.make_training_test_set(training_dir, test_dir, img_size=512)
