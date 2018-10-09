@@ -316,6 +316,27 @@ class OxfordDataset:
             img_sum += img.mean(axis=0).mean(axis=0)
         return img_sum / len(fname)
 
+    # make a dataset with the same images in which the resolution is united
+    def uni_dataset(self, new_path, img_h, img_w):
+        new_jpg_dir = os.path.join(new_path, 'jpg')
+        new_lab_dir = os.path.join(new_path, 'lab')
+        if not os.path.exists(new_path):
+            os.makedirs(new_path)
+            os.makedirs(new_jpg_dir)
+            os.makedirs(new_lab_dir)
+        # transform the images
+        for i in self.img_root:
+            img_src_path = os.path.join(self.img_root, i)
+            img_dst_path = os.path.join(new_jpg_dir, i)
+            img_src = cv2.imread(img_src_path)
+            img_dst = cv2.resize(img_src, (img_w, img_h))
+            cv2.imwrite(img_dst_path, img_dst)
+        # copy the file
+        for f in self.lab_root:
+            f_src_path = os.path.join(self.img_root, f)
+            f_dst_path = os.path.join(new_lab_dir, f)
+            open(f_dst_path, 'w').write(open(f_src_path, 'r').read())
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='tool set for building the Oxford dataset')
@@ -330,5 +351,9 @@ if __name__ == '__main__':
     # test_dir = '/home/gordonwzhe/data/Oxford/test/'
     # oxford_dataset.make_training_test_set(training_dir, test_dir, img_size=512)
 
-    # Calculates each channel's mean value of RGB images in the training set
-    print(oxford_dataset.cal_image_mean_channel())
+    # # Calculates each channel's mean value of RGB images in the training set
+    # print(oxford_dataset.cal_image_mean_channel())
+
+    # make a dataset with the same images in which the resolution is united
+    new_dataset_path = '/home/gordonwzhe/data/Oxford/uni-oxford/'
+    oxford_dataset.uni_dataset(new_dataset_path, img_h=384, img_w=512)

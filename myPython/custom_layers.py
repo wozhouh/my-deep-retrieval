@@ -151,8 +151,8 @@ class ResizeLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
         params = yaml.load(self.param_str_)
-        self.h = (params['h'])
-        self.w = (params['w'])
+        self.h = params['h']
+        self.w = params['w']
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
 
     def reshape(self, bottom, top):

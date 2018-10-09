@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Python script that copies the single-pass ResNet-101 to 3-pass and
-# adds the param to each layer with 'name', 'lr_mult' and 'decay_mult'
+# adds the learning params to each layer with 'name', 'lr_mult' and 'decay_mult'
 
 import os
 import argparse

@@ -20,6 +20,18 @@ if __name__ == '__main__':
     f_new = open(os.path.join(args.new_proto), 'w')
     lines = f_old.readlines()
 
+    learning_param = '\tparam {\n\t\tlr_mult: 0.0\n\t\tdecay_mult: 0.0\n\t}\n'
+
     for line in lines:
         f_old = f_new.write(line)
-        
+        # For ResNet-101, a Convolution layer has 1 learnable param (without bias_term)
+        # while a BatchNorm layer has 3 and a Scale layer has 2
+        if 'type' in line:
+            if 'Convolution' in line:
+                f_new.write(learning_param)
+            if 'BatchNorm' in line:
+                f_new.write(learning_param * 3)
+            if 'Scale' in line:
+                f_new.write(learning_param * 2)
+            if 'InnerProduct' in line:
+                f_new.write(learning_param * 2)
