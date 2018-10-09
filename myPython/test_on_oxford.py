@@ -58,7 +58,8 @@ class ImageHelper:
             im_resized = im_resized[roi[1]:roi[3], roi[0]:roi[2], :]
         # Transpose for network and subtract mean
         # I = im_resized.transpose(2, 0, 1) - self.means
-        I = im_resized.transpose(2, 0, 1)
+        I_temp = im_resized.transpose(2, 0, 1)
+        I = np.expand_dims(I_temp, axis=0)
         return I, im_resized
 
     def pack_regions_for_network(self, all_regions):
