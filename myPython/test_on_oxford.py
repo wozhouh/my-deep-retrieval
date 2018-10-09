@@ -307,10 +307,10 @@ if __name__ == '__main__':
 
     # Load the dataset and the image helper
     dataset = Dataset(args.dataset, args.eval_binary)
-    image_helper = ImageHelper(args.S, args.L, args.means, end_layer)
+    image_helper = ImageHelper(args.S, args.L, args.means)
 
     # Extract features
-    features_queries, features_dataset = extract_features(dataset, image_helper, net, args)
+    features_queries, features_dataset = extract_features(dataset, image_helper, net, args, end_layer)
 
     # Database side expansion?
     if args.dbe is not None and args.dbe > 0:
