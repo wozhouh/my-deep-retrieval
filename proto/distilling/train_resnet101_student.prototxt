@@ -7137,7 +7137,7 @@ layer {
 		decay_mult: 0.0
 	}
 	param {
-		lr_mult: 1.0
+		lr_mult: 2.0
 		decay_mult: 1.0
 	}
 	scale_param {
@@ -7161,7 +7161,7 @@ layer {
 		decay_mult: 1.0
 	}
 	param {
-		lr_mult: 1.0
+		lr_mult: 2.0
 		decay_mult: 1.0
 	}
 	inner_product_param {
@@ -7278,7 +7278,7 @@ layer {
 		decay_mult: 0.0
 	}
 	param {
-		lr_mult: 1.0
+		lr_mult: 2.0
 		decay_mult: 1.0
 	}
 	scale_param {
@@ -7302,7 +7302,7 @@ layer {
 		decay_mult: 1.0
 	}
 	param {
-		lr_mult: 1.0
+		lr_mult: 2.0
 		decay_mult: 1.0
 	}
 	inner_product_param {
@@ -7397,7 +7397,7 @@ layer {
 		decay_mult: 0.0
 	}
 	param {
-		lr_mult: 1.0
+		lr_mult: 2.0
 		decay_mult: 1.0
 	}
 	scale_param {
@@ -7421,7 +7421,7 @@ layer {
 		decay_mult: 1.0
 	}
 	param {
-		lr_mult: 1.0
+		lr_mult: 2.0
 		decay_mult: 1.0
 	}
 	inner_product_param {
