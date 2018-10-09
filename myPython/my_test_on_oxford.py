@@ -47,17 +47,15 @@ class ImageHelper:
     def load_and_prepare_image(self, fname, roi=None):
         # Read image, get aspect ratio, and resize such as the largest side equals S
         im = cv2.imread(fname)
-        im_size_hw = np.array(im.shape[0:2])
-        ratio = float(self.S)/np.max(im_size_hw)
-        new_size = tuple(np.round(im_size_hw * ratio).astype(np.int32))
-        im_resized = cv2.resize(im, (new_size[1], new_size[0]))
-        # If there is a roi, adapt the roi to the new size and crop. Do not rescale
-        # the image once again
-        if roi is not None:
-            roi = np.round(roi * ratio).astype(np.int32)
-            im_resized = im_resized[roi[1]:roi[3], roi[0]:roi[2], :]
+        # im_size_hw = np.array(im.shape[0:2])
+        # ratio = float(self.S)/np.max(im_size_hw)
+        # new_size = tuple(np.round(im_size_hw * ratio).astype(np.int32))
+        # im_resized = cv2.resize(im, (new_size[1], new_size[0]))
+        im_resized = im
         # Transpose for network and subtract mean
-        I = im_resized.transpose(2, 0, 1) - self.means
+        # I = im_resized.transpose(2, 0, 1) - self.means
+        I_temp = im_resized.transpose(2, 0, 1)
+        I = np.expand_dims(I_temp, axis=0)
         return I, im_resized
 
     def pack_regions_for_network(self, all_regions):
@@ -291,12 +289,13 @@ if __name__ == '__main__':
         os.makedirs(args.temp_dir)
 
     # Load and reshape the means to subtract to the inputs
-    args.means = np.array([99.74151, 108.75074, 113.17747], dtype=np.float32)[None, :, None, None]  # Oxford
+    args.means = np.array([103.93900299, 116.77899933, 123.68000031], dtype=np.float32)[None, :, None, None]  # Original
+    # args.means = np.array([99.74151, 108.75074, 113.17747], dtype=np.float32)[None, :, None, None]  # Oxford
     # args.means = np.array([107.464, 111.302, 114.55], dtype=np.float32)[None, :, None, None]  # Paris
     # args.means = np.array([117.80904, 130.27611, 134.65074], dtype=np.float32)[None, :, None, None]  #cover
 
     # define the output layer of the deployed network
-    end_layer = 'rmac/pca/normalized'  # 3-pass teacher network
+    end_layer = 'rmac/eltwise/normalized'  # 3-pass teacher network
 
 
     # Configure caffe and load the network

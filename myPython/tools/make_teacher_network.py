@@ -19,7 +19,7 @@ if __name__ == '__main__':
     f_old = open(os.path.join(args.old_proto), 'r')
     f_new = open(os.path.join(args.new_proto), 'w')
     lines = f_old.readlines()
-    in_layer = False  # the fist line is the name of net
+    in_layer = False
 
     # used to distinguish different item in branches of teacher network
     branch_name_prefix = ['l_', 'm_', 'h_']
