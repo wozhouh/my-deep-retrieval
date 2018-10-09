@@ -77,14 +77,10 @@ class ModelTools:
                 f_new_proto.write(split_temp[0] + 'false' +split_temp[-1])
             else:
                 f_new_proto.write(line)
-            if 'type' in line:
-                if 'Convolution' in line:
-                    f_new_proto.write(self.learning_params)
-                if 'InnerProduct' in line:
-                    f_new_proto.write(self.learning_params * 2)
+            if 'Convolution' in line:
+                f_new_proto.write(self.learning_params)
 
         f_new_proto.close()
-
 
     # Copies the single-pass ResNet-101 to 3-pass and
     # adds the learning params to each layer with 'name', 'lr_mult' and 'decay_mult'
@@ -98,6 +94,7 @@ class ModelTools:
                           '"\n\t\tlr_mult: 0.0\n\t\tdecay_mult: 0.0\n\t}\n']
 
         for k in range(len(branch_name_prefix)):
+            layer_name = ''
             for line in self.lines:
                 new_line = line
                 for p in param_need_prefix:
@@ -128,6 +125,19 @@ class ModelTools:
 
         f_new_proto.close()
 
+    # copy the weights of 1-pass network to 3-pass teacher network
+    # Run after running the 'make_teacher_network()'
+    def save_teacher_network_weights(self, teacher_proto, caffemodel_path):
+        teacher_net = caffe.Net(teacher_proto, self.weights, caffe.TEST)
+        for l in self.net.params.keys():
+            for k in range(len(self.net.params[l])):
+                teacher_net.params[l][k].data[...] = self.net.params[l][k].data[...]
+                teacher_net.params['l_' + l][k].data[...] = self.net.params[l][k].data[...]
+                teacher_net.params['m_' + l][k].data[...] = self.net.params[l][k].data[...]
+                teacher_net.params['h_' + l][k].data[...] = self.net.params[l][k].data[...]
+        # save the model
+        teacher_net.save(caffemodel_path)
+
 
 if __name__ == "__main__":
     # configure
@@ -144,9 +154,9 @@ if __name__ == "__main__":
     # comparison
     model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
                                           'deploy_resnet101.prototxt')
-    model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
-                              'distilling/train_resnet101_student.prototxt')
+    # model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
+    #                           'distilling/deploy_resnet101_student.prototxt')
 
     # deploy to train
     model_tools.add_learning_params(new_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
-                                              'train_resnet101_paris.prototxt', th=10000)
+                                              'distilling/train_resnet101_paris.prototxt', th=10000)
