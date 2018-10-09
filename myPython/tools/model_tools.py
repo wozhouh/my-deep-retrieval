@@ -19,7 +19,7 @@ class ModelTools:
         caffe.set_mode_gpu()
         caffe.set_device(gpu)
         # other params
-        self.learning_params = '\tparam {\n\t\tlr_mult: 0.0\n\t\tdecay_mult: 0.0\n\t}\n'  # for stop back-propagation
+        self.learning_params = '\tparam {\n\t\tlr_mult: 0.0\n\t\tdecay_mult: 0.0\n\t}\n'  # to stop back-propagation
 
     # print the shape of all the weight blobs stored in .caffemodel file
     def check_blob_shape(self):
@@ -63,14 +63,33 @@ class ModelTools:
         f_new_proto.close()
 
     # Add the learning params to each layer for later training
-    def add_learning_params(self, ):
+    # layers within lines lower than 'th' will add learning-params that lr_mult=0 to stop back propagation
+    # layers within lines higher than 'th' will not change
+    def add_learning_params(self, new_proto, th):
+        f_new_proto = open(new_proto, 'w')
+        # a Convolution layer should add 1 learning param (without bias_term)
+        # For a BatchNorm layer, the 'use_global_stats' should be changed to 'false'
+        # the Scale layer and the ReLU layer will not change
+        for line in self.lines:
+            if 'use_global_stats' in line:
+                # replace 'true' with 'false'
+                split_temp = line.split('true')
+                f_new_proto.write(split_temp[0] + 'false' +split_temp[-1])
+            else:
+                f_new_proto.write(line)
+            if 'type' in line:
+                if 'Convolution' in line:
+                    f_new_proto.write(self.learning_params)
+                if 'InnerProduct' in line:
+                    f_new_proto.write(self.learning_params * 2)
 
+        f_new_proto.close()
 
 
     # Copies the single-pass ResNet-101 to 3-pass and
     # adds the learning params to each layer with 'name', 'lr_mult' and 'decay_mult'
     def make_teacher_network(self, new_proto):
-        f_new = open(new_proto, 'w')
+        f_new_proto = open(new_proto, 'w')
         # used to distinguish different branches of teacher network
         branch_name_prefix = ['l_', 'm_', 'h_']
         param_need_prefix = ['bottom', 'top', 'name']
@@ -86,7 +105,7 @@ class ModelTools:
                         line_temp = line.split('"')
                         new_line = line_temp[0] + '"' + branch_name_prefix[k] + line_temp[1] + '"' + line_temp[2]
 
-                f_new.write(new_line)
+                f_new_proto.write(new_line)
 
                 if 'name' in line:
                     layer_name = line.split('"')[1]  # find the layer name
@@ -95,19 +114,19 @@ class ModelTools:
                 # while a BatchNorm layer has 3 and a Scale layer has 2
                 if 'type' in line:
                     if 'Convolution' in line:
-                        f_new.write(learning_param[0] + layer_name + '_w' + learning_param[1])
+                        f_new_proto.write(learning_param[0] + layer_name + '_w' + learning_param[1])
                     if 'BatchNorm' in line:
-                        f_new.write(learning_param[0] + layer_name + '_1' + learning_param[1])
-                        f_new.write(learning_param[0] + layer_name + '_2' + learning_param[1])
-                        f_new.write(learning_param[0] + layer_name + '_3' + learning_param[1])
+                        f_new_proto.write(learning_param[0] + layer_name + '_1' + learning_param[1])
+                        f_new_proto.write(learning_param[0] + layer_name + '_2' + learning_param[1])
+                        f_new_proto.write(learning_param[0] + layer_name + '_3' + learning_param[1])
                     if 'Scale' in line:
-                        f_new.write(learning_param[0] + layer_name + '_1' + learning_param[1])
-                        f_new.write(learning_param[0] + layer_name + '_2' + learning_param[1])
+                        f_new_proto.write(learning_param[0] + layer_name + '_1' + learning_param[1])
+                        f_new_proto.write(learning_param[0] + layer_name + '_2' + learning_param[1])
                     if 'InnerProduct' in line:
-                        f_new.write(learning_param[0] + layer_name + '_w' + learning_param[1])
-                        f_new.write(learning_param[0] + layer_name + '_b' + learning_param[1])
+                        f_new_proto.write(learning_param[0] + layer_name + '_w' + learning_param[1])
+                        f_new_proto.write(learning_param[0] + layer_name + '_b' + learning_param[1])
 
-        f_new.close()
+        f_new_proto.close()
 
 
 if __name__ == "__main__":
@@ -115,8 +134,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='print the shape of weights stored in caffemodel')
     parser.add_argument('--proto', type=str, required=True, help='Path to the prototxt file')
     parser.add_argument('--weights', type=str, required=True, help='Path to the caffemodel file')
-    parser.add_argument('--new_proto', type=str, required=False, help='Path to the new generated prototxt file')
-    parser.add_argument('--new_weights', type=str, required=False, help='Path to the new generated caffemodel file')
     parser.add_argument('--gpu', type=str, required=False, help='index of Used GPU')
     parser.set_defaults(gpu=0)
     args = parser.parse_args()
@@ -124,7 +141,12 @@ if __name__ == "__main__":
     # init
     model_tools = ModelTools(args.proto, args.weights, args.gpu)
 
+    # comparison
+    model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
+                                          'deploy_resnet101.prototxt')
+    model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
+                              'distilling/train_resnet101_student.prototxt')
 
-
-
-
+    # deploy to train
+    model_tools.add_learning_params(new_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
+                                              'train_resnet101_paris.prototxt', th=10000)
