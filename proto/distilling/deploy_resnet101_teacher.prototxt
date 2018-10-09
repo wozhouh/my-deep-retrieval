@@ -17,7 +17,7 @@ layer {
 		module: 'custom_layers'
 		layer: 'ResizeLayer'
 		# param_str: "{'h': 140, 'w': 248, 'mean': [117.80904, 130.27611, 134.65074]}"  # cover
-		param_str: "{'h': 192, 'w': 256, 'mean': [103.93900299, 116.77899933, 123.68000031]}"  # Oxford
+		param_str: "{'h': 192, 'w': 256, 'mean': [99.74151, 108.75074, 113.17747]}"  # Oxford
 		# param_str: "{'h': 192, 'w': 256, 'mean': [107.464, 111.302, 114.55]}"  # Paris		
 	}
 }
@@ -31,7 +31,7 @@ layer {
 		module: 'custom_layers'
 		layer: 'ResizeLayer'
 		# param_str: "{'h': 280, 'w': 496, 'mean': [117.80904, 130.27611, 134.65074]}"  # cover
-		param_str: "{'h': 384, 'w': 512, 'mean': [103.93900299, 116.77899933, 123.68000031]}"  # Oxford
+		param_str: "{'h': 384, 'w': 512, 'mean': [99.74151, 108.75074, 113.17747]}"  # Oxford
 		# param_str: "{'h': 384, 'w': 512, 'mean': [107.464, 111.302, 114.55]}"  # Paris	
 	}
 }
@@ -45,7 +45,7 @@ layer {
 		module: 'custom_layers'
 		layer: 'ResizeLayer'
 		# param_str: "{'h': 420, 'w': 744, 'mean': [117.80904, 130.27611, 134.65074]}"  # cover
-		param_str: "{'h': 576, 'w': 768, 'mean': [103.93900299, 116.77899933, 123.68000031]}"  # Oxford
+		param_str: "{'h': 576, 'w': 768, 'mean': [99.74151, 108.75074, 113.17747]}"  # Oxford
 		# param_str: "{'h': 576, 'w': 768, 'mean': [107.464, 111.302, 114.55]}"  # Paris	
 	}
 }

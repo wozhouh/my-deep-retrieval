@@ -234,8 +234,7 @@ class Dataset:
         return self.q_roi[self.q_names[i]]
 
 
-def extract_features(dataset, image_helper, net, args):
-    end_layer = 'rmac/eltwise/normalized'
+def extract_features(dataset, image_helper, net, args, end_layer):
     Ss = [args.S, ] if not args.multires else [args.S - 250, args.S, args.S + 250]
     # First part, queries
     for S in Ss:
@@ -293,8 +292,13 @@ if __name__ == '__main__':
         os.makedirs(args.temp_dir)
 
     # Load and reshape the means to subtract to the inputs
-    args.means = np.array([103.93900299,  116.77899933,  123.68000031], dtype=np.float32)[None, :, None, None]
-    # args.means = np.array([117.80904, 130.27611, 134.65074], dtype=np.float32)[None, :, None, None]
+    args.means = np.array([99.74151, 108.75074, 113.17747], dtype=np.float32)[None, :, None, None]  # Oxford
+    # args.means = np.array([107.464, 111.302, 114.55], dtype=np.float32)[None, :, None, None]  # Paris
+    # args.means = np.array([117.80904, 130.27611, 134.65074], dtype=np.float32)[None, :, None, None]  #cover
+
+    # define the output layer of the deployed network
+    end_layer = 'rmac/eltwise/normalized'  # 3-pass teacher network
+
 
     # Configure caffe and load the network
     caffe.set_device(args.gpu)
@@ -303,7 +307,7 @@ if __name__ == '__main__':
 
     # Load the dataset and the image helper
     dataset = Dataset(args.dataset, args.eval_binary)
-    image_helper = ImageHelper(args.S, args.L, args.means)
+    image_helper = ImageHelper(args.S, args.L, args.means, end_layer)
 
     # Extract features
     features_queries, features_dataset = extract_features(dataset, image_helper, net, args)

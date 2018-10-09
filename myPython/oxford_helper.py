@@ -307,6 +307,7 @@ class OxfordDataset:
                         f_test_lab.write(line)
 
     # Calculates each channel's mean value of RGB images in the training set
+    # for Oxford dataset, the mean value for each channel is [99.74151, 108.75074, 113.17747]
     def cal_image_mean_channel(self):
         img_sum = np.zeros(3, dtype=np.float32)
         fname = os.listdir(self.img_root)
