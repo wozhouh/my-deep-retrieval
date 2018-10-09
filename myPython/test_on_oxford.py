@@ -34,15 +34,15 @@ class ImageHelper:
             R = self.pack_regions_for_network(all_regions)
         return I, R
 
-    def get_rmac_features(self, I, R, net):
+    def get_rmac_features(self, I, R, net, end_layer):
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
         # net.blobs['rois'].reshape(R.shape[0], R.shape[1])
         # net.blobs['rois'].data[:] = R.astype(np.float32)
         # net.forward(end='rmac/normalized')
         # return np.squeeze(net.blobs['rmac/normalized'].data)
-        net.forward(end='rmac/pca/normalized')
-        return np.squeeze(net.blobs['rmac/pca/normalized'].data)
+        net.forward(end=end_layer)
+        return np.squeeze(net.blobs[end_layer].data)
 
     def load_and_prepare_image(self, fname, roi=None):
         # Read image, get aspect ratio, and resize such as the largest side equals S
@@ -57,7 +57,8 @@ class ImageHelper:
             roi = np.round(roi * ratio).astype(np.int32)
             im_resized = im_resized[roi[1]:roi[3], roi[0]:roi[2], :]
         # Transpose for network and subtract mean
-        I = im_resized.transpose(2, 0, 1) - self.means
+        # I = im_resized.transpose(2, 0, 1) - self.means
+        I = im_resized.transpose(2, 0, 1)
         return I, im_resized
 
     def pack_regions_for_network(self, all_regions):
@@ -234,13 +235,14 @@ class Dataset:
 
 
 def extract_features(dataset, image_helper, net, args):
+    end_layer = 'rmac/eltwise/normalized'
     Ss = [args.S, ] if not args.multires else [args.S - 250, args.S, args.S + 250]
     # First part, queries
     for S in Ss:
         # Set the scale of the image helper
         image_helper.S = S
         out_queries_fname = "{0}/{1}_S{2}_L{3}_queries.npy".format(args.temp_dir, args.dataset_name, S, args.L)
-        dim_features = net.blobs['rmac/pca/normalized'].data.shape[1]
+        dim_features = net.blobs[end_layer].data.shape[1]
         N_queries = dataset.N_queries
         features_queries = np.zeros((N_queries, dim_features), dtype=np.float32)
         for i in tqdm(range(N_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
@@ -255,7 +257,7 @@ def extract_features(dataset, image_helper, net, args):
     for S in Ss:
         image_helper.S = S
         out_dataset_fname = "{0}/{1}_S{2}_L{3}_dataset.npy".format(args.temp_dir, args.dataset_name, S, args.L)
-        dim_features = net.blobs['rmac/pca/normalized'].data.shape[1]
+        dim_features = net.blobs[end_layer].data.shape[1]
         N_dataset = dataset.N_images
         features_dataset = np.zeros((N_dataset, dim_features), dtype=np.float32)
         for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):

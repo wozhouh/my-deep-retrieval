@@ -306,6 +306,15 @@ class OxfordDataset:
                     if img_filename in img_test:
                         f_test_lab.write(line)
 
+    # Calculates each channel's mean value of RGB images in the training set
+    def cal_image_mean_channel(self):
+        img_sum = np.zeros(3, dtype=np.float32)
+        fname = os.listdir(self.img_root)
+        for f in fname:
+            img = cv2.imread(os.path.join(self.img_root, f))
+            img_sum += img.mean(axis=0).mean(axis=0)
+        return img_sum / len(fname)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='tool set for building the Oxford dataset')
@@ -315,7 +324,10 @@ if __name__ == '__main__':
 
     oxford_dataset = OxfordDataset(args.root_dir)
 
-    # make the training set and the test set of the Oxford dataset
-    training_dir = '/home/gordonwzhe/data/Oxford/training/'
-    test_dir = '/home/gordonwzhe/data/Oxford/test/'
-    oxford_dataset.make_training_test_set(training_dir, test_dir, img_size=512)
+    # # make the training set and the test set of the Oxford dataset
+    # training_dir = '/home/gordonwzhe/data/Oxford/training/'
+    # test_dir = '/home/gordonwzhe/data/Oxford/test/'
+    # oxford_dataset.make_training_test_set(training_dir, test_dir, img_size=512)
+
+    # Calculates each channel's mean value of RGB images in the training set
+    print(oxford_dataset.cal_image_mean_channel())
