@@ -9,14 +9,14 @@ layer {
 	}
 	transform_param {
 		mirror: true
-		mean_value: 107.466
-		mean_value: 111.299
-		mean_value: 114.553
+		mean_value: 103.93900299
+		mean_value: 116.77899933
+		mean_value: 123.68000031
 	}
 	data_param {
 		# source: "/home/processyuan/NetworkOptimization/cover/training/img_train_lmdb"  # 64234 images (280x496)
-		source: "/home/processyuan/data/Paris/training/paris_lmdb"  # 6392 images (384x512)
-		batch_size: 8
+		source: "/home/gordonwzhe/data/Paris/training/paris_lmdb"  # 6392 images (384x512)
+		batch_size: 16
 		backend: LMDB
 	}
 }
@@ -31,13 +31,13 @@ layer {
 	}
 	transform_param {
 		mirror: true
-		mean_value: 107.466
-		mean_value: 111.299
-		mean_value: 114.553
+		mean_value: 103.93900299
+		mean_value: 116.77899933
+		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/processyuan/data/cover/test/img_test_lmdb"  # 8578 images (280x496)
-		batch_size: 8
+		source: "/home/gordonwzhe/data/Paris/training/paris_lmdb"
+		batch_size: 16
 		backend: LMDB
 	}
 }

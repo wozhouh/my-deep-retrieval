@@ -230,7 +230,7 @@ class Dataset:
 
 
 def extract_features(dataset, image_helper, net, args, end_layer):
-    Ss = [args.S, ] if not args.multires else [args.S - 250, args.S, args.S + 250]
+    Ss = [args.S, ] if not args.multires else [args.S - 256, args.S, args.S + 256]
     # First part, queries
     for S in Ss:
         # Set the scale of the image helper
