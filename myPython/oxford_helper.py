@@ -325,15 +325,15 @@ class OxfordDataset:
             os.makedirs(new_jpg_dir)
             os.makedirs(new_lab_dir)
         # transform the images
-        for i in self.img_root:
+        for i in os.listdir(self.img_root):
             img_src_path = os.path.join(self.img_root, i)
             img_dst_path = os.path.join(new_jpg_dir, i)
             img_src = cv2.imread(img_src_path)
             img_dst = cv2.resize(img_src, (img_w, img_h))
             cv2.imwrite(img_dst_path, img_dst)
         # copy the file
-        for f in self.lab_root:
-            f_src_path = os.path.join(self.img_root, f)
+        for f in os.listdir(self.lab_root):
+            f_src_path = os.path.join(self.lab_root, f)
             f_dst_path = os.path.join(new_lab_dir, f)
             open(f_dst_path, 'w').write(open(f_src_path, 'r').read())
 
