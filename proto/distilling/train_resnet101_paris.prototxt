@@ -5309,6 +5309,7 @@ layer {
 	bottom: "rmac/pca"
 	top: "rmac/pca/reshaped"
 }
+
 layer {
 	name: "rmac/pca/normalized"
 	type: "Normalize"

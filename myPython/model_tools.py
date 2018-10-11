@@ -74,7 +74,7 @@ class ModelTools:
             if 'use_global_stats' in line:
                 # replace 'true' with 'false'
                 split_temp = line.split('true')
-                f_new_proto.write(split_temp[0] + 'false' +split_temp[-1])
+                f_new_proto.write(split_temp[0] + 'false' + split_temp[-1])
             else:
                 f_new_proto.write(line)
             if 'Convolution' in line:
