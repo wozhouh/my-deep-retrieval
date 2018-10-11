@@ -152,11 +152,11 @@ if __name__ == "__main__":
     model_tools = ModelTools(args.proto, args.weights, args.gpu)
 
     # comparison
-    model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
-                                          'deploy_resnet101.prototxt')
+    # model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
+    #                                       'deploy_resnet101.prototxt')
     # model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
     #                           'distilling/deploy_resnet101_student.prototxt')
 
     # deploy to train
-    model_tools.add_learning_params(new_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
-                                              'distilling/train_resnet101_paris.prototxt', th=10000)
+    # model_tools.add_learning_params(new_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
+    #                                           'distilling/train_resnet101_paris.prototxt', th=10000)
