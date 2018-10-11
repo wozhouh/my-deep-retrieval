@@ -14,8 +14,9 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/gordonwzhe/data/Paris/training/paris_lmdb"  # 6392 images (384x512)
-		batch_size: 16
+		# source: "/home/processyuan/data/Paris/training/paris_lmdb"  # 6392 images (384x512)
+		source: "/home/processyuan/data/Paris/aug/paris_aug_lmdb"  # 22403 images (384x512)
+		batch_size: 4
 		backend: LMDB
 	}
 }
@@ -35,8 +36,9 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/gordonwzhe/data/Paris/training/paris_lmdb"
-		batch_size: 16
+		# source: "/home/processyuan/data/Paris/training/paris_lmdb"
+		source: "/home/processyuan/data/Oxford/uni-oxford/oxford_val_lmdb"
+		batch_size: 1
 		backend: LMDB
 	}
 }
@@ -46,10 +48,32 @@ layer {
 	type: "Python"
 	bottom: "label"
 	top: "features"
+	include {
+		phase: TRAIN
+	}
 	python_param {
 		module: 'custom_layers'
 		layer: 'FeatureLayer'
-		param_str: "{'features': '/home/gordonwzhe/data/Paris/training/features.npy'}"
+		# param_str: "{'features': '/home/processyuan/data/Paris/training/features.npy'}"
+		# param_str: "{'features': '/home/processyuan/data/cover/training/features.npy'}"
+		param_str: "{'features': '/home/processyuan/data/Paris/aug/features.npy'}"
+	}
+}
+
+layer {
+	name: "features"
+	type: "Python"
+	bottom: "label"
+	top: "features"
+	include {
+		phase: TEST
+	}
+	python_param {
+		module: 'custom_layers'
+		layer: 'FeatureLayer'
+		# param_str: "{'features': '/home/processyuan/data/Paris/training/features.npy'}"
+		# param_str: "{'features': '/home/processyuan/data/cover/training/features.npy'}"
+		param_str: "{'features': '/home/processyuan/data/Oxford/uni-oxford/val_features.npy'}"
 	}
 }
 
@@ -70,10 +94,6 @@ layer {
 	top: "conv1"
 	name: "conv1"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 64
 		kernel_size: 7
@@ -127,10 +147,6 @@ layer {
 	top: "res2a_branch1"
 	name: "res2a_branch1"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -165,10 +181,6 @@ layer {
 	top: "res2a_branch2a"
 	name: "res2a_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 64
 		kernel_size: 1
@@ -210,10 +222,6 @@ layer {
 	top: "res2a_branch2b"
 	name: "res2a_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 64
 		kernel_size: 3
@@ -255,10 +263,6 @@ layer {
 	top: "res2a_branch2c"
 	name: "res2a_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -308,10 +312,6 @@ layer {
 	top: "res2b_branch2a"
 	name: "res2b_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 64
 		kernel_size: 1
@@ -353,10 +353,6 @@ layer {
 	top: "res2b_branch2b"
 	name: "res2b_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 64
 		kernel_size: 3
@@ -398,10 +394,6 @@ layer {
 	top: "res2b_branch2c"
 	name: "res2b_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -451,10 +443,6 @@ layer {
 	top: "res2c_branch2a"
 	name: "res2c_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 64
 		kernel_size: 1
@@ -496,10 +484,6 @@ layer {
 	top: "res2c_branch2b"
 	name: "res2c_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 64
 		kernel_size: 3
@@ -541,10 +525,6 @@ layer {
 	top: "res2c_branch2c"
 	name: "res2c_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -594,10 +574,6 @@ layer {
 	top: "res3a_branch1"
 	name: "res3a_branch1"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 1
@@ -632,10 +608,6 @@ layer {
 	top: "res3a_branch2a"
 	name: "res3a_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 128
 		kernel_size: 1
@@ -677,10 +649,6 @@ layer {
 	top: "res3a_branch2b"
 	name: "res3a_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 128
 		kernel_size: 3
@@ -722,10 +690,6 @@ layer {
 	top: "res3a_branch2c"
 	name: "res3a_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 1
@@ -775,10 +739,6 @@ layer {
 	top: "res3b1_branch2a"
 	name: "res3b1_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 128
 		kernel_size: 1
@@ -820,10 +780,6 @@ layer {
 	top: "res3b1_branch2b"
 	name: "res3b1_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 128
 		kernel_size: 3
@@ -865,10 +821,6 @@ layer {
 	top: "res3b1_branch2c"
 	name: "res3b1_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 1
@@ -918,10 +870,6 @@ layer {
 	top: "res3b2_branch2a"
 	name: "res3b2_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 128
 		kernel_size: 1
@@ -963,10 +911,6 @@ layer {
 	top: "res3b2_branch2b"
 	name: "res3b2_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 128
 		kernel_size: 3
@@ -1008,10 +952,6 @@ layer {
 	top: "res3b2_branch2c"
 	name: "res3b2_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 1
@@ -1061,10 +1001,6 @@ layer {
 	top: "res3b3_branch2a"
 	name: "res3b3_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 128
 		kernel_size: 1
@@ -1106,10 +1042,6 @@ layer {
 	top: "res3b3_branch2b"
 	name: "res3b3_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 128
 		kernel_size: 3
@@ -1151,10 +1083,6 @@ layer {
 	top: "res3b3_branch2c"
 	name: "res3b3_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 1
@@ -1204,10 +1132,6 @@ layer {
 	top: "res4a_branch1"
 	name: "res4a_branch1"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -1242,10 +1166,6 @@ layer {
 	top: "res4a_branch2a"
 	name: "res4a_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -1287,10 +1207,6 @@ layer {
 	top: "res4a_branch2b"
 	name: "res4a_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -1332,10 +1248,6 @@ layer {
 	top: "res4a_branch2c"
 	name: "res4a_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -1385,10 +1297,6 @@ layer {
 	top: "res4b1_branch2a"
 	name: "res4b1_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -1430,10 +1338,6 @@ layer {
 	top: "res4b1_branch2b"
 	name: "res4b1_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -1475,10 +1379,6 @@ layer {
 	top: "res4b1_branch2c"
 	name: "res4b1_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -1528,10 +1428,6 @@ layer {
 	top: "res4b2_branch2a"
 	name: "res4b2_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -1573,10 +1469,6 @@ layer {
 	top: "res4b2_branch2b"
 	name: "res4b2_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -1618,10 +1510,6 @@ layer {
 	top: "res4b2_branch2c"
 	name: "res4b2_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -1671,10 +1559,6 @@ layer {
 	top: "res4b3_branch2a"
 	name: "res4b3_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -1716,10 +1600,6 @@ layer {
 	top: "res4b3_branch2b"
 	name: "res4b3_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -1761,10 +1641,6 @@ layer {
 	top: "res4b3_branch2c"
 	name: "res4b3_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -1814,10 +1690,6 @@ layer {
 	top: "res4b4_branch2a"
 	name: "res4b4_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -1859,10 +1731,6 @@ layer {
 	top: "res4b4_branch2b"
 	name: "res4b4_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -1904,10 +1772,6 @@ layer {
 	top: "res4b4_branch2c"
 	name: "res4b4_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -1957,10 +1821,6 @@ layer {
 	top: "res4b5_branch2a"
 	name: "res4b5_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -2002,10 +1862,6 @@ layer {
 	top: "res4b5_branch2b"
 	name: "res4b5_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -2047,10 +1903,6 @@ layer {
 	top: "res4b5_branch2c"
 	name: "res4b5_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -2100,10 +1952,6 @@ layer {
 	top: "res4b6_branch2a"
 	name: "res4b6_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -2145,10 +1993,6 @@ layer {
 	top: "res4b6_branch2b"
 	name: "res4b6_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -2190,10 +2034,6 @@ layer {
 	top: "res4b6_branch2c"
 	name: "res4b6_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -2243,10 +2083,6 @@ layer {
 	top: "res4b7_branch2a"
 	name: "res4b7_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -2288,10 +2124,6 @@ layer {
 	top: "res4b7_branch2b"
 	name: "res4b7_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -2333,10 +2165,6 @@ layer {
 	top: "res4b7_branch2c"
 	name: "res4b7_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -2386,10 +2214,6 @@ layer {
 	top: "res4b8_branch2a"
 	name: "res4b8_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -2431,10 +2255,6 @@ layer {
 	top: "res4b8_branch2b"
 	name: "res4b8_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -2476,10 +2296,6 @@ layer {
 	top: "res4b8_branch2c"
 	name: "res4b8_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -2529,10 +2345,6 @@ layer {
 	top: "res4b9_branch2a"
 	name: "res4b9_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -2574,10 +2386,6 @@ layer {
 	top: "res4b9_branch2b"
 	name: "res4b9_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -2619,10 +2427,6 @@ layer {
 	top: "res4b9_branch2c"
 	name: "res4b9_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -2672,10 +2476,6 @@ layer {
 	top: "res4b10_branch2a"
 	name: "res4b10_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -2717,10 +2517,6 @@ layer {
 	top: "res4b10_branch2b"
 	name: "res4b10_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -2762,10 +2558,6 @@ layer {
 	top: "res4b10_branch2c"
 	name: "res4b10_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -2815,10 +2607,6 @@ layer {
 	top: "res4b11_branch2a"
 	name: "res4b11_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -2860,10 +2648,6 @@ layer {
 	top: "res4b11_branch2b"
 	name: "res4b11_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -2905,10 +2689,6 @@ layer {
 	top: "res4b11_branch2c"
 	name: "res4b11_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -2958,10 +2738,6 @@ layer {
 	top: "res4b12_branch2a"
 	name: "res4b12_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -3003,10 +2779,6 @@ layer {
 	top: "res4b12_branch2b"
 	name: "res4b12_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -3048,10 +2820,6 @@ layer {
 	top: "res4b12_branch2c"
 	name: "res4b12_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -3101,10 +2869,6 @@ layer {
 	top: "res4b13_branch2a"
 	name: "res4b13_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -3146,10 +2910,6 @@ layer {
 	top: "res4b13_branch2b"
 	name: "res4b13_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -3191,10 +2951,6 @@ layer {
 	top: "res4b13_branch2c"
 	name: "res4b13_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -3244,10 +3000,6 @@ layer {
 	top: "res4b14_branch2a"
 	name: "res4b14_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -3289,10 +3041,6 @@ layer {
 	top: "res4b14_branch2b"
 	name: "res4b14_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -3334,10 +3082,6 @@ layer {
 	top: "res4b14_branch2c"
 	name: "res4b14_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -3387,10 +3131,6 @@ layer {
 	top: "res4b15_branch2a"
 	name: "res4b15_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -3432,10 +3172,6 @@ layer {
 	top: "res4b15_branch2b"
 	name: "res4b15_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -3477,10 +3213,6 @@ layer {
 	top: "res4b15_branch2c"
 	name: "res4b15_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -3530,10 +3262,6 @@ layer {
 	top: "res4b16_branch2a"
 	name: "res4b16_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -3575,10 +3303,6 @@ layer {
 	top: "res4b16_branch2b"
 	name: "res4b16_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -3620,10 +3344,6 @@ layer {
 	top: "res4b16_branch2c"
 	name: "res4b16_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -3673,10 +3393,6 @@ layer {
 	top: "res4b17_branch2a"
 	name: "res4b17_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -3718,10 +3434,6 @@ layer {
 	top: "res4b17_branch2b"
 	name: "res4b17_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -3763,10 +3475,6 @@ layer {
 	top: "res4b17_branch2c"
 	name: "res4b17_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -3816,10 +3524,6 @@ layer {
 	top: "res4b18_branch2a"
 	name: "res4b18_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -3861,10 +3565,6 @@ layer {
 	top: "res4b18_branch2b"
 	name: "res4b18_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -3906,10 +3606,6 @@ layer {
 	top: "res4b18_branch2c"
 	name: "res4b18_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -3959,10 +3655,6 @@ layer {
 	top: "res4b19_branch2a"
 	name: "res4b19_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -4004,10 +3696,6 @@ layer {
 	top: "res4b19_branch2b"
 	name: "res4b19_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -4049,10 +3737,6 @@ layer {
 	top: "res4b19_branch2c"
 	name: "res4b19_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -4102,10 +3786,6 @@ layer {
 	top: "res4b20_branch2a"
 	name: "res4b20_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -4147,10 +3827,6 @@ layer {
 	top: "res4b20_branch2b"
 	name: "res4b20_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -4192,10 +3868,6 @@ layer {
 	top: "res4b20_branch2c"
 	name: "res4b20_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -4245,10 +3917,6 @@ layer {
 	top: "res4b21_branch2a"
 	name: "res4b21_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -4290,10 +3958,6 @@ layer {
 	top: "res4b21_branch2b"
 	name: "res4b21_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -4335,10 +3999,6 @@ layer {
 	top: "res4b21_branch2c"
 	name: "res4b21_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -4388,10 +4048,6 @@ layer {
 	top: "res4b22_branch2a"
 	name: "res4b22_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 1
@@ -4433,10 +4089,6 @@ layer {
 	top: "res4b22_branch2b"
 	name: "res4b22_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 256
 		kernel_size: 3
@@ -4478,10 +4130,6 @@ layer {
 	top: "res4b22_branch2c"
 	name: "res4b22_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 1024
 		kernel_size: 1
@@ -4531,10 +4179,6 @@ layer {
 	top: "res5a_branch1"
 	name: "res5a_branch1"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 2048
 		kernel_size: 1
@@ -4569,10 +4213,6 @@ layer {
 	top: "res5a_branch2a"
 	name: "res5a_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 1
@@ -4614,10 +4254,6 @@ layer {
 	top: "res5a_branch2b"
 	name: "res5a_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 3
@@ -4659,10 +4295,6 @@ layer {
 	top: "res5a_branch2c"
 	name: "res5a_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 2048
 		kernel_size: 1
@@ -4712,10 +4344,6 @@ layer {
 	top: "res5b_branch2a"
 	name: "res5b_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 1
@@ -4757,10 +4385,6 @@ layer {
 	top: "res5b_branch2b"
 	name: "res5b_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 3
@@ -4802,10 +4426,6 @@ layer {
 	top: "res5b_branch2c"
 	name: "res5b_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 2048
 		kernel_size: 1
@@ -4855,10 +4475,6 @@ layer {
 	top: "res5c_branch2a"
 	name: "res5c_branch2a"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 1
@@ -4900,10 +4516,6 @@ layer {
 	top: "res5c_branch2b"
 	name: "res5c_branch2b"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 512
 		kernel_size: 3
@@ -4945,10 +4557,6 @@ layer {
 	top: "res5c_branch2c"
 	name: "res5c_branch2c"
 	type: "Convolution"
-	param {
-		lr_mult: 0.0
-		decay_mult: 0.0
-	}
 	convolution_param {
 		num_output: 2048
 		kernel_size: 1
@@ -5037,7 +4645,7 @@ layer {
 		decay_mult: 0.0
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 20
 	}
 	scale_param {
 	  bias_term: true
@@ -5056,10 +4664,10 @@ layer {
 	name: "pooled_rois_branch_1/pca"
 	type: "InnerProduct"
 	param {
-		lr_mult: 1.0
+		lr_mult: 10
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 20
 	}
 	inner_product_param {
 		num_output: 1024 # output PCA dimensionality 
@@ -5158,7 +4766,7 @@ layer {
 		decay_mult: 0.0
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 20
 	}
 	scale_param {
 	  bias_term: true
@@ -5177,10 +4785,10 @@ layer {
 	name: "pooled_rois/pca"
 	type: "InnerProduct"
 	param {
-		lr_mult: 1.0
+		lr_mult: 10
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 20
 	}
 	inner_product_param {
 		num_output: 2048 # output PCA dimensionality 
@@ -5257,7 +4865,7 @@ layer {
 		decay_mult: 0.0
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 20
 	}
 	scale_param {
 	  bias_term: true
@@ -5276,10 +4884,10 @@ layer {
 	name: "rmac/pca"
 	type: "InnerProduct"
 	param {
-		lr_mult: 1.0
+		lr_mult: 10
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 20
 	}
 	inner_product_param {
 		num_output: 2048 # output PCA dimensionality 
@@ -5323,4 +4931,18 @@ layer {
 	bottom: "features"
 	bottom: "rmac/pca/normalized"
 	top: "loss"
+	include {
+		phase: TRAIN
+	}
+}
+
+layer {
+	name: "loss"
+	type: "EuclideanLoss"
+	bottom: "features"
+	bottom: "rmac/pca/normalized"
+	top: "loss"
+	include {
+		phase: TEST
+	}
 }

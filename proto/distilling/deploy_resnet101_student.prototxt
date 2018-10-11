@@ -2,22 +2,16 @@ name: "ResNet-101"
 
 input: "data"
 	input_shape{
-	dim: 1
-	dim: 3
-	dim: 384
-	dim: 512
+		dim: 1
+		dim: 3
+		dim: 384
+		dim: 512
 }
 
-layer {
-	name: "rois"
-	type: "Python"
-	bottom: "data"
-	top: "rois"
-	python_param {
-		module: 'custom_layers'
-		layer: 'RigidGridLayer'
-		param_str: "{}"
-	}
+input: "rois"
+	input_shape{
+		dim: 8
+		dim: 5
 }
 
 layer {

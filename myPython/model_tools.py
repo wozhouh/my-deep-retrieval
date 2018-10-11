@@ -65,20 +65,24 @@ class ModelTools:
     # Add the learning params to each layer for later training
     # layers within lines lower than 'th' will add learning-params that lr_mult=0 to stop back propagation
     # layers within lines higher than 'th' will not change
-    def add_learning_params(self, new_proto, th):
+    def add_learning_params(self, new_proto, l=0, h=10000):
         f_new_proto = open(new_proto, 'w')
-        # a Convolution layer should add 1 learning param (without bias_term)
-        # For a BatchNorm layer, the 'use_global_stats' should be changed to 'false'
-        # the Scale layer and the ReLU layer will not change
-        for line in self.lines:
-            if 'use_global_stats' in line:
+        # layers between line l and h will add learning param (conv for 1, bn for 3, scale for 2)
+        # For a BatchNorm layer, the 'use_global_stats' should be changed to 'false' when training
+        for k, line in enumerate(self.lines):
+            if 'use_global_stats' in line and 'true' in line:
                 # replace 'true' with 'false'
                 split_temp = line.split('true')
                 f_new_proto.write(split_temp[0] + 'false' + split_temp[-1])
             else:
                 f_new_proto.write(line)
-            if 'Convolution' in line:
-                f_new_proto.write(self.learning_params)
+            if h > k+1 > l:
+                if 'Convolution' in line:
+                    f_new_proto.write(self.learning_params)
+                if 'Scale' in line:
+                    f_new_proto.write(self.learning_params * 2)
+                if 'BatchNorm' in line:
+                    f_new_proto.write(self.learning_params * 3)
 
         f_new_proto.close()
 
@@ -144,7 +148,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='print the shape of weights stored in caffemodel')
     parser.add_argument('--proto', type=str, required=True, help='Path to the prototxt file')
     parser.add_argument('--weights', type=str, required=True, help='Path to the caffemodel file')
-    parser.add_argument('--gpu', type=str, required=False, help='index of Used GPU')
+    parser.add_argument('--gpu', type=int, required=False, help='index of Used GPU')
     parser.set_defaults(gpu=0)
     args = parser.parse_args()
 
@@ -152,11 +156,11 @@ if __name__ == "__main__":
     model_tools = ModelTools(args.proto, args.weights, args.gpu)
 
     # comparison
-    # model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
+    # model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
     #                                       'deploy_resnet101.prototxt')
-    # model_tools.compare_model(other_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
+    # model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
     #                           'distilling/deploy_resnet101_student.prototxt')
 
     # deploy to train
-    # model_tools.add_learning_params(new_proto='/home/gordonwzhe/code/my-deep-retrieval/proto/'
-    #                                           'distilling/train_resnet101_paris.prototxt', th=10000)
+    model_tools.add_learning_params(new_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
+                                              'distilling/train_resnet101_paris.prototxt', l=0, h=0)

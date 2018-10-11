@@ -32,8 +32,8 @@ if __name__ == '__main__':
     parser.add_argument('--weights', type=str, required=False, help='Path to the caffemodel file')
     parser.add_argument('--img_dir', type=str, required=False,
                         help='Path to the directory to images')
-    parser.add_argument('--features_dir', type=str, required=False,
-                        help='Path to the directory to save the features')
+    parser.add_argument('--features_npy', type=str, required=False,
+                        help='Path to save the features')
     parser.add_argument('--features_txt', type=str, required=False,
                         help='Path to the file to record the feature index')
     parser.set_defaults(gpu=0)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     parser.set_defaults(weights='/home/processyuan/NetworkOptimization/deep-retrieval/'
                                 'caffemodel/deploy_resnet101_teacher.caffemodel')
     parser.set_defaults(img_dir='/home/processyuan/NetworkOptimization/cover/training/img')
-    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/cover/training/')
+    parser.set_defaults(features_npy='/home/processyuan/NetworkOptimization/cover/training/features.npy')
     parser.set_defaults(features_txt='/home/processyuan/NetworkOptimization/cover/training/training.txt')
 
     args = parser.parse_args()
@@ -76,7 +76,7 @@ if __name__ == '__main__':
         img_idx += 1
 
     # save the features and write the txt filesop
-    features_fname = os.path.join(args.features_dir, 'features.npy')
+    features_fname = args.features_npy
     np.save(features_fname, features)
     random.shuffle(f_lines)
     for line in f_lines:

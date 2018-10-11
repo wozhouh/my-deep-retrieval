@@ -14,8 +14,8 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/gordonwzhe/data/Paris/training/paris_lmdb"  # 6392 images (384x512)
-		batch_size: 16
+		source: "/home/processyuan/data/Paris/training/paris_lmdb"  # 6392 images (384x512)
+		batch_size: 8
 		backend: LMDB
 	}
 }
@@ -35,8 +35,8 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/gordonwzhe/data/Paris/training/paris_lmdb"
-		batch_size: 16
+		source: "/home/processyuan/data/Paris/training/paris_lmdb"
+		batch_size: 8
 		backend: LMDB
 	}
 }
@@ -49,7 +49,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'FeatureLayer'
-		param_str: "{'features': '/home/gordonwzhe/data/Paris/training/features.npy'}"
+		param_str: "{'features': '/home/processyuan/data/Paris/training/features.npy'}"
 	}
 }
 
@@ -4893,6 +4893,7 @@ layer {
 	bottom: "rmac/pca"
 	top: "rmac/pca/reshaped"
 }
+
 layer {
 	name: "rmac/pca/normalized"
 	type: "Normalize"

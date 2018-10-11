@@ -5,7 +5,7 @@
 import os
 import argparse
 import cv2
-from region_generator import  *
+import random
 
 
 class ParisDataset:
@@ -15,6 +15,7 @@ class ParisDataset:
         self.lab_dir = os.path.join(self.root_dir, 'lab')
         self.test_dir = os.path.join(self.root_dir, 'training')
         self.triplet_dir = os.path.join(self.root_dir, 'triplet')
+        self.aug_dir = os.path.join(self.root_dir, 'aug')
         self.blacklist = []
         f_blacklist = open(os.path.join(self.root_dir, 'paris_blacklist.txt'), 'r')
         lines = f_blacklist.readlines()
@@ -92,6 +93,34 @@ class ParisDataset:
                 if not os.path.exists(img_dst_path) and img in img_list:
                     open(img_dst_path, 'wb').write(open(img_src_path, 'rb').read())
 
+    # perform data-augmentation by randomly resizing (the '/aug' directory)
+    def make_aug_set(self, obj_h=384, obj_w=512, resize_num=2):
+        for cls in os.listdir(self.cls_dir):
+            cls_path = os.path.join(self.cls_dir, cls)
+            for i in os.listdir(cls_path):
+                if i not in self.blacklist:
+                    img_src_path = os.path.join(cls_path, i)
+                    img_dst_path = os.path.join(self.aug_dir, 'img', i)
+                    # open(img_dst_path, 'wb').write(open(img_src_path, 'rb').read())
+                    img = cv2.imread(img_src_path)
+                    img_dst = cv2.resize(img, (obj_w, obj_h))
+                    cv2.imwrite(img_dst_path, img_dst)
+                    img_shape = img.shape
+                    img_h = img_shape[0]
+                    img_w = img_shape[1]
+                    if obj_h < img_h and obj_w < img_w:
+                        # resize (crop to the middle size and then resize)
+                        r_obj_h = obj_h + (img_h - obj_h) / 2
+                        r_obj_w = obj_w + (img_w - obj_w) / 2
+                        r_room_h = img_h - r_obj_h
+                        r_room_w = img_w - r_obj_w
+                        for k in range(resize_num):
+                            r_rand_h = random.randint(0, r_room_h)
+                            r_rand_w = random.randint(0, r_room_w)
+                            r_img_crop = img[r_rand_h: r_rand_h + r_obj_h, r_rand_w: r_rand_w + r_obj_w, :]
+                            img_resize = cv2.resize(r_img_crop, (obj_w, obj_h))
+                            cv2.imwrite(img_dst_path.split('.jpg')[0] + '_resize_' + str(k) + '.jpg', img_resize)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='tool set for building the Paris dataset')
@@ -101,8 +130,11 @@ if __name__ == '__main__':
 
     paris_dataset = ParisDataset(args.root_dir)
 
-    # Generates the test set with a uniform resolution
-    paris_dataset.make_test_set(img_h=384, img_w=512)
+    # # Generates the test set with a uniform resolution
+    # paris_dataset.make_test_set(img_h=384, img_w=512)
 
-    # Generates the triplet set
-    paris_dataset.make_triplet_set()
+    # # Generates the triplet set
+    # paris_dataset.make_triplet_set()
+
+    # Generates the augmentation set
+    paris_dataset.make_aug_set(obj_h=384, obj_w=512, resize_num=3)
