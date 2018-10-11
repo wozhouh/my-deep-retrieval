@@ -82,8 +82,8 @@ class ModelTools:
 
         f_new_proto.close()
 
-    # Copies the single-pass ResNet-101 to 3-pass and
-    # adds the learning params to each layer with 'name', 'lr_mult' and 'decay_mult'
+    # Copy the single-pass ResNet-101 to 3-pass and
+    # add the learning params to each layer with 'name', 'lr_mult' and 'decay_mult'
     def make_teacher_network(self, new_proto):
         f_new_proto = open(new_proto, 'w')
         # used to distinguish different branches of teacher network
