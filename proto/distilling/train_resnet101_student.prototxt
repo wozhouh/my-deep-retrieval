@@ -12,14 +12,10 @@ layer {
 		mean_value: 103.93900299
 		mean_value: 116.77899933
 		mean_value: 123.68000031
-		# mean_value: 117.80904
-		# mean_value: 130.27611
-		# mean_value: 134.65074
 	}
 	data_param {
-		# source: "/home/processyuan/data/Paris/training/paris_lmdb"  # 6392 images (384x512)
-		# source: "/home/processyuan/data/cover/training/img_train_lmdb"  # cover dataset
-		source: "/home/processyuan/data/Paris/aug/paris_aug_lmdb"
+		# source: "/home/processyuan/data/Paris/training/paris_lmdb"  # Paris: 6392 images (384x512)
+		source: "/home/processyuan/data/Paris/aug/paris_aug_lmdb"  # Paris: augmented to 25403 images (384x512)
 		batch_size: 8
 		backend: LMDB
 	}
@@ -38,15 +34,11 @@ layer {
 		mean_value: 103.93900299
 		mean_value: 116.77899933
 		mean_value: 123.68000031
-		# mean_value: 117.80904
-		# mean_value: 130.27611
-		# mean_value: 134.65074
 	}
 	data_param {
-		# source: "/home/processyuan/data/Paris/training/paris_lmdb"
-		# source: "/home/processyuan/data/cover/training/img_train_lmdb"  # cover dataset
-		source: "/home/processyuan/data/Oxford/uni-oxford/oxford_val_lmdb"
-		batch_size: 1
+		# source: "/home/processyuan/data/Paris/training/paris_lmdb"  # Paris: 6392 images (384x512)
+		source: "/home/processyuan/data/Paris/aug/paris_aug_lmdb"  # Paris: augmented to 25403 images (384x512)
+		batch_size: 8
 		backend: LMDB
 	}
 }
@@ -56,32 +48,12 @@ layer {
 	type: "Python"
 	bottom: "label"
 	top: "features"
-	include {
-		phase: TRAIN
-	}
 	python_param {
 		module: 'custom_layers'
 		layer: 'FeatureLayer'
-		# param_str: "{'features': '/home/processyuan/data/Paris/training/features.npy'}"
-		# param_str: "{'features': '/home/processyuan/data/cover/training/features.npy'}"
-		param_str: "{'features': '/home/processyuan/data/Paris/aug/features.npy'}"
-	}
-}
-
-layer {
-	name: "features"
-	type: "Python"
-	bottom: "label"
-	top: "features"
-	include {
-		phase: TEST
-	}
-	python_param {
-		module: 'custom_layers'
-		layer: 'FeatureLayer'
-		# param_str: "{'features': '/home/processyuan/data/Paris/training/features.npy'}"
-		# param_str: "{'features': '/home/processyuan/data/cover/training/features.npy'}"
-		param_str: "{'features': '/home/processyuan/data/Oxford/uni-oxford/val_features.npy'}"
+		# param_str: "{'features': '/home/processyuan/data/Paris/training/features.npy'}"  # Paris: 6392 images (384x512)
+		param_str: "{'features': '/home/processyuan/data/Paris/aug/features.npy'}"  # Paris: augmented to 25403 images (384x512)
+		# param_str: "{'features': '/home/processyuan/data/cover/training/features.npy'}"  # cover: 64234 images (280x496)
 	}
 }
 
@@ -133,7 +105,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -210,7 +182,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -268,7 +240,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -333,7 +305,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -398,7 +370,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -471,7 +443,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -536,7 +508,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -601,7 +573,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -674,7 +646,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -739,7 +711,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -804,7 +776,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -877,7 +849,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -935,7 +907,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1000,7 +972,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1065,7 +1037,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1138,7 +1110,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1203,7 +1175,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1268,7 +1240,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1341,7 +1313,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1406,7 +1378,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1471,7 +1443,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1544,7 +1516,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1609,7 +1581,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1674,7 +1646,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1747,7 +1719,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1805,7 +1777,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1870,7 +1842,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -1935,7 +1907,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2008,7 +1980,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2073,7 +2045,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2138,7 +2110,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2211,7 +2183,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2276,7 +2248,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2341,7 +2313,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2414,7 +2386,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2479,7 +2451,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2544,7 +2516,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2617,7 +2589,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2682,7 +2654,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2747,7 +2719,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2820,7 +2792,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2885,7 +2857,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -2950,7 +2922,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3023,7 +2995,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3088,7 +3060,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3153,7 +3125,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3226,7 +3198,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3291,7 +3263,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3356,7 +3328,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3429,7 +3401,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3494,7 +3466,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3559,7 +3531,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3632,7 +3604,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3697,7 +3669,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3762,7 +3734,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3835,7 +3807,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3900,7 +3872,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -3965,7 +3937,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4038,7 +4010,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4103,7 +4075,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4168,7 +4140,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4241,7 +4213,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4306,7 +4278,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4371,7 +4343,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4444,7 +4416,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4509,7 +4481,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4574,7 +4546,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4647,7 +4619,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4712,7 +4684,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4777,7 +4749,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4850,7 +4822,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4915,7 +4887,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -4980,7 +4952,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5053,7 +5025,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5118,7 +5090,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5183,7 +5155,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5256,7 +5228,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5321,7 +5293,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5386,7 +5358,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5459,7 +5431,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5524,7 +5496,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5589,7 +5561,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5662,7 +5634,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5727,7 +5699,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5792,7 +5764,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5865,7 +5837,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5930,7 +5902,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -5995,7 +5967,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6068,7 +6040,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6133,7 +6105,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6198,7 +6170,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6271,7 +6243,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6336,7 +6308,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6401,7 +6373,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6474,7 +6446,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6532,7 +6504,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6597,7 +6569,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6662,7 +6634,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6735,7 +6707,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6800,7 +6772,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6865,7 +6837,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -6938,7 +6910,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -7003,7 +6975,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -7068,7 +7040,7 @@ layer {
 		decay_mult: 0.0
 	}
 	batch_norm_param {
-		use_global_stats: false
+		use_global_stats: true
 	}
 }
 
@@ -7118,12 +7090,14 @@ layer {
 	spatial_scale: 0.0625 # 1/16
 	}
  }
+
 layer {
 	name: "pooled_rois_branch_1/normalized"
 	type: "Normalize"
 	bottom: "pooled_rois_branch_1"
 	top: "pooled_rois_branch_1/normalized"
 }
+
 layer {
 	name: "pooled_rois_branch_1/normalized_flat"
 	type: "Reshape"
@@ -7138,6 +7112,7 @@ layer {
 	bottom: "pooled_rois_branch_1/normalized"
 	top: "pooled_rois_branch_1/normalized_flat"
 }
+
 # Mean center done with a scaling (at 1) + shifting. The shifting needs to be copied into the model weights.
 layer {
 	name: "pooled_rois_branch_1/centered"
@@ -7163,6 +7138,7 @@ layer {
 	  }
 	}
 }
+
 # And then the PCA, which is another FC layer
 layer {
 	name: "pooled_rois_branch_1/pca"
@@ -7186,6 +7162,7 @@ layer {
 	bottom: "pooled_rois_branch_1/centered"
 	top: "pooled_rois_branch_1/pca"
 }
+
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
 layer {
 	name: "pooled_rois_branch_1/pca/reshaped"
@@ -7201,12 +7178,14 @@ layer {
 	bottom: "pooled_rois_branch_1/pca"
 	top: "pooled_rois_branch_1/pca/reshaped"
 }
+
 layer {
 	name: "pooled_rois_branch_1/pca/normalized"
 	type: "Normalize"
 	bottom: "pooled_rois_branch_1/pca/reshaped"
 	top: "pooled_rois_branch_1/pca/normalized"
 }
+
 layer {
 	name: "rmac_branch_1"
 	type: "Python"
@@ -7218,6 +7197,7 @@ layer {
 		param_str: "{'num_rois': 8}"
 	}
 }
+
 ## L2, one last time
 layer {
   name: "rmac_branch_1/normalized"
@@ -7239,12 +7219,14 @@ layer {
 	spatial_scale: 0.03125 # 1/32
 	}
  }
+
 layer {
 	name: "pooled_rois/normalized"
 	type: "Normalize"
 	bottom: "pooled_rois"
 	top: "pooled_rois/normalized"
 }
+
 layer {
 	name: "pooled_rois/normalized_flat"
 	type: "Reshape"
@@ -7259,6 +7241,7 @@ layer {
 	bottom: "pooled_rois/normalized"
 	top: "pooled_rois/normalized_flat"
 }
+
 # Mean center done with a scaling (at 1) + shifting. The shifting needs to be copied into the model weights.
 layer {
 	name: "pooled_rois/centered"
@@ -7284,6 +7267,7 @@ layer {
 	  }
 	}
 }
+
 # And then the PCA, which is another FC layer
 layer {
 	name: "pooled_rois/pca"
@@ -7307,6 +7291,7 @@ layer {
 	bottom: "pooled_rois/centered"
 	top: "pooled_rois/pca"
 }
+
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
 layer {
 	name: "pooled_rois/pca/reshaped"
@@ -7322,12 +7307,14 @@ layer {
 	bottom: "pooled_rois/pca"
 	top: "pooled_rois/pca/reshaped"
 }
+
 layer {
 	name: "pooled_rois/pca/normalized"
 	type: "Normalize"
 	bottom: "pooled_rois/pca/reshaped"
 	top: "pooled_rois/pca/normalized"
 }
+
 layer {
 	name: "rmac"
 	type: "Python"
@@ -7435,18 +7422,4 @@ layer {
 	bottom: "features"
 	bottom: "rmac/pca/normalized"
 	top: "loss"
-	include {
-		phase: TRAIN
-	}
-}
-
-layer {
-	name: "loss"
-	type: "EuclideanLoss"
-	bottom: "features"
-	bottom: "rmac/pca/normalized"
-	top: "loss"
-	include {
-		phase: TEST
-	}
 }

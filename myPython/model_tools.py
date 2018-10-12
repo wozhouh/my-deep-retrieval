@@ -14,7 +14,7 @@ class ModelTools:
         f_proto = open(self.proto, 'r')
         self.lines = f_proto.readlines()
         # build the net
-        self.net = caffe.Net(self.proto, self.weights, caffe.TEST)
+        self.net = caffe.Net(self.proto, self.weights, caffe.TRAIN)
         # setting
         caffe.set_mode_gpu()
         caffe.set_device(gpu)
@@ -70,12 +70,13 @@ class ModelTools:
         # layers between line l and h will add learning param (conv for 1, bn for 3, scale for 2)
         # For a BatchNorm layer, the 'use_global_stats' should be changed to 'false' when training
         for k, line in enumerate(self.lines):
-            if 'use_global_stats' in line and 'true' in line:
-                # replace 'true' with 'false'
-                split_temp = line.split('true')
-                f_new_proto.write(split_temp[0] + 'false' + split_temp[-1])
-            else:
-                f_new_proto.write(line)
+            # if 'use_global_stats' in line and 'true' in line:
+            #     # replace 'true' with 'false'
+            #     split_temp = line.split('true')
+            #     f_new_proto.write(split_temp[0] + 'false' + split_temp[-1])
+            # else:
+            #     f_new_proto.write(line)
+            f_new_proto.write(line)
             if h > k+1 > l:
                 if 'Convolution' in line:
                     f_new_proto.write(self.learning_params)
@@ -161,6 +162,6 @@ if __name__ == "__main__":
     # model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
     #                           'distilling/deploy_resnet101_student.prototxt')
 
-    # deploy to train
-    model_tools.add_learning_params(new_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
-                                              'distilling/train_resnet101_paris.prototxt', l=0, h=0)
+    # # deploy to train
+    # model_tools.add_learning_params(new_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
+    #                                           'distilling/train_resnet101_student.prototxt', l=0, h=4584)
