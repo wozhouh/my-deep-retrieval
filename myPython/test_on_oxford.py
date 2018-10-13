@@ -1,3 +1,7 @@
+# Python script that modified from original test.py to provide a uniform standard to evaluate the model
+# different from test.py that it does not resize when loading the original image
+# and it sets default for parser
+
 import sys
 import numpy as np
 import caffe
@@ -7,9 +11,6 @@ from tqdm import tqdm
 import os
 from collections import OrderedDict
 import subprocess
-
-# Python script modified from the original test.py but different that the query doesn't use a roi to crop
-# usage: refer to test.sh at the root of directory
 
 class ImageHelper:
     def __init__(self, S, L, means):
@@ -29,29 +30,33 @@ class ImageHelper:
             R[0, 4] = im_resized.shape[0] - 1
         else:
             # Get the region coordinates and feed them to the network.
-            all_regions = []
-            all_regions.append(self.get_rmac_region_coordinates(im_resized.shape[0], im_resized.shape[1], self.L))
+            all_regions = [self.get_rmac_region_coordinates(im_resized.shape[0], im_resized.shape[1], self.L)]
             R = self.pack_regions_for_network(all_regions)
         return I, R
 
-    def get_rmac_features(self, I, R, net, end_layer):
+    def get_rmac_features(self, I, R, net):
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
-        # net.blobs['rois'].reshape(R.shape[0], R.shape[1])
-        # net.blobs['rois'].data[:] = R.astype(np.float32)
-        # net.forward(end='rmac/normalized')
-        # return np.squeeze(net.blobs['rmac/normalized'].data)
-        net.forward(end=end_layer)
-        return np.squeeze(net.blobs[end_layer].data)
+        net.blobs['rois'].reshape(R.shape[0], R.shape[1])
+        net.blobs['rois'].data[:] = R.astype(np.float32)
+        net.forward(end='rmac/normalized')
+        return np.squeeze(net.blobs['rmac/normalized'].data)
 
     def load_and_prepare_image(self, fname, roi=None):
         # Read image, get aspect ratio, and resize such as the largest side equals S
         im = cv2.imread(fname)
-        # im_size_hw = np.array(im.shape[0:2])
-        # ratio = float(self.S)/np.max(im_size_hw)
-        # new_size = tuple(np.round(im_size_hw * ratio).astype(np.int32))
-        # im_resized = cv2.resize(im, (new_size[1], new_size[0]))
-        im_resized = im
+        im_size_hw = np.array(im.shape[0:2])
+        if self.S != np.max(im_size_hw):
+            ratio = float(self.S) / np.max(im_size_hw)
+            new_size = tuple(np.round(im_size_hw * ratio).astype(np.int32))
+            im_resized = cv2.resize(im, (new_size[1], new_size[0]))
+        else:
+            im_resized = im
+        # If there is a roi, adapt the roi to the new size and crop. Do not rescale
+        # the image once again
+        # if roi is not None:
+        #     roi = np.round(roi * ratio).astype(np.int32)
+        #     im_resized = im_resized[roi[1]:roi[3], roi[0]:roi[2], :]
         # Transpose for network and subtract mean
         I = im_resized.transpose(2, 0, 1) - self.means
         return I, im_resized
@@ -229,21 +234,23 @@ class Dataset:
         return self.q_roi[self.q_names[i]]
 
 
-def extract_features(dataset, image_helper, net, args, end_layer):
-    Ss = [args.S, ] if not args.multires else [args.S - 256, args.S, args.S + 256]
+def extract_features(dataset, image_helper, net, args):
+    Ss = [args.S, ] if not args.multires else [args.S - 256, args.S, args.S + 256]  # multi-resolution of (256, 512, 768)
     # First part, queries
     for S in Ss:
         # Set the scale of the image helper
         image_helper.S = S
         out_queries_fname = "{0}/{1}_S{2}_L{3}_queries.npy".format(args.temp_dir, args.dataset_name, S, args.L)
-        dim_features = net.blobs[end_layer].data.shape[1]
-        N_queries = dataset.N_queries
-        features_queries = np.zeros((N_queries, dim_features), dtype=np.float32)
-        for i in tqdm(range(N_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
-            # Load image, process image, get image regions, feed into the network, get descriptor, and store
-            I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i), roi=None)
-            features_queries[i] = image_helper.get_rmac_features(I, R, net, end_layer)
-        np.save(out_queries_fname, features_queries)
+        if not os.path.exists(out_queries_fname):
+            dim_features = net.blobs['rmac/normalized'].data.shape[1]
+            N_queries = dataset.N_queries
+            features_queries = np.zeros((N_queries, dim_features), dtype=np.float32)
+            for i in tqdm(range(N_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
+                # Load image, process image, get image regions, feed into the network, get descriptor, and store
+                # I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i), roi=dataset.get_query_roi(i))
+                I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i), roi=None)
+                features_queries[i] = image_helper.get_rmac_features(I, R, net)
+            np.save(out_queries_fname, features_queries)
     features_queries = np.dstack([np.load("{0}/{1}_S{2}_L{3}_queries.npy".format(args.temp_dir, args.dataset_name, S, args.L)) for S in Ss]).sum(axis=2)
     features_queries /= np.sqrt((features_queries * features_queries).sum(axis=1))[:, None]
 
@@ -251,14 +258,15 @@ def extract_features(dataset, image_helper, net, args, end_layer):
     for S in Ss:
         image_helper.S = S
         out_dataset_fname = "{0}/{1}_S{2}_L{3}_dataset.npy".format(args.temp_dir, args.dataset_name, S, args.L)
-        dim_features = net.blobs[end_layer].data.shape[1]
-        N_dataset = dataset.N_images
-        features_dataset = np.zeros((N_dataset, dim_features), dtype=np.float32)
-        for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
-            # Load image, process image, get image regions, feed into the network, get descriptor, and store
-            I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_filename(i), roi=None)
-            features_dataset[i] = image_helper.get_rmac_features(I, R, net, end_layer)
-        np.save(out_dataset_fname, features_dataset)
+        if not os.path.exists(out_dataset_fname):
+            dim_features = net.blobs['rmac/normalized'].data.shape[1]
+            N_dataset = dataset.N_images
+            features_dataset = np.zeros((N_dataset, dim_features), dtype=np.float32)
+            for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
+                # Load image, process image, get image regions, feed into the network, get descriptor, and store
+                I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_filename(i), roi=None)
+                features_dataset[i] = image_helper.get_rmac_features(I, R, net)
+            np.save(out_dataset_fname, features_dataset)
     features_dataset = np.dstack([np.load("{0}/{1}_S{2}_L{3}_dataset.npy".format(args.temp_dir, args.dataset_name, S, args.L)) for S in Ss]).sum(axis=2)
     features_dataset /= np.sqrt((features_dataset * features_dataset).sum(axis=1))[:, None]
     # Restore the original scale
@@ -267,34 +275,34 @@ def extract_features(dataset, image_helper, net, args, end_layer):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Evaluate Oxford / Paris')
-    parser.add_argument('--gpu', type=int, required=True, help='GPU ID to use (e.g. 0)')
-    parser.add_argument('--S', type=int, required=True, help='Resize larger side of image to S pixels (e.g. 800)')
-    parser.add_argument('--L', type=int, required=True, help='Use L spatial levels (e.g. 2)')
+    parser = argparse.ArgumentParser(description='Model Evaluation on Oxford dataset')
+    parser.add_argument('--gpu', type=int, required=False, help='GPU ID to use (e.g. 0)')
+    parser.add_argument('--S', type=int, required=False, help='Resize larger side of image to S pixels (e.g. 800)')
+    parser.add_argument('--L', type=int, required=False, help='Use L spatial levels (e.g. 2)')
     parser.add_argument('--proto', type=str, required=True, help='Path to the prototxt file')
     parser.add_argument('--weights', type=str, required=True, help='Path to the caffemodel file')
-    parser.add_argument('--dataset', type=str, required=True, help='Path to the Oxford / Paris directory')
-    parser.add_argument('--dataset_name', type=str, required=True, help='Dataset name')
-    parser.add_argument('--eval_binary', type=str, required=True, help='Path to the compute_ap binary to evaluate Oxford / Paris')
-    parser.add_argument('--temp_dir', type=str, required=True, help='Path to a temporary directory to store features and scores')
+    parser.add_argument('--dataset', type=str, required=False, help='Path to the Oxford / Paris directory')
+    parser.add_argument('--dataset_name', type=str, required=False, help='Dataset name')
+    parser.add_argument('--eval_binary', type=str, required=False, help='Path to the compute_ap binary to evaluate Oxford / Paris')
+    parser.add_argument('--temp_dir', type=str, required=False, help='Path to a temporary directory to store features and scores')
     parser.add_argument('--multires', dest='multires', action='store_true', help='Enable multiresolution features')
     parser.add_argument('--aqe', type=int, required=False, help='Average query expansion with k neighbors')
     parser.add_argument('--dbe', type=int, required=False, help='Database expansion with k neighbors')
     parser.set_defaults(multires=False)
+    parser.set_defaults(dataset_name='Oxford')
+    parser.set_defaults(dataset='/home/processyuan/data/Oxford/uni-oxford/')
+    parser.set_defaults(eval_binary='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/compute_ap')
+    parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/eval_test/')
+    parser.set_defaults(S=512)
+    parser.set_defaults(L=2)
+    parser.set_defaults(gpu=0)
     args = parser.parse_args()
 
     if not os.path.exists(args.temp_dir):
         os.makedirs(args.temp_dir)
 
     # Load and reshape the means to subtract to the inputs
-    args.means = np.array([103.93900299, 116.77899933, 123.68000031], dtype=np.float32)[None, :, None, None]  # Oxford
-    # args.means = np.array([107.464, 111.302, 114.55], dtype=np.float32)[None, :, None, None]  # Paris
-    # args.means = np.array([117.80904, 130.27611, 134.65074], dtype=np.float32)[None, :, None, None]  #cover
-
-    # define the output layer of the deployed network
-    end_layer = 'rmac/pca/normalized'  # distilling network
-    # end_layer = 'rmac/eltwise/normalized'  # 3-pass teacher network
-
+    args.means = np.array([103.93900299,  116.77899933,  123.68000031], dtype=np.float32)[None, :, None, None]
 
     # Configure caffe and load the network
     caffe.set_device(args.gpu)
@@ -306,7 +314,7 @@ if __name__ == '__main__':
     image_helper = ImageHelper(args.S, args.L, args.means)
 
     # Extract features
-    features_queries, features_dataset = extract_features(dataset, image_helper, net, args, end_layer)
+    features_queries, features_dataset = extract_features(dataset, image_helper, net, args)
 
     # Database side expansion?
     if args.dbe is not None and args.dbe > 0:

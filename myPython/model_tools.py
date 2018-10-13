@@ -14,7 +14,7 @@ class ModelTools:
         f_proto = open(self.proto, 'r')
         self.lines = f_proto.readlines()
         # build the net
-        self.net = caffe.Net(self.proto, self.weights, caffe.TRAIN)
+        self.net = caffe.Net(self.proto, self.weights, caffe.TEST)
         # setting
         caffe.set_mode_gpu()
         caffe.set_device(gpu)
@@ -159,8 +159,8 @@ if __name__ == "__main__":
     # comparison
     # model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
     #                                       'deploy_resnet101.prototxt')
-    # model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
-    #                           'distilling/deploy_resnet101_student.prototxt')
+    model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
+                              'distilling/deploy_resnet101_student.prototxt')
 
     # # deploy to train
     # model_tools.add_learning_params(new_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
