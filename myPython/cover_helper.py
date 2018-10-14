@@ -168,6 +168,7 @@ class CoverDataset:
 
     # Initializes the list of queries and answers for future use of precision and mAP calculation
     def make_queries_answer_list(self):
+        self.dataset = os.listdir(os.path.join(self.test_dir, 'dataset'))
         q_lines = open(os.path.join(self.test_dir, 'query.txt')).readlines()
         a_lines = open(os.path.join(self.test_dir, 'answer.txt')).readlines()
         for line in q_lines:
@@ -175,7 +176,7 @@ class CoverDataset:
         for line in a_lines:
             a_fname_list = line.strip().split(' ')
             self.a_fname.append(a_fname_list)
-            self.a_idx.append([self.dataset.index(a_fname_list[i]) for i in range(len(a_fname_list))])
+            self.a_idx.append([self.dataset.index(i) for i in a_fname_list])
 
         self.num_queries = len(self.q_fname)
         self.num_dataset = len(self.dataset)
@@ -227,7 +228,7 @@ class CoverDataset:
         return img.transpose(2, 0, 1) - self.mean
 
     def prepare_image_and_grid_regions_for_network(self, img_dir, fname):
-        img = self.load_image(os.path.join(self.test_set, img_dir, fname))
+        img = self.load_image(os.path.join(self.test_dir, img_dir, fname))
         all_regions = [get_rmac_region_coordinates(img.shape[1], img.shape[2], self.L)]
         regions = pack_regions_for_network(all_regions)
         return np.expand_dims(img, axis=0), regions
@@ -242,7 +243,7 @@ class CoverDataset:
         for q in range(self.num_queries):
             top_k = len(self.a_idx[q])  # choose the top-k prediction
             top_idx = list(idx[q, : top_k])
-            cnt_correct = len([i for i in top_idx if i in self.a_idx[q]])
+            cnt_correct = len([i for i in top_idx if i in self.a_idx[q]])  # intersection
             q_precision[q] = float(cnt_correct) / float(top_k)
             # copy image to 'cls' directory to make a comparison
             if copy_img:
@@ -293,10 +294,10 @@ if __name__ == '__main__':
     parser.set_defaults(root_dir='/home/processyuan/data/cover/')
     args = parser.parse_args()
 
-    cover_dataset = CoverDataset(args.cls_file, args.root_dir, L=2)
+    cover_dataset = CoverDataset(args.root_dir, L=2)
 
-    # class with item number between (20, 24) is put into test set while the others into training set
-    cover_dataset.get_csmid_list(cnt_min=20, cnt_max=24)
+    # # class with item number between (20, 24) is put into test set while the others into training set
+    # cover_dataset.get_csmid_list(cnt_min=20, cnt_max=24)
 
     # # Download the images for the test set
     # cover_dataset.make_test_set(start=0)
@@ -305,5 +306,5 @@ if __name__ == '__main__':
     # # img1652.jpg: URLerror
     # cover_dataset.make_training_set(start=39510)
 
-    # Classify the training set
-    cover_dataset.cls_training_set(num_img_downloaded=64200)
+    # # Classify the training set
+    # cover_dataset.cls_training_set(num_img_downloaded=64200)

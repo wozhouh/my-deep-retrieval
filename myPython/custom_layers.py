@@ -33,8 +33,7 @@ class NormalizeLayer(caffe.Layer):
             pass
 
 
-# Layer that sum up the bottom blob along the axis=0
-# make some changes to the rmac layer so that it can input batch size > 1
+# Layer that sums up the bottom blob along the axis=0
 class AggregateLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -66,7 +65,7 @@ class AggregateLayer(caffe.Layer):
                     bottom[0].diff[k * self.num_rois + j] = top[0].diff[k]
 
 
-# Layer that fetch pre-calculated features from disk for loss calculation
+# Layer that fetches pre-calculated features from .npy for loss calculation
 class FeatureLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -82,7 +81,7 @@ class FeatureLayer(caffe.Layer):
         top[0].reshape(*[self.batch_size, self.dim, 1, 1])
 
     def forward(self, bottom, top):
-        feature_idx = np.squeeze(bottom[0].data)
+        feature_idx = bottom[0].data.reshape(self.batch_size)
         # iterate over a batch
         for k in range(self.batch_size):
             self.batch_features[k, :] = (self.features[int(feature_idx[k]), :]).reshape(self.dim, 1, 1)
@@ -104,29 +103,64 @@ class RigidGridLayer(caffe.Layer):
         assert len(top) == 1, 'This layer can only have one top'
         # assert bottom[0].data.shape[0] == 1, 'Batch size is fixed to 1 as the size of images might be different'
         assert bottom[0].data.shape[1] == 3, 'The input should be a 3-channel RGB image in batch x 3 x H x W format'
+        params = yaml.load(self.param_str_)
+        self.dataset = params['dataset']
         self.num_region = 8  # for regular images, the typical number of rigid regions is 8 so fix it here
         self.dim_rois = 5  # (index, xmin, ymin, xmax, ymax)
         self.img_h = bottom[0].data.shape[2]  # for the cover images, h = 280
         self.img_w = bottom[0].data.shape[3]  # for the cover images, w = 496
         self.batch_size = bottom[0].data.shape[0]  # bottom: (batch_size, channels(3), h(280), w(496))
+        self.cover_rois = np.array([[0.,  0.,  0., 279., 279.],
+                                    [0., 216., 0., 495., 279.],
+                                    [0.,  0.,  0., 185., 185.],
+                                    [0., 155., 0., 340., 185.],
+                                    [0., 310., 0., 495., 185.],
+                                    [0.,  0., 94., 185., 279.],
+                                    [0., 155.,94., 340., 279.],
+                                    [0., 310.,94., 495., 279.]])
+        self.paris_rois = np.array([[0.,  0.,  0., 383., 383.],
+                                    [0., 128., 0., 511., 383.],
+                                    [0.,  0.,  0., 255., 255.],
+                                    [0., 128., 0., 383., 255.],
+                                    [0., 256., 0., 511., 255.],
+                                    [0.,  0., 128.,255., 383.],
+                                    [0., 128.,128.,383., 383.],
+                                    [0., 256.,128.,511., 383.]])
 
     def reshape(self, bottom, top):
         top[0].reshape(*[self.batch_size * self.num_region, self.dim_rois])
 
     def forward(self, bottom, top):
-        all_regions = [region_generator.get_rmac_region_coordinates(self.img_h, self.img_w, 2)]
-        R = region_generator.pack_regions_for_network(all_regions)  # for the cover images, R,shape = [8, 5]
-        '''
-        (1, 3, 280, 496)
-        [[  0.   0.   0. 279. 279.]
-         [  0. 216.   0. 495. 279.]
-         [  0.   0.   0. 185. 185.]
-         [  0. 155.   0. 340. 185.]
-         [  0. 310.   0. 495. 185.]
-         [  0.   0.  94. 185. 279.]
-         [  0. 155.  94. 340. 279.]
-         [  0. 310.  94. 495. 279.]
-        '''
+        if self.dataset == 'cover':
+            '''
+            (1, 3, 280, 496)
+            [[  0.   0.   0. 279. 279.]
+             [  0. 216.   0. 495. 279.]
+             [  0.   0.   0. 185. 185.]
+             [  0. 155.   0. 340. 185.]
+             [  0. 310.   0. 495. 185.]
+             [  0.   0.  94. 185. 279.]
+             [  0. 155.  94. 340. 279.]
+             [  0. 310.  94. 495. 279.]
+            '''
+            R = self.cover_rois
+        elif self.dataset == 'paris':
+            '''
+            (1, 3, 384, 512)
+            [[0.   0.   0. 383. 383.]
+             [0. 128.   0. 511. 383.]
+             [0.   0.   0. 255. 255.]
+             [0. 128.   0. 383. 255.]
+             [0. 256.   0. 511. 255.]
+             [0.  0.  128. 255. 383.]
+             [0. 128. 128. 383. 383.]
+             [0. 256. 128. 511. 383.]]
+            '''
+            R = self.paris_rois
+        else:
+            all_regions = [region_generator.get_rmac_region_coordinates(self.img_h, self.img_w, 2)]
+            R = region_generator.pack_regions_for_network(all_regions)  # for the cover images, R,shape = [8, 5]
+
         # iterate over a batch
         if self.batch_size == 1:
             top[0].data[:] = R[: self.num_region, :]

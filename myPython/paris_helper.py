@@ -136,5 +136,5 @@ if __name__ == '__main__':
     # # Generates the triplet set
     # paris_dataset.make_triplet_set()
 
-    # Generates the augmentation set
-    paris_dataset.make_aug_set(obj_h=384, obj_w=512, resize_num=3)
+    # # Generates the augmentation set
+    # paris_dataset.make_aug_set(obj_h=384, obj_w=512, resize_num=3)

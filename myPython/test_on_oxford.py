@@ -132,7 +132,17 @@ class ImageHelper:
             if regions_xywh[i][1] + regions_xywh[i][3] > H:
                 regions_xywh[i][1] -= ((regions_xywh[i][1] + regions_xywh[i][3]) - H)
         return np.array(regions_xywh).astype(np.float32)
-
+    '''
+    for an image of 384x512, the generated rois as below:
+    [[0.   0.   0. 383. 383.]
+     [0. 128.   0. 511. 383.]
+    [0.    0.   0. 255. 255.]
+    [0.  128.   0. 383. 255.]
+    [0.  256.   0. 511. 255.]
+    [0.   0.  128. 255. 383.]
+    [0.  128. 128. 383. 383.]
+    [0. 256. 128. 511. 383.]]
+    '''
 
 class Dataset:
     def __init__(self, path, eval_binary_path):

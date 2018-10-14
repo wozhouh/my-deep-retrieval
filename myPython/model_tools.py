@@ -156,11 +156,11 @@ if __name__ == "__main__":
     # init
     model_tools = ModelTools(args.proto, args.weights, args.gpu)
 
-    # comparison
+    # # comparison
     # model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
     #                                       'deploy_resnet101.prototxt')
     model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
-                              'distilling/deploy_resnet101_student.prototxt')
+                              'distilling/2-map-conv/deploy_resnet101_student.prototxt')
 
     # # deploy to train
     # model_tools.add_learning_params(new_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'

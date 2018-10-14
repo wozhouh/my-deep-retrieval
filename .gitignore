@@ -5,3 +5,4 @@ eval/compute_ap
 eval/eval_*/
 *.pyc
 eval/cover_*/
+*.npy

@@ -1,10 +1,20 @@
 # single-pass
 
-precision: 72.927326
-mAP: 74.215347
+precision: 73.514313
+mAP: 74.605483
 
 
 # 3-pass
-precision: 73.210168
-mAP: 74.399233
+precision: 73.526913  
+mAP: 74.658108
+
+
+# pca-distilling
+precision: 73.889112
+mAP: 75.091755
+
+
+#conv-distilling
+precision: 73.600262
+mAP: 74.573117
 

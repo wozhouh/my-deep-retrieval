@@ -62,7 +62,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'RigidGridLayer'
-		param_str: "{}"
+		param_str: "{'dataset': 'other'}"
 	}
 }
 
@@ -74,7 +74,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'RigidGridLayer'
-		param_str: "{}"
+		param_str: "{'dataset': 'other'}"
 	}
 }
 
@@ -86,7 +86,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'RigidGridLayer'
-		param_str: "{}"
+		param_str: "{'dataset': 'other'}"
 	}
 }
 
