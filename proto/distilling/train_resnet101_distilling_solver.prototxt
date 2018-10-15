@@ -1,6 +1,6 @@
 # The train/test net protocol buffer definition
 # net: "/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/distilling/conv/train_resnet101_student.prototxt"
-net: "/home/gordonwzhe/code/my-deep-retrieval/proto/distilling/conv/train_resnet101_student_net.prototxt"
+net: "/home/gordonwzhe/code/my-deep-retrieval/proto/distilling/conv/train_resnet101_student_sum.prototxt"
 # test_iter specifies how many forward passes the test should carry out.
 test_iter: 250
 # Carry out testing every 'test_interval' training iterations.
