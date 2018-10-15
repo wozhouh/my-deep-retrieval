@@ -9,14 +9,18 @@ layer {
 	}
 	transform_param {
 		mirror: true
-		mean_value: 103.93900299
-		mean_value: 116.77899933
-		mean_value: 123.68000031
+		# mean_value: 103.93900299
+		# mean_value: 116.77899933
+		# mean_value: 123.68000031
+		mean_value: 117.80904
+		mean_value: 130.27611
+		mean_value: 134.65074
 	}
 	data_param {
 		# source: "/home/processyuan/data/Paris/training/paris_lmdb"  # Paris: 6392 images (384x512)
-		source: "/home/processyuan/data/Paris/aug/paris_aug_lmdb"  # Paris: augmented to 25403 images (384x512)
-		batch_size: 4
+		# source: "/home/processyuan/data/Paris/aug/paris_aug_lmdb"  # Paris: augmented to 25403 images (384x512)
+		source: "/home/processyuan/data/cover/training/cover_training_lmdb"  # cover: 42176 images (280x496)
+		batch_size: 16
 		backend: LMDB
 	}
 }
@@ -36,7 +40,7 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/processyuan/data/Oxford/uni-oxford/val/val_oxford_lmdb"  
+		source: "/home/gordonwzhe/data/Oxford/uni-oxford/val/val_oxford_lmdb"  
 		batch_size: 4
 		backend: LMDB
 	}
@@ -54,8 +58,9 @@ layer {
 		module: 'custom_layers'
 		layer: 'FeatureLayer'
 		# param_str: "{'features': '/home/processyuan/data/Paris/training/features.npy'}"  # Paris: 6392 images (384x512)
-		param_str: "{'features': '/home/processyuan/data/Paris/aug/features.npy'}"  # Paris: augmented to 25403 images (384x512)
+		# param_str: "{'features': '/home/processyuan/data/Paris/aug/features.npy'}"  # Paris: augmented to 25403 images (384x512)
 		# param_str: "{'features': '/home/processyuan/data/cover/training/features.npy'}"  # cover: 64234 images (280x496)
+		param_str: "{'features': '/home/gordonwzhe/data/cover/training/features.npy'}"  # cover: 42176 images (280x496)
 	}
 }
 
@@ -70,7 +75,8 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'FeatureLayer'
-		param_str: "{'features': '/home/processyuan/data/Oxford/uni-oxford/val/features.npy'}"  # Oxford validation set: 1000 images
+		# param_str: "{'features': '/home/processyuan/data/Oxford/uni-oxford/val/features.npy'}"  # Oxford validation set: 1000 images
+		param_str: "{'features': '/home/gordonwzhe/data/Oxford/uni-oxford/val/features.npy'}"  # Oxford validation set: 1000 images
 	}
 }
 
@@ -79,6 +85,24 @@ layer {
 	type: "Python"
 	bottom: "data"
 	top: "rois"
+	include {
+		phase: TRAIN
+	}
+	python_param {
+		module: 'custom_layers'
+		layer: 'RigidGridLayer'
+		param_str: "{'dataset': 'cover'}"
+	}
+}
+
+layer {
+	name: "rois"
+	type: "Python"
+	bottom: "data"
+	top: "rois"
+	include {
+		phase: TEST
+	}
 	python_param {
 		module: 'custom_layers'
 		layer: 'RigidGridLayer'
