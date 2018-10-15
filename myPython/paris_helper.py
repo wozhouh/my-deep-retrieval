@@ -93,7 +93,7 @@ class ParisDataset:
                 if not os.path.exists(img_dst_path) and img in img_list:
                     open(img_dst_path, 'wb').write(open(img_src_path, 'rb').read())
 
-    # perform data-augmentation by randomly resizing (the '/aug' directory)
+    # perform data-augmentation by randomly resizing (assuming that the '/aug/img/' directory already exists)
     def make_aug_set(self, obj_h=384, obj_w=512, resize_num=2):
         for cls in os.listdir(self.cls_dir):
             cls_path = os.path.join(self.cls_dir, cls)
@@ -137,4 +137,4 @@ if __name__ == '__main__':
     # paris_dataset.make_triplet_set()
 
     # Generates the augmentation set
-    paris_dataset.make_aug_set(obj_h=384, obj_w=512, resize_num=3)
+    paris_dataset.make_aug_set(obj_h=384, obj_w=512, resize_num=2)
