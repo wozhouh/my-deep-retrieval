@@ -1,6 +1,6 @@
 # The train/test net protocol buffer definition
 # net: "/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/distilling/conv/train_resnet101_student.prototxt"
-net: "/home/gordonwzhe/code/my-deep-retrieval/proto/distilling/conv/train_resnet101_student_sum.prototxt"
+net: "/home/gordonwzhe/code/my-deep-retrieval/proto/distilling/conv/train_resnet101_student_max.prototxt"
 # test_iter specifies how many forward passes the test should carry out.
 test_iter: 250
 # Carry out testing every 'test_interval' training iterations.
@@ -22,6 +22,6 @@ max_iter: 5959
 # snapshot intermediate results
 snapshot: 10000
 # snapshot_prefix: "/home/processyuan/code/NetworkOptimization/deep-retrieval/caffemodel/distilling/train_resnet101_student"
-snapshot_prefix: "/home/gordonwzhe/code/my-deep-retrieval/caffemodel/distilling/conv/paris/train_resnet101_student"
+snapshot_prefix: "/home/gordonwzhe/code/my-deep-retrieval/caffemodel/distilling/conv/paris-max/train_resnet101_student"
 # solver mode: CPU or GPU
 solver_mode: GPU
