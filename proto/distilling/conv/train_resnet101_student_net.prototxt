@@ -19,7 +19,7 @@ layer {
 	data_param {
 		# source: "/home/processyuan/data/Paris/training/paris_lmdb"  # Paris: 6392 images (384x512)
 		# source: "/home/processyuan/data/Paris/aug/paris_aug_lmdb"  # Paris: augmented to 25403 images (384x512)
-		source: "/home/processyuan/data/cover/training/cover_training_lmdb"  # cover: 42176 images (280x496)
+		source: "/home/gordonwzhe/data/cover/training/cover_training_lmdb"  # cover: 42176 images (280x496)
 		batch_size: 16
 		backend: LMDB
 	}
