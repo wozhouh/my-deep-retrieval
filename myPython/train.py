@@ -19,7 +19,7 @@ if __name__ == "__main__":
     caffe.set_device(args.gpu)
 
     # create the solver
-    solver = caffe.get_solver(args.proto)
+    solver = caffe.get_solver(args.solver)
 
     # load the caffemodel
     solver.net.copy_from(args.weights)
