@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Python script that convert the images in the dataset into feature vectors (numpy array) saved in 'features.npy'
+# Python script that converts the images in the dataset into feature vectors (numpy array) saved in 'features.npy'
 # and generates a .txt file indicating the image filename correspond to which row of the numpy array
 
 '''
@@ -9,7 +9,7 @@ python ./myPython/cover_convert_traingset.py \
     --proto ./proto/train-distilling/deploy_resnet101_teacher.prototxt \
     --weights ./caffemodel/deep_image_retrieval_model_distilling.caffemodel \
     --img_dir ~/data/cover/training/img/ \
-    --features_dir ~/data/cover/training/ \
+    --features_npy ~/data/cover/training/ \
     --features_txt ~/data/cover/training/training.txt
 '''
 
