@@ -64,7 +64,7 @@ class CoverDataset:
     # put csmid of a certain class into test set list whose item number is between cnt_min and cnt_max
     def get_csmid_list(self, cnt_min=20, cnt_max=24):
         f = open(self.cls_file, 'r')
-        for k, line in enumerate(f):
+        for k, line in enumerate(f.readlines()):
             temp_list = line.split(' ')
             item_list = temp_list[1: -1]  # add the csmid on the line except the first and the last one
             item_list.append((temp_list[0].split('\t'))[-1])  # add the first csmid (exclude the prefix id)
