@@ -41,7 +41,7 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/processyuan/data/Oxford/uni-oxford/val/val_oxford_lmdb"  
+		source: "/home/gordonwzhe/data/Oxford/uni-oxford/val/val_oxford_lmdb"  
 		batch_size: 4
 		backend: LMDB
 	}
