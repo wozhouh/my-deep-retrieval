@@ -37,7 +37,7 @@ if __name__ == '__main__':
     cData.get_queries_answer_list()
 
     # Output of ResNet-101
-    output_layer = 'rmac/normalized'  # suppose that the layer name is always the same as the blob name
+    output_layer = 'rmac/pca/normalized'  # suppose that the layer name is always the same as the blob name
     dim_features = net.blobs[output_layer].data.shape[1]
     features_queries = np.zeros((cData.num_queries, dim_features), dtype=np.float32)
     features_dataset = np.zeros((cData.num_dataset, dim_features), dtype=np.float32)

@@ -271,14 +271,17 @@ class CoverDataset:
                     os.makedirs(test_cls_dir)
                 pred_img = [self.dataset[i] for i in top_idx]
                 gt_img = [self.dataset[i] for i in self.a_idx[q]]
+                test_cls_path = os.path.join(test_cls_dir, str(q))
                 for k, im in enumerate(gt_img):
                     src_gt_img = os.path.join(self.clean_dir, 'dataset', im)
-                    dst_gt_img = os.path.join(test_cls_dir, str(q), im)
+                    if not os.path.exists(test_cls_path):
+                        os.makedirs(test_cls_path)
+                    dst_gt_img = os.path.join(test_cls_path, im)
                     open(dst_gt_img, 'wb').write(open(src_gt_img, 'rb').read())
                 for k, im in enumerate(pred_img):
                     src_pred_img = os.path.join(self.clean_dir, 'dataset', im)
-                    dst_pred_img = os.path.join(test_cls_dir, str(q), 'error_' + im)
-                    if not os.path.exists(os.path.join(test_cls_dir, str(q), im)):
+                    dst_pred_img = os.path.join(test_cls_path, 'error_' + im)
+                    if not os.path.exists(os.path.join(test_cls_path, im)):
                         open(dst_pred_img, 'wb').write(open(src_pred_img, 'rb').read())
 
         return q_precision.mean(axis=0) * 100.0
