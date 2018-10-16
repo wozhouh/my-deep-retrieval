@@ -275,7 +275,7 @@ def extract_features(dataset, image_helper, net, args):
             for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
                 # Load image, process image, get image regions, feed into the network, get descriptor, and store
                 I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_filename(i), roi=None)
-                features_dataset[i] = image_helper.get_rmac_features(I, R, net)
+                features_dataset[i] = image_helper.get_rmac_features(I, R, net, args.end)
             np.save(out_dataset_fname, features_dataset)
     features_dataset = np.dstack([np.load("{0}/{1}_S{2}_L{3}_dataset.npy".format(args.temp_dir, args.dataset_name, S, args.L)) for S in Ss]).sum(axis=2)
     features_dataset /= np.sqrt((features_dataset * features_dataset).sum(axis=1))[:, None]
