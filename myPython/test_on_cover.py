@@ -11,7 +11,6 @@ from cover_helper import *
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Evaluate on the cover dataset')
     parser.add_argument('--gpu', type=int, required=False, help='GPU ID to use (e.g. 0)')
-    parser.add_argument('--L', type=int, required=False, help='Use L spatial levels (e.g. 2)')
     parser.add_argument('--proto', type=str, required=False, help='Path to the prototxt file')
     parser.add_argument('--weights', type=str, required=False, help='Path to the caffemodel file')
     parser.add_argument('--dataset', type=str, required=False, help='Path to the directory of cover data')
@@ -19,7 +18,6 @@ if __name__ == '__main__':
                         help='Path to a temporary directory to store features and ranking')
     parser.add_argument('--multires', dest='multires', action='store_true', help='Enable multiresolution features')
     parser.set_defaults(gpu=0)
-    parser.set_defaults(L=2)
     parser.set_defaults(proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/'
                               'proto/deploy_resnet101.prototxt')
     parser.set_defaults(weights='/home/processyuan/code/NetworkOptimization/deep-retrieval/'
@@ -35,8 +33,8 @@ if __name__ == '__main__':
     net = caffe.Net(args.proto, args.weights, caffe.TEST)
 
     # Load the cover dataset
-    cData = CoverDataset(args.dataset, args.L)
-    cData.make_queries_answer_list()
+    cData = CoverDataset(args.dataset)
+    cData.get_queries_answer_list()
 
     # Output of ResNet-101
     output_layer = 'rmac/normalized'  # suppose that the layer name is always the same as the blob name
@@ -86,6 +84,6 @@ if __name__ == '__main__':
     # sim = np.load(os.path.join(args.temp_dir, 'sim.npy'))  # test
 
     # Calculates the precision and mAP
-    print('precision: %f' % cData.cal_precision(sim, False))
+    print('precision: %f' % cData.cal_precision(sim, output_img=True))
     print('mAP: %f' % cData.cal_mAP(sim))
 

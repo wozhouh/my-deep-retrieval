@@ -6,8 +6,6 @@
 import argparse
 import os
 from urllib.request import urlretrieve
-import random
-import cv2
 
 
 class LandMarkDataset:
@@ -50,18 +48,24 @@ class LandMarkDataset:
     # download the images from the url (run read_url_from_file() first)
     def download_image(self):
         id_downloaded = []
+        url_forbidden = []
         downloaded_log = os.path.join(self.cls_dir, 'downloaded.log')
+        forbidden_log = os.path.join(self.cls_dir, 'forbidden.log')
         # check where the process of downloading should begin
         if os.path.exists(downloaded_log):
-            r_log = open(downloaded_log, 'r')
-            for line in r_log.readlines():
-                id_downloaded.append(line.strip())
-            r_log.close()
-        else:
-            f_temp = open(downloaded_log, 'w')
-            f_temp.close()
+            r_downloaded_log = open(downloaded_log, 'r')
+            for line in r_downloaded_log.readlines():
+                id_downloaded.append(int(line.strip()))
+            r_downloaded_log.close()
+        # check which url is broken
+        if os.path.exists(forbidden_log):
+            r_forbidden_log = open(forbidden_log, 'r')
+            for line in r_forbidden_log.readlines():
+                url_forbidden.append(line.strip())
+            r_forbidden_log.close()
 
-        w_log = open(downloaded_log, 'a')
+        w_downloaded_log = open(downloaded_log, 'a')
+
         for landmark_id in self.url_dict.keys():
             if landmark_id in id_downloaded:
                 continue
@@ -69,14 +73,28 @@ class LandMarkDataset:
             if not os.path.exists(cls_path):
                 os.makedirs(cls_path)
             for k, url in enumerate(self.url_dict[landmark_id]):
-                img_path = os.path.join(cls_path, str(k))
+                img_path = os.path.join(cls_path, str(k)+'.jpg')
                 if not os.path.exists(img_path):
-                    print(url)
+                    # pass if the url is broken
+                    if url in url_forbidden:
+                        continue
+                    # add the url to the black-list before downloading
+                    a_forbidden_log = open(forbidden_log, 'a')
+                    a_forbidden_log.write(url + '\n')
+                    a_forbidden_log.close()
+                    # downloading ...
                     urlretrieve(url, img_path)
-            w_log.write(str(landmark_id)+'\n')
+                    # if successfully downloaded, remove the url from the black-list
+                    r_forbidden_log = open(forbidden_log, 'r')
+                    lines = r_forbidden_log.readlines()
+                    r_forbidden_log.close()
+                    w_forbidden_log = open(forbidden_log, 'w')
+                    w_forbidden_log.writelines([u for u in lines[:-1]])
+                    w_forbidden_log.close()
+            w_downloaded_log.write(str(landmark_id)+'\n')
             print("%d images of landmark %d downloaded" % (len(self.url_dict[landmark_id]), landmark_id))
 
-        w_log.close()
+        w_downloaded_log.close()
 
 
 if __name__ == '__main__':

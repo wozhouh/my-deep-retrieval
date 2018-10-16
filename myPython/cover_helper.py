@@ -11,18 +11,19 @@ from region_generator import *
 
 
 class CoverDataset:
-    def __init__(self, root_dir, L):
+    def __init__(self, root_dir):
         self.cls_file = os.path.join(root_dir, 'demo_shortv.txt')
         self.root_dir = root_dir
         self.training_dir = os.path.join(root_dir, 'training')
         self.test_dir = os.path.join(root_dir, 'test')
-        self.cls_dir = os.path.join(self.test_dir, 'cls')
+        self.clean_dir = os.path.join(root_dir, 'clean')
+        self.cls_dir = os.path.join(self.clean_dir, 'cls')
         self.csmid_test_list = []  # list in list
         self.csmid_training_list = []  # list in list
         self.csmid_list = []
         self.cls_num = 0
         self.S = None
-        self.L = L
+        self.L = 2
         # calculates the mean on training set in advance
         self.mean = np.array([117.80904, 130.27611, 134.65074], dtype=np.float32)[:, None, None]
         self.dataset = []  # list of image names
@@ -36,6 +37,8 @@ class CoverDataset:
             os.makedirs(self.training_dir)
         if not os.path.exists(self.test_dir):
             os.makedirs(self.test_dir)
+        if not os.path.exists(self.clean_dir):
+            os.makedirs(self.clean_dir)
         if not os.path.exists(self.cls_dir):
             os.makedirs(self.cls_dir)
 
@@ -105,6 +108,23 @@ class CoverDataset:
                 if not img.startswith('cls'):
                     os.remove(os.path.join(cls, img))
 
+    # After mannually clean the dataset, build the clean test set for validation
+    def make_clean_set(self, temp_dir):
+        for i, c in enumerate(os.listdir(temp_dir)):
+            src_dir = os.path.join(temp_dir, c)
+            dst_dir = os.path.join(self.cls_dir, str(i))
+            img_dir = os.path.join(self.clean_dir, 'img')
+            if not os.path.exists(dst_dir):
+                os.makedirs(dst_dir)
+            if not os.path.exists(img_dir):
+                os.makedirs(img_dir)
+            for k, img in enumerate(os.listdir(src_dir)):
+                img_src_path = os.path.join(src_dir, img)
+                img_dst_path = os.path.join(dst_dir, 'cls'+str(i)+'_img'+str(k)+'.jpg')
+                img_dir_path = os.path.join(img_dir, 'cls'+str(i)+'_img'+str(k)+'.jpg')
+                open(img_dst_path, 'wb').write(open(img_src_path, 'rb').read())
+                open(img_dir_path, 'wb').write(open(img_src_path, 'rb').read())
+
     # Download the images for the training set
     # 'start' used for recover downloading when stop at image 'start'
     # ${CAFFE_ROOT}/build/tools/convert_imageset ${IMAGE_ROOT}/ ${DATA_ROOT}/${IMAGE_LIST} ${DATA_ROOT}/${LMDB_NAME}
@@ -127,54 +147,51 @@ class CoverDataset:
                 os.remove(img_path)
             # download_helper.get_img_by_cmsid(img_id, img_path)
 
-    # Generates two file recording files for query (2 in each class) and answer (the others) respectively
-    def make_queries_for_test(self, num_query=2):
-        query_file = os.path.join(self.test_dir, 'query.txt')
-        answer_file = os.path.join(self.test_dir, 'answer.txt')
+    # Generates two file recording files for query (1 in each class) and answer (the others) respectively
+    def make_queries_for_test(self):
+        query_file = os.path.join(self.clean_dir, 'query.txt')
+        answer_file = os.path.join(self.clean_dir, 'answer.txt')
         f_q = open(query_file, 'w')
         f_a = open(answer_file, 'w')
-        queries_dir = os.path.join(self.test_dir, 'queries')
-        dataset_dir = os.path.join(self.test_dir, 'dataset')
+        queries_dir = os.path.join(self.clean_dir, 'queries')
+        dataset_dir = os.path.join(self.clean_dir, 'dataset')
         if not os.path.exists(queries_dir):
             os.makedirs(queries_dir)
-        else:
-            for f in os.listdir(queries_dir):
-                os.remove(os.path.join(queries_dir, f))
         if not os.path.exists(dataset_dir):
             os.makedirs(dataset_dir)
-        else:
-            for f in os.listdir(dataset_dir):
-                os.remove(os.path.join(dataset_dir, f))
+
         # split the images in every class into queries and corresponding answers
-        for k in range(self.cls_num):
-            cls = os.path.join(self.cls_dir, str(k))
-            imgs = []
-            for f in os.listdir(cls):
-                imgs.append(f)
-            query = random.sample(imgs, num_query)
-            for q in query:
-                f_q.write(q + '\n')
-                imgs.remove(q)
-                open(os.path.join(queries_dir, q), 'wb').write(open(os.path.join(cls, q), 'rb').read())
-            for _ in range(num_query):
-                for img in imgs:
-                    f_a.write(img + ' ')
-                f_a.write('\n')
-            for img in imgs:
-                open(os.path.join(dataset_dir, img), 'wb').write(open(os.path.join(cls, img), 'rb').read())
+        for c in os.listdir(self.cls_dir):
+            cls_path = os.path.join(self.cls_dir, c)
+            img_list = os.listdir(cls_path)
+            img_query = ''
+            img_answer = ''
+            if len(img_list) >= 3:
+                img_query = (random.sample(img_list, 1))[0]
+                open(os.path.join(queries_dir, img_query), 'wb')\
+                    .write(open(os.path.join(cls_path, img_query), 'rb').read())
+                f_q.write(img_query + '\n')
+                for img in img_list:
+                    if img != img_query:
+                        img_answer += (img+'\t')
+                        open(os.path.join(dataset_dir, img), 'wb').write(open(os.path.join(cls_path, img), 'rb').read())
+                f_a.write(img_answer + '\n')
+            else:
+                for img in img_list:
+                    open(os.path.join(dataset_dir, img), 'wb').write(open(os.path.join(cls_path, img), 'rb').read())
 
         f_q.close()
         f_a.close()
 
     # Initializes the list of queries and answers for future use of precision and mAP calculation
-    def make_queries_answer_list(self):
-        self.dataset = os.listdir(os.path.join(self.test_dir, 'dataset'))
-        q_lines = open(os.path.join(self.test_dir, 'query.txt')).readlines()
-        a_lines = open(os.path.join(self.test_dir, 'answer.txt')).readlines()
+    def get_queries_answer_list(self):
+        self.dataset = os.listdir(os.path.join(self.clean_dir, 'dataset'))
+        q_lines = open(os.path.join(self.clean_dir, 'query.txt')).readlines()
+        a_lines = open(os.path.join(self.clean_dir, 'answer.txt')).readlines()
         for line in q_lines:
             self.q_fname.append(line.strip())
         for line in a_lines:
-            a_fname_list = line.strip().split(' ')
+            a_fname_list = line.strip().split('\t')
             self.a_fname.append(a_fname_list)
             self.a_idx.append([self.dataset.index(i) for i in a_fname_list])
 
@@ -184,13 +201,15 @@ class CoverDataset:
     # Calculates each channel's mean value of RGB images in the training set
     def cal_mean_training_set(self):
         img_sum = np.zeros(3, dtype=np.float32)
-        fname = os.listdir(self.training_dir)
+        img_dir = os.path.join(self.training_dir, 'img')
+        fname = os.listdir(img_dir)
         for f in fname:
-            img = cv2.imread(os.path.join(self.training_dir, f))
+            img_path = os.path.join(img_dir, f)
+            img = cv2.imread(img_path)
             img_sum += img.mean(axis=0).mean(axis=0)
         return img_sum / len(fname)
 
-    # Classify the images in the training set into sub-directories
+    # Classifies the images in the training set into sub-directories
     def cls_training_set(self, num_img_downloaded):
         training_cls_dir = os.path.join(self.training_dir, 'cls')
         if not os.path.exists(training_cls_dir):
@@ -228,13 +247,13 @@ class CoverDataset:
         return img.transpose(2, 0, 1) - self.mean
 
     def prepare_image_and_grid_regions_for_network(self, img_dir, fname):
-        img = self.load_image(os.path.join(self.test_dir, img_dir, fname))
+        img = self.load_image(os.path.join(self.clean_dir, img_dir, fname))
         all_regions = [get_rmac_region_coordinates(img.shape[1], img.shape[2], self.L)]
         regions = pack_regions_for_network(all_regions)
         return np.expand_dims(img, axis=0), regions
 
     # Calculates the mean precision when number of prediction is equal to GT
-    def cal_precision(self, sim, copy_img=False):
+    def cal_precision(self, sim, output_img=True):
         assert len(sim.shape) == 2, 'This is a 2-dim similarity matrix'
         assert sim.shape[0] == self.num_queries, 'number of rows should be equal to number of queries'
         assert sim.shape[1] == self.num_dataset, 'number of columns should be equal to number of dataset'
@@ -245,14 +264,22 @@ class CoverDataset:
             top_idx = list(idx[q, : top_k])
             cnt_correct = len([i for i in top_idx if i in self.a_idx[q]])  # intersection
             q_precision[q] = float(cnt_correct) / float(top_k)
-            # copy image to 'cls' directory to make a comparison
-            if copy_img:
-                top_img = [self.dataset[top_idx[i]] for i in range(len(top_idx))]
-                for im in top_img:
-                    src_img = os.path.join(self.test_dir, 'dataset', im)
-                    dst_img = os.path.join(self.cls_dir, str(q/2), 'test_' + im)
-                    if not os.path.exists(dst_img):
-                        open(dst_img, 'wb').write(open(src_img, 'rb').read())
+            # output image to 'cls' directory to make a comparison
+            if output_img:
+                test_cls_dir = os.path.join(self.clean_dir, 'test-cls')
+                if not os.path.exists(test_cls_dir):
+                    os.makedirs(test_cls_dir)
+                pred_img = [self.dataset[i] for i in top_idx]
+                gt_img = [self.dataset[i] for i in self.a_idx[q]]
+                for k, im in enumerate(gt_img):
+                    src_gt_img = os.path.join(self.clean_dir, 'dataset', im)
+                    dst_gt_img = os.path.join(test_cls_dir, str(q), im)
+                    open(dst_gt_img, 'wb').write(open(src_gt_img, 'rb').read())
+                for k, im in enumerate(pred_img):
+                    src_pred_img = os.path.join(self.clean_dir, 'dataset', im)
+                    dst_pred_img = os.path.join(test_cls_dir, str(q), 'error_' + im)
+                    if not os.path.exists(os.path.join(test_cls_dir, str(q), im)):
+                        open(dst_pred_img, 'wb').write(open(src_pred_img, 'rb').read())
 
         return q_precision.mean(axis=0) * 100.0
 
@@ -294,7 +321,7 @@ if __name__ == '__main__':
     parser.set_defaults(root_dir='/home/processyuan/data/cover/')
     args = parser.parse_args()
 
-    cover_dataset = CoverDataset(args.root_dir, L=2)
+    cover_dataset = CoverDataset(args.root_dir)
 
     # # class with item number between (20, 24) is put into test set while the others into training set
     # cover_dataset.get_csmid_list(cnt_min=20, cnt_max=24)
@@ -308,3 +335,8 @@ if __name__ == '__main__':
 
     # # Classify the training set
     # cover_dataset.cls_training_set(num_img_downloaded=64200)
+
+    # # Build the clean validation set
+    # cover_dataset.make_clean_set(os.path.join(args.root_dir, 'clean', 'temp'))
+    # cover_dataset.make_queries_for_test()
+    # cover_dataset.get_queries_answer_list()
