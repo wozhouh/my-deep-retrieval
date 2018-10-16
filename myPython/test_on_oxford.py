@@ -259,7 +259,7 @@ def extract_features(dataset, image_helper, net, args):
                 # Load image, process image, get image regions, feed into the network, get descriptor, and store
                 # I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i), roi=dataset.get_query_roi(i))
                 I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i), roi=None)
-                features_queries[i] = image_helper.get_rmac_features(I, R, net)
+                features_queries[i] = image_helper.get_rmac_features(I, R, net, args.end)
             np.save(out_queries_fname, features_queries)
     features_queries = np.dstack([np.load("{0}/{1}_S{2}_L{3}_queries.npy".format(args.temp_dir, args.dataset_name, S, args.L)) for S in Ss]).sum(axis=2)
     features_queries /= np.sqrt((features_queries * features_queries).sum(axis=1))[:, None]
