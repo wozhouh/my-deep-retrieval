@@ -16,6 +16,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', type=str, required=False, help='Path to the directory of cover data')
     parser.add_argument('--temp_dir', type=str, required=False,
                         help='Path to a temporary directory to store features and ranking')
+    parser.add_argument('--end', type=str, required=False, help='Define the output layer of the net')
     parser.add_argument('--multires', dest='multires', action='store_true', help='Enable multiresolution features')
     parser.set_defaults(gpu=0)
     parser.set_defaults(proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/'
@@ -24,6 +25,7 @@ if __name__ == '__main__':
                                 'caffemodel/deep_image_retrieval_model.caffemodel')
     parser.set_defaults(dataset='/home/processyuan/data/cover')
     parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/eval_test/')
+    parser.set_defaults(end='rmac/normalized')
     parser.set_defaults(multires=False)
     args = parser.parse_args()
 
@@ -37,7 +39,7 @@ if __name__ == '__main__':
     cData.get_queries_answer_list()
 
     # Output of ResNet-101
-    output_layer = 'rmac/normalized'  # suppose that the layer name is always the same as the blob name
+    output_layer = args.end  # suppose that the layer name is always the same as the blob name
     dim_features = net.blobs[output_layer].data.shape[1]
     features_queries = np.zeros((cData.num_queries, dim_features), dtype=np.float32)
     features_dataset = np.zeros((cData.num_dataset, dim_features), dtype=np.float32)

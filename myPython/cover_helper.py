@@ -7,6 +7,7 @@ import argparse
 import os
 import random
 import cv2
+import shutil
 from region_generator import *
 
 
@@ -268,6 +269,9 @@ class CoverDataset:
             if output_img:
                 test_cls_dir = os.path.join(self.clean_dir, 'test-cls')
                 if not os.path.exists(test_cls_dir):
+                    os.makedirs(test_cls_dir)
+                else:
+                    shutil.rmtree(test_cls_dir)
                     os.makedirs(test_cls_dir)
                 pred_img = [self.dataset[i] for i in top_idx]
                 gt_img = [self.dataset[i] for i in self.a_idx[q]]
