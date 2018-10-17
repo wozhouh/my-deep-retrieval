@@ -47,27 +47,29 @@ class LandMarkDataset:
 
     # download the images from the url (run read_url_from_file() first)
     def download_image(self):
-        id_downloaded = []
-        url_forbidden = []
-        downloaded_log = os.path.join(self.cls_dir, 'downloaded.log')
-        forbidden_log = os.path.join(self.cls_dir, 'forbidden.log')
-        # check where the process of downloading should begin
+        broken_url = []
+        downloaded_id = []
+        broken_log = os.path.join(self.cls_dir, 'broken_url.log')
+        downloaded_log = os.path.join(self.cls_dir, 'downloaded_id.log')
+        # check which ids have been downloaded
         if os.path.exists(downloaded_log):
             r_downloaded_log = open(downloaded_log, 'r')
             for line in r_downloaded_log.readlines():
-                id_downloaded.append(int(line.strip()))
+                downloaded_id.append(int(line.strip()))
             r_downloaded_log.close()
-        # check which url is broken
-        if os.path.exists(forbidden_log):
-            r_forbidden_log = open(forbidden_log, 'r')
-            for line in r_forbidden_log.readlines():
-                url_forbidden.append(line.strip())
-            r_forbidden_log.close()
+        # check which urls are broken
+        if os.path.exists(broken_log):
+            r_broken_log = open(broken_log, 'r')
+            for line in r_broken_log.readlines():
+                broken_url.append(line.strip())
+            r_broken_log.close()
 
         w_downloaded_log = open(downloaded_log, 'a')
+        w_broken_log = open(broken_log, 'a')
 
         for landmark_id in self.url_dict.keys():
-            if landmark_id in id_downloaded:
+            if landmark_id in downloaded_id:
+                print("landmark %s downloaded" % landmark_id)
                 continue
             cls_path = os.path.join(self.cls_dir, str(landmark_id))
             if not os.path.exists(cls_path):
@@ -76,34 +78,25 @@ class LandMarkDataset:
                 img_path = os.path.join(cls_path, str(k)+'.jpg')
                 if not os.path.exists(img_path):
                     # pass if the url is broken
-                    if url in url_forbidden:
-                        continue
-                    # add the url to the black-list before downloading
-                    a_forbidden_log = open(forbidden_log, 'a')
-                    a_forbidden_log.write(url + '\n')
-                    a_forbidden_log.close()
-                    # downloading ...
-                    try:
-                        urlretrieve(url, img_path)
-                        # if successfully downloaded, remove the url from the black-list
-                        r_forbidden_log = open(forbidden_log, 'r')
-                        lines = r_forbidden_log.readlines()
-                        r_forbidden_log.close()
-                        w_forbidden_log = open(forbidden_log, 'w')
-                        w_forbidden_log.writelines([u for u in lines[:-1]])
-                        w_forbidden_log.close()
-                    except Exception as e:
-                        print('image of url %s missing ...' % url)
+                    if url not in broken_url:
+                        try:
+                            urlretrieve(url, img_path)
+                        except Exception as e:
+                            # if downloading fails, add the url to the black-list
+                            w_broken_log.write(url + '\n')
+                            print('image of url %s missing ...' % url)
+
             w_downloaded_log.write(str(landmark_id)+'\n')
             print("%d images of landmark %d downloaded" % (len(self.url_dict[landmark_id]), landmark_id))
 
         w_downloaded_log.close()
+        w_broken_log.close()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='build the landmark dataset')
     parser.add_argument('--root_dir', type=str, required=False, help='root path to the Paris dataset')
-    parser.set_defaults(root_dir='/home/gordonwzhe/data/Paris/')
+    parser.set_defaults(root_dir='C:\\Users\\wozhouh\\Desktop\\Landmark')
     args = parser.parse_args()
 
     landmark_dataset = LandMarkDataset(args.root_dir)
