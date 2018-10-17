@@ -83,14 +83,17 @@ class LandMarkDataset:
                     a_forbidden_log.write(url + '\n')
                     a_forbidden_log.close()
                     # downloading ...
-                    urlretrieve(url, img_path)
-                    # if successfully downloaded, remove the url from the black-list
-                    r_forbidden_log = open(forbidden_log, 'r')
-                    lines = r_forbidden_log.readlines()
-                    r_forbidden_log.close()
-                    w_forbidden_log = open(forbidden_log, 'w')
-                    w_forbidden_log.writelines([u for u in lines[:-1]])
-                    w_forbidden_log.close()
+                    try:
+                        urlretrieve(url, img_path)
+                        # if successfully downloaded, remove the url from the black-list
+                        r_forbidden_log = open(forbidden_log, 'r')
+                        lines = r_forbidden_log.readlines()
+                        r_forbidden_log.close()
+                        w_forbidden_log = open(forbidden_log, 'w')
+                        w_forbidden_log.writelines([u for u in lines[:-1]])
+                        w_forbidden_log.close()
+                    except Exception as e:
+                        print('image of url %s missing ...' % url)
             w_downloaded_log.write(str(landmark_id)+'\n')
             print("%d images of landmark %d downloaded" % (len(self.url_dict[landmark_id]), landmark_id))
 
