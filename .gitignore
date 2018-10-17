@@ -1,8 +1,9 @@
 features/
 caffemodel/
 .idea/
+log/
 eval/compute_ap
 eval/eval_*/
-*.pyc
 eval/cover_*/
 *.npy
+*.pyc
