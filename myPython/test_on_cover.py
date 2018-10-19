@@ -88,4 +88,3 @@ if __name__ == '__main__':
     # Calculates the precision and mAP
     print('precision: %f' % cData.cal_precision(sim, output_img=True))
     print('mAP: %f' % cData.cal_mAP(sim))
-

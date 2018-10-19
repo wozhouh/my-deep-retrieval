@@ -149,6 +149,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='print the shape of weights stored in caffemodel')
     parser.add_argument('--proto', type=str, required=True, help='Path to the prototxt file')
     parser.add_argument('--weights', type=str, required=True, help='Path to the caffemodel file')
+    parser.add_argument('--compare', type=str, required=False, default=None, help="Path to the prototxt for comparison")
     parser.add_argument('--gpu', type=int, required=False, help='index of Used GPU')
     parser.set_defaults(gpu=0)
     args = parser.parse_args()
@@ -156,11 +157,9 @@ if __name__ == "__main__":
     # init
     model_tools = ModelTools(args.proto, args.weights, args.gpu)
 
-    # # comparison
-    # model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
-    #                                       'deploy_resnet101.prototxt')
-    model_tools.compare_model(other_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
-                              'distilling/2-map-conv/deploy_resnet101_student.prototxt')
+    # comparison
+    if args.compare is not None:
+        model_tools.compare_model(other_proto=args.compare)
 
     # # deploy to train
     # model_tools.add_learning_params(new_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
