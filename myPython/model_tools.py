@@ -134,12 +134,21 @@ class ModelTools:
     # Run after running the 'make_teacher_network()'
     def save_teacher_network_weights(self, teacher_proto, caffemodel_path):
         teacher_net = caffe.Net(teacher_proto, self.weights, caffe.TEST)
+        blob_assigned = []
         for l in self.net.params.keys():
             for k in range(len(self.net.params[l])):
                 teacher_net.params[l][k].data[...] = self.net.params[l][k].data[...]
                 teacher_net.params['l_' + l][k].data[...] = self.net.params[l][k].data[...]
                 teacher_net.params['m_' + l][k].data[...] = self.net.params[l][k].data[...]
                 teacher_net.params['h_' + l][k].data[...] = self.net.params[l][k].data[...]
+            blob_assigned.append('l_' + l)
+            blob_assigned.append('m_' + l)
+            blob_assigned.append('h_' + l)
+        # check whether some layers are missing
+        for l in teacher_net.params.keys():
+            if l not in blob_assigned:
+                print('WARNING: layer %s missing in the caffemodel' % l)
+
         # save the model
         teacher_net.save(caffemodel_path)
 
