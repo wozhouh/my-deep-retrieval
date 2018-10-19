@@ -137,7 +137,6 @@ class ModelTools:
         blob_assigned = []
         for l in self.net.params.keys():
             for k in range(len(self.net.params[l])):
-                teacher_net.params[l][k].data[...] = self.net.params[l][k].data[...]
                 teacher_net.params['l_' + l][k].data[...] = self.net.params[l][k].data[...]
                 teacher_net.params['m_' + l][k].data[...] = self.net.params[l][k].data[...]
                 teacher_net.params['h_' + l][k].data[...] = self.net.params[l][k].data[...]
@@ -171,9 +170,10 @@ if __name__ == "__main__":
     if args.compare is not None:
         model_tools.compare_model(other_proto=args.compare)
 
-    # # deploy to train
-    # model_tools.add_learning_params(new_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
-    #                                           'distilling/train_resnet101_student.prototxt', l=0, h=4584)
+    # deploy to train
+    model_tools.add_learning_params(new_proto=args.compare, l=0, h=4584)
 
-    # save the .caffemodel for the teacher network
-    model_tools.save_teacher_network_weights(args.compare, args.out_weights)
+    # # save the .caffemodel for the teacher network
+    # model_tools.save_teacher_network_weights(args.compare, args.out_weights)
+
+    model_tools.net.save(args.out_weights)
