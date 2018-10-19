@@ -7183,9 +7183,9 @@ layer {
 
 # Mean center done with a scaling (at 1) + shifting. The shifting needs to be copied into the model weights.
 layer {
-	name: "pooled_rois/centered"
+	name: "rmac/centered"
 	bottom: "pooled_rois/concat"
-	top: "pooled_rois/centered"
+	top: "rmac/centered"
 	type: "Scale"
 	param {
 		lr_mult: 0.0
@@ -7209,7 +7209,7 @@ layer {
 
 # And then the PCA, which is another FC layer
 layer {
-	name: "pooled_rois/pca"
+	name: "rmac/pca"
 	type: "InnerProduct"
 	param {
 		lr_mult: 1.0
@@ -7227,13 +7227,13 @@ layer {
 			value: 0
 		}
 	}
-	bottom: "pooled_rois/centered"
-	top: "pooled_rois/pca"
+	bottom: "rmac/centered"
+	top: "rmac/pca"
 }
 
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
 layer {
-	name: "pooled_rois/pca/reshaped"
+	name: "rmac/pca/reshaped"
 	type: "Reshape"
 	reshape_param{
 	shape{
@@ -7243,21 +7243,21 @@ layer {
 		dim: 1
 		}    
 	}
-	bottom: "pooled_rois/pca"
-	top: "pooled_rois/pca/reshaped"
+	bottom: "rmac/pca"
+	top: "rmac/pca/reshaped"
 }
 
 layer {
-	name: "pooled_rois/pca/normalized"
+	name: "rmac/pca/normalized"
 	type: "Normalize"
-	bottom: "pooled_rois/pca/reshaped"
-	top: "pooled_rois/pca/normalized"
+	bottom: "rmac/pca/reshaped"
+	top: "rmac/pca/normalized"
 }
 
 layer {
 	name: "rmac"
 	type: "Python"
-	bottom: "pooled_rois/pca/normalized"
+	bottom: "rmac/pca/normalized"
 	top: "rmac"
 	python_param {
 		module: 'custom_layers'
