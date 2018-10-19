@@ -1,8 +1,33 @@
 # -*- coding: utf-8 -*-
 
-# Python function that generates rigid grid (roi) given the shape of image and value of L (refer to original test.py)
+# Python function that generates rigid grid (roi) given the shape of image
 # usage: all_regions = [get_rmac_region_coordinates(img_h, img_w, L)]
 #        R = pack_regions_for_network(all_regions)
+
+'''
+Note:
+    The generation of rigid grid is from the original test.py, which make the intersection of neighboring grids
+    less than 0.4. But mostly the shape of images we process will not change, so sometimes we assign the grid
+    directly. For example, for cover images of shape (280, 496, 3), the grids are as follow:
+    [[  0.   0.   0. 279. 279.]
+    [  0. 216.   0. 495. 279.]
+    [  0.   0.   0. 185. 185.]
+    [  0. 155.   0. 340. 185.]
+    [  0. 310.   0. 495. 185.]
+    [  0.   0.  94. 185. 279.]
+    [  0. 155.  94. 340. 279.]
+    [  0. 310.  94. 495. 279.]
+    for Oxford/Paris dataset used to train, the image shape is (384, 512, 3) and the grids are
+    [[0.   0.   0. 383. 383.]
+    [0. 128.   0. 511. 383.]
+    [0.   0.   0. 255. 255.]
+    [0. 128.   0. 383. 255.]
+    [0. 256.   0. 511. 255.]
+    [0.  0.  128. 255. 383.]
+    [0. 128. 128. 383. 383.]
+    [0. 256. 128. 511. 383.]]
+'''
+
 
 import numpy as np
 

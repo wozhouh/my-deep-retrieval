@@ -150,6 +150,7 @@ if __name__ == "__main__":
     parser.add_argument('--proto', type=str, required=True, help='Path to the prototxt file')
     parser.add_argument('--weights', type=str, required=True, help='Path to the caffemodel file')
     parser.add_argument('--compare', type=str, required=False, default=None, help="Path to the prototxt for comparison")
+    parser.add_argument('--out_weights', type=str, required=False, default=None, help="Path to the saved caffemodel")
     parser.add_argument('--gpu', type=int, required=False, help='index of Used GPU')
     parser.set_defaults(gpu=0)
     args = parser.parse_args()
@@ -164,3 +165,6 @@ if __name__ == "__main__":
     # # deploy to train
     # model_tools.add_learning_params(new_proto='/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/'
     #                                           'distilling/train_resnet101_student.prototxt', l=0, h=4584)
+
+    # save the .caffemodel for the teacher network
+    model_tools.save_teacher_network_weights(args.compare, args.out_weights)

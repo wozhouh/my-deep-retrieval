@@ -328,4 +328,3 @@ if __name__ == '__main__':
     # # make a dataset with the same images in which the resolution is united
     # new_dataset_path = '/home/gordonwzhe/data/Oxford/uni-oxford/'
     # oxford_dataset.make_uni_dataset(new_dataset_path, img_h=384, img_w=512)
-
