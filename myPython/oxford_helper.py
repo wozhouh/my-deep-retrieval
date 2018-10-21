@@ -44,18 +44,14 @@ class ImageHelper:
             R = rg.pack_regions_for_network(all_regions)
         return I, R
 
-    def load_and_prepare_image(self, fname, roi=None):
+    def load_and_prepare_image(self, fname):
         # Read image, get aspect ratio, and resize such as the largest side equals S
         im = cv2.imread(fname)
+        # Resize
         im_size_hw = np.array(im.shape[0:2])
         ratio = float(self.S) / np.max(im_size_hw)
         new_size = tuple(np.round(im_size_hw * ratio).astype(np.int32))
         im_resized = cv2.resize(im, (new_size[1], new_size[0]))
-        # If there is a roi, adapt the roi to the new size and crop. Do not rescale
-        # the image once again
-        if roi is not None:
-            roi = np.round(roi * ratio).astype(np.int32)
-            im_resized = im_resized[roi[1]:roi[3], roi[0]:roi[2], :]  # crop
         # Transpose for network and subtract mean
         I = im_resized.transpose(2, 0, 1) - self.means  # H x W x 3 -> 3 x H x W
         return I, im_resized

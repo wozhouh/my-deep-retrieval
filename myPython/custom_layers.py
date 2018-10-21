@@ -208,7 +208,7 @@ class ResizeLayer(caffe.Layer):
             pass
 
 
-# Layer that fetches the images and feeds the 3-pass siamese network
+# Layer that fetches the images and feeds the triplet siamese network
 class TripletDataLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 0, 'Data layer should not have a bottom for input'
@@ -216,12 +216,12 @@ class TripletDataLayer(caffe.Layer):
         params = yaml.load(self.param_str_)
         self.batch_size = params['batch_size']
         self.cls_dir = params['cls_dir']
-        self.all_dir = params['all_dir']
+        self.useless_dir = os.path.join(self.cls_dir, 'useless')
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
-        self.cls = os.listdir(self.cls_dir)   # class list at current epoch
-        self.cls.remove('useless')
-        self.cls_ind = len(self.cls) - 1  # class in process
-        self.img = []  # image list within a class
+        self.cls = os.listdir(self.cls_dir)   # class list
+        self.cls.remove('useless')  # except 'useless'
+        self.cls_ind = len(self.cls) - 1
+        self.img = []  # list of images within the current class
         self.img_ind = 0  # image in process
 
     # No need for a data layer to implement the 'reshape' function
@@ -249,7 +249,7 @@ class TripletDataLayer(caffe.Layer):
             t_img_name = self.img[self.img_ind: self.img_ind + self.batch_size]
         else:
             t_img_name = self.img[self.img_ind: len(self.img)]
-            t_img_name.extend(self.img[: t_diff])  # pad the rest with the image from the beginning of the class
+            t_img_name.extend(self.img[: t_diff])  # pad the rest with the images from the beginning
 
         # randomly sample a positive image from the same class
         p_diff = self.batch_size
@@ -264,7 +264,7 @@ class TripletDataLayer(caffe.Layer):
         # randomly sample a negative image from a different class
         n_diff = self.batch_size
         while n_diff > 0:
-            n_img_name_temp = random.sample(os.listdir(self.all_dir), n_diff)
+            n_img_name_temp = random.sample(os.listdir(self.useless_dir), n_diff)
             for i in n_img_name_temp:
                 if i in self.img or i in n_img_name:
                     n_img_name_temp.remove(i)
@@ -278,7 +278,7 @@ class TripletDataLayer(caffe.Layer):
         p_img_temp = [cv2.imread(os.path.join(self.cls_dir, self.cls[self.cls_ind], p_img_name[k]))
                       for k in range(self.batch_size)]
         p_img = [(p_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
-        n_img_temp = [cv2.imread(os.path.join(self.all_dir, n_img_name[k]))
+        n_img_temp = [cv2.imread(os.path.join(self.useless_dir, n_img_name[k]))
                       for k in range(self.batch_size)]
         n_img = [(n_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
 
@@ -295,6 +295,7 @@ class TripletDataLayer(caffe.Layer):
 
 
 # Layer that fetches the images and feeds the siamese network
+# (actually as above but fetch the second image randomly from positive or negative class)
 class SiameseDataLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 0, 'Data layer should not have a bottom for input'

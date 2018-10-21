@@ -1,5 +1,6 @@
 # Python script that modified from original test.py to provide a uniform standard to evaluate the model
 # different from test.py that it does not resize when loading the original image
+# and it does not load the annotated roi for queries as test.py does
 # and it sets default for parser and adds "end_layer" as parser
 
 import sys
@@ -37,8 +38,8 @@ class ImageHelper:
     def get_rmac_features(self, I, R, net, end_layer):
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
-        net.blobs['rois'].reshape(R.shape[0], R.shape[1])
-        net.blobs['rois'].data[:] = R.astype(np.float32)
+        # net.blobs['rois'].reshape(R.shape[0], R.shape[1])
+        # net.blobs['rois'].data[:] = R.astype(np.float32)
         net.forward(end=end_layer)
         return np.squeeze(net.blobs[end_layer].data)
 
@@ -52,11 +53,6 @@ class ImageHelper:
             im_resized = cv2.resize(im, (new_size[1], new_size[0]))
         else:
             im_resized = im
-        # If there is a roi, adapt the roi to the new size and crop. Do not rescale
-        # the image once again
-        # if roi is not None:
-        #     roi = np.round(roi * ratio).astype(np.int32)
-        #     im_resized = im_resized[roi[1]:roi[3], roi[0]:roi[2], :]
         # Transpose for network and subtract mean
         I = im_resized.transpose(2, 0, 1) - self.means
         return I, im_resized
@@ -258,7 +254,7 @@ def extract_features(dataset, image_helper, net, args):
             for i in tqdm(range(N_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
                 # Load image, process image, get image regions, feed into the network, get descriptor, and store
                 # I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i), roi=dataset.get_query_roi(i))
-                I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i), roi=None)
+                I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i))
                 features_queries[i] = image_helper.get_rmac_features(I, R, net, args.end)
             np.save(out_queries_fname, features_queries)
     features_queries = np.dstack([np.load("{0}/{1}_S{2}_L{3}_queries.npy".format(args.temp_dir, args.dataset_name, S, args.L)) for S in Ss]).sum(axis=2)
@@ -274,7 +270,7 @@ def extract_features(dataset, image_helper, net, args):
             features_dataset = np.zeros((N_dataset, dim_features), dtype=np.float32)
             for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
                 # Load image, process image, get image regions, feed into the network, get descriptor, and store
-                I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_filename(i), roi=None)
+                I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_filename(i))
                 features_dataset[i] = image_helper.get_rmac_features(I, R, net, args.end)
             np.save(out_dataset_fname, features_dataset)
     features_dataset = np.dstack([np.load("{0}/{1}_S{2}_L{3}_dataset.npy".format(args.temp_dir, args.dataset_name, S, args.L)) for S in Ss]).sum(axis=2)
@@ -303,7 +299,7 @@ if __name__ == '__main__':
     parser.set_defaults(dataset_name='Oxford')
     parser.set_defaults(dataset='/home/processyuan/data/Oxford/uni-oxford/')
     parser.set_defaults(eval_binary='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/compute_ap')
-    parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/eval_test/')
+    parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/test/')
     parser.set_defaults(end='rmac/normalized')
     parser.set_defaults(S=512)
     parser.set_defaults(L=2)
