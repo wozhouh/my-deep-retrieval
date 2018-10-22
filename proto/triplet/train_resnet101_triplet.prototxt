@@ -15,6 +15,22 @@ layer {
 }
 
 layer {
+	name: "data"
+	type: "Python"
+	top: "data"
+	top: "p_data"
+	top: "n_data"
+	include {
+		phase: TEST
+	}
+	python_param {
+		module: "custom_layers"
+		layer: "TripletDataLayer"
+		param_str: "{'batch_size': 1, 'cls_dir': '/home/processyuan/data/Paris/triplet/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
+	}
+}
+
+layer {
 	bottom: "data"
 	top: "conv1"
 	name: "conv1"
@@ -7692,8 +7708,8 @@ layer {
 	}
 	param {
 		name: "pooled_rois/centered_2"
-		lr_mult: 0.0
-		decay_mult: 0.0
+		lr_mult: 2.0
+		decay_mult: 1.0
 	}
   scale_param {
       bias_term: true
@@ -7711,6 +7727,16 @@ layer {
 layer {
   name: "pooled_rois/pca"
   type: "InnerProduct"
+  param {
+		name: "pooled_rois/pca_1"
+		lr_mult: 1.0
+		decay_mult: 1.0
+	}
+	param {
+		name: "pooled_rois/pca_2"
+		lr_mult: 2.0
+		decay_mult: 1.0
+	}
   inner_product_param {
     num_output: 2048 # output PCA dimensionality 
     weight_filler {
@@ -15443,8 +15469,8 @@ layer {
 	}
 	param {
 		name: "pooled_rois/centered_2"
-		lr_mult: 0.0
-		decay_mult: 0.0
+		lr_mult: 2.0
+		decay_mult: 1.0
 	}
   scale_param {
       bias_term: true
@@ -15462,6 +15488,16 @@ layer {
 layer {
   name: "p_pooled_rois/pca"
   type: "InnerProduct"
+  param {
+		name: "pooled_rois/pca_1"
+		lr_mult: 1.0
+		decay_mult: 1.0
+	}
+	param {
+		name: "pooled_rois/pca_2"
+		lr_mult: 2.0
+		decay_mult: 1.0
+	}
   inner_product_param {
     num_output: 2048 # output PCA dimensionality 
     weight_filler {
@@ -23194,8 +23230,8 @@ layer {
 	}
 	param {
 		name: "pooled_rois/centered_2"
-		lr_mult: 0.0
-		decay_mult: 0.0
+		lr_mult: 2.0
+		decay_mult: 1.0
 	}
   scale_param {
       bias_term: true
@@ -23213,6 +23249,16 @@ layer {
 layer {
   name: "n_pooled_rois/pca"
   type: "InnerProduct"
+  param {
+	name: "pooled_rois/pca_1"
+		lr_mult: 1.0
+		decay_mult: 1.0
+	}
+	param {
+		name: "pooled_rois/pca_2"
+		lr_mult: 2.0
+		decay_mult: 1.0
+	}
   inner_product_param {
     num_output: 2048 # output PCA dimensionality 
     weight_filler {
@@ -23264,4 +23310,17 @@ layer {
   type: "Normalize"
   bottom: "n_rmac"
   top: "n_rmac/normalized"
+}
+
+## triplet-loss
+layer {
+	name: "loss"
+	type: "TripletLoss"
+	bottom: "rmac/normalized"
+	bottom: "p_rmac/normalized"
+	bottom: "n_rmac/normalized"
+	top: "loss"
+	triplet_loss_param {
+		margin: 1.0
+	}
 }

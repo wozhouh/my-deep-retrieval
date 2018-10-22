@@ -216,13 +216,13 @@ class TripletDataLayer(caffe.Layer):
         params = yaml.load(self.param_str_)
         self.batch_size = params['batch_size']
         self.cls_dir = params['cls_dir']
-        self.useless_dir = os.path.join(self.cls_dir, 'useless')
+        # self.useless_dir = os.path.join(self.cls_dir, 'useless')
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
-        self.cls = os.listdir(self.cls_dir)   # class list
+        self.cls = os.listdir(self.cls_dir)   # list of classes
         self.cls.remove('useless')  # except 'useless'
-        self.cls_ind = len(self.cls) - 1
+        self.cls_ind = len(self.cls) - 1  # init: suppose an epoch is done
         self.img = []  # list of images within the current class
-        self.img_ind = 0  # image in process
+        self.img_ind = 0  # index of the images in process
 
     # No need for a data layer to implement the 'reshape' function
     def reshape(self, bottom, top):
@@ -235,11 +235,10 @@ class TripletDataLayer(caffe.Layer):
                 random.shuffle(self.cls)
                 self.cls_ind = 0
                 print("INFO: an epoch done.")
-            self.img = os.listdir(os.path.join(self.cls_dir, self.cls[self.cls_ind]))
+            self.img = os.listdir(os.path.join(self.cls_dir, self.cls[self.cls_ind], 'ok'))
             random.shuffle(self.img)
             self.img_ind = 0
 
-        t_img_name = []  # an image in process
         p_img_name = []  # a positive image which is in the same class as t_img
         n_img_name = []  # a negative image which is not in the same class as t_img
 
@@ -262,23 +261,20 @@ class TripletDataLayer(caffe.Layer):
             p_diff = self.batch_size - len(p_img_name)
 
         # randomly sample a negative image from a different class
-        n_diff = self.batch_size
-        while n_diff > 0:
-            n_img_name_temp = random.sample(os.listdir(self.useless_dir), n_diff)
-            for i in n_img_name_temp:
-                if i in self.img or i in n_img_name:
-                    n_img_name_temp.remove(i)
-            n_img_name.extend(n_img_name_temp)
-            n_diff = self.batch_size - len(n_img_name)
+        n_cls = -1
+        while n_cls == self.cls_ind or n_cls == -1:
+            n_cls = random.randint(0, len(self.cls)-1)
+        n_img_dir = os.path.join(self.cls_dir, self.cls[n_cls], 'ok')
+        n_img_name = random.sample(os.listdir(n_img_dir), self.batch_size)
 
         # load the images
-        t_img_temp = [cv2.imread(os.path.join(self.cls_dir, self.cls[self.cls_ind], t_img_name[k]))
+        t_img_temp = [cv2.imread(os.path.join(self.img, t_img_name[k]))
                       for k in range(self.batch_size)]
         t_img = [(t_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
-        p_img_temp = [cv2.imread(os.path.join(self.cls_dir, self.cls[self.cls_ind], p_img_name[k]))
+        p_img_temp = [cv2.imread(os.path.join(self.img, p_img_name[k]))
                       for k in range(self.batch_size)]
         p_img = [(p_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
-        n_img_temp = [cv2.imread(os.path.join(self.useless_dir, n_img_name[k]))
+        n_img_temp = [cv2.imread(os.path.join(n_img_dir, n_img_name[k]))
                       for k in range(self.batch_size)]
         n_img = [(n_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
 
