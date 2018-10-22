@@ -33,7 +33,7 @@ class NormalizeLayer(caffe.Layer):
             pass
 
 
-# Layer that sums up the bottom blob along the axis=0
+# Layer that sums up the bottom blob along axis=0
 class AggregateLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -219,12 +219,12 @@ class TripletDataLayer(caffe.Layer):
         # self.useless_dir = os.path.join(self.cls_dir, 'useless')
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
         self.cls = os.listdir(self.cls_dir)   # list of classes
-        self.cls.remove('useless')  # except 'useless'
+        self.cls.remove('junk')  # except 'useless'
         self.cls_ind = len(self.cls) - 1  # init: suppose an epoch is done
         self.img = []  # list of images within the current class
         self.img_ind = 0  # index of the images in process
 
-    # No need for a data layer to implement the 'reshape' function
+    # Fix the image shape here to the Paris dataset (384, 512, 3)
     def reshape(self, bottom, top):
         top[0].reshape(*[self.batch_size, 3, 384, 512])
         top[1].reshape(*[self.batch_size, 3, 384, 512])
@@ -236,8 +236,8 @@ class TripletDataLayer(caffe.Layer):
             if self.cls_ind == len(self.cls):
                 random.shuffle(self.cls)
                 self.cls_ind = 0
-                print("INFO: an epoch done.")
-            self.img = os.listdir(os.path.join(self.cls_dir, self.cls[self.cls_ind], 'ok'))
+                # print("INFO: an epoch done.")
+            self.img = os.listdir(os.path.join(self.cls_dir, self.cls[self.cls_ind]))
             random.shuffle(self.img)
             self.img_ind = 0
 
@@ -250,7 +250,7 @@ class TripletDataLayer(caffe.Layer):
             t_img_name.extend(self.img[: t_diff])  # pad the rest with the images from the beginning
 
         # randomly sample a positive image from the same class
-        p_img_dir = os.path.join(self.cls_dir, self.cls[self.cls_ind], 'ok')
+        p_img_dir = os.path.join(self.cls_dir, self.cls[self.cls_ind])
         p_diff = self.batch_size
         p_img_name = []  # a positive image which is in the same class as t_img
         while p_diff > 0:
@@ -265,7 +265,7 @@ class TripletDataLayer(caffe.Layer):
         n_cls = -1
         while n_cls == self.cls_ind or n_cls == -1:
             n_cls = random.randint(0, len(self.cls)-1)
-        n_img_dir = os.path.join(self.cls_dir, self.cls[n_cls], 'ok')
+        n_img_dir = os.path.join(self.cls_dir, self.cls[n_cls])
         n_img_name = random.sample(os.listdir(n_img_dir), self.batch_size)
 
         # load the images

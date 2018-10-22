@@ -299,7 +299,7 @@ if __name__ == '__main__':
     parser.set_defaults(dataset_name='Oxford')
     parser.set_defaults(dataset='/home/processyuan/data/Oxford/uni-oxford/')
     parser.set_defaults(eval_binary='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/compute_ap')
-    parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/test/')
+    parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/temp/')
     parser.set_defaults(end='rmac/normalized')
     parser.set_defaults(S=512)
     parser.set_defaults(L=2)

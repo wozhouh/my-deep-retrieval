@@ -3,8 +3,8 @@ input: "data"
 input_shape{
 dim: 1
 dim: 3
-dim: 224
-dim: 224
+dim: 384
+dim: 512
 }
 
 input: "rois"
@@ -4578,10 +4578,10 @@ layer {
 }
 # And then the PCA, which is another FC layer
 layer {
-  name: "pooled_rois/pca"
+  name: "pooled_rois/pca_512"
   type: "InnerProduct"
   inner_product_param {
-    num_output: 2048 # output PCA dimensionality 
+    num_output: 512 # output PCA dimensionality 
     weight_filler {
       type: "xavier"
     }

@@ -7,3 +7,4 @@ eval/eval_*/
 eval/cover_*/
 *.npy
 *.pyc
+*.log
