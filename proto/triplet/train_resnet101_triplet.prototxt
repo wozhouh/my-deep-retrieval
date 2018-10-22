@@ -1,3 +1,4 @@
+name: "ResNet-101"
 layer {
 	name: "data"
 	type: "Python"
@@ -10,7 +11,7 @@ layer {
 	python_param {
 		module: "custom_layers"
 		layer: "TripletDataLayer"
-		param_str: "{'batch_size': 4, 'cls_dir': '/home/processyuan/data/Paris/triplet/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
+		param_str: "{'batch_size': 2, 'cls_dir': '/home/processyuan/data/Paris/triplet/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
 	}
 }
 
@@ -27,6 +28,18 @@ layer {
 		module: "custom_layers"
 		layer: "TripletDataLayer"
 		param_str: "{'batch_size': 1, 'cls_dir': '/home/processyuan/data/Paris/triplet/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
+	}
+}
+
+layer {
+	name: "rois"
+	type: "Python"
+	bottom: "data"
+	top: "rois"
+	python_param {
+		module: 'custom_layers'
+		layer: 'RigidGridLayer'
+		param_str: "{'dataset': 'paris'}"
 	}
 }
 
@@ -7725,7 +7738,7 @@ layer {
 }
 # And then the PCA, which is another FC layer
 layer {
-  name: "pooled_rois/pca"
+  name: "pooled_rois/pca_512"
   type: "InnerProduct"
   param {
 		name: "pooled_rois/pca_1"
@@ -7738,7 +7751,7 @@ layer {
 		decay_mult: 1.0
 	}
   inner_product_param {
-    num_output: 2048 # output PCA dimensionality 
+    num_output: 512 # output PCA dimensionality 
     weight_filler {
       type: "xavier"
     }
@@ -7748,7 +7761,7 @@ layer {
     }
   }
   bottom: "pooled_rois/centered"
-  top: "pooled_rois/pca"
+  top: "pooled_rois/pca_512"
 }
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
 layer {
@@ -7762,7 +7775,7 @@ layer {
 		dim: 1
 		}    
 	}
-	bottom: "pooled_rois/pca"
+	bottom: "pooled_rois/pca_512"
 	top: "pooled_rois/pca/reshaped"
 }
 layer {
@@ -15428,7 +15441,7 @@ layer {
    name: "p_pooled_rois"
    type: "ROIPooling"
    bottom: "p_res5c"
-   bottom: "p_rois"
+   bottom: "rois"
    top: "p_pooled_rois"
    roi_pooling_param {
      pooled_w: 1
@@ -15486,7 +15499,7 @@ layer {
 }
 # And then the PCA, which is another FC layer
 layer {
-  name: "p_pooled_rois/pca"
+  name: "p_pooled_rois/pca_512"
   type: "InnerProduct"
   param {
 		name: "pooled_rois/pca_1"
@@ -15499,7 +15512,7 @@ layer {
 		decay_mult: 1.0
 	}
   inner_product_param {
-    num_output: 2048 # output PCA dimensionality 
+    num_output: 512 # output PCA dimensionality 
     weight_filler {
       type: "xavier"
     }
@@ -15509,7 +15522,7 @@ layer {
     }
   }
   bottom: "p_pooled_rois/centered"
-  top: "p_pooled_rois/pca"
+  top: "p_pooled_rois/pca_512"
 }
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
 layer {
@@ -15523,7 +15536,7 @@ layer {
 		dim: 1
 		}    
 	}
-	bottom: "p_pooled_rois/pca"
+	bottom: "p_pooled_rois/pca_512"
 	top: "p_pooled_rois/pca/reshaped"
 }
 layer {
@@ -23189,7 +23202,7 @@ layer {
    name: "n_pooled_rois"
    type: "ROIPooling"
    bottom: "n_res5c"
-   bottom: "n_rois"
+   bottom: "rois"
    top: "n_pooled_rois"
    roi_pooling_param {
      pooled_w: 1
@@ -23247,7 +23260,7 @@ layer {
 }
 # And then the PCA, which is another FC layer
 layer {
-  name: "n_pooled_rois/pca"
+  name: "n_pooled_rois/pca_512"
   type: "InnerProduct"
   param {
 	name: "pooled_rois/pca_1"
@@ -23260,7 +23273,7 @@ layer {
 		decay_mult: 1.0
 	}
   inner_product_param {
-    num_output: 2048 # output PCA dimensionality 
+    num_output: 512 # output PCA dimensionality 
     weight_filler {
       type: "xavier"
     }
@@ -23270,7 +23283,7 @@ layer {
     }
   }
   bottom: "n_pooled_rois/centered"
-  top: "n_pooled_rois/pca"
+  top: "n_pooled_rois/pca_512"
 }
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
 layer {
@@ -23284,7 +23297,7 @@ layer {
 		dim: 1
 		}    
 	}
-	bottom: "n_pooled_rois/pca"
+	bottom: "n_pooled_rois/pca_512"
 	top: "n_pooled_rois/pca/reshaped"
 }
 layer {

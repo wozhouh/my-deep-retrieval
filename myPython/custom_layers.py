@@ -226,7 +226,9 @@ class TripletDataLayer(caffe.Layer):
 
     # No need for a data layer to implement the 'reshape' function
     def reshape(self, bottom, top):
-        pass
+        top[0].reshape(*[self.batch_size, 3, 384, 512])
+        top[1].reshape(*[self.batch_size, 3, 384, 512])
+        top[2].reshape(*[self.batch_size, 3, 384, 512])
 
     def forward(self, bottom, top):
         if self.img_ind >= len(self.img):
@@ -239,9 +241,6 @@ class TripletDataLayer(caffe.Layer):
             random.shuffle(self.img)
             self.img_ind = 0
 
-        p_img_name = []  # a positive image which is in the same class as t_img
-        n_img_name = []  # a negative image which is not in the same class as t_img
-
         # fetch an image in process
         t_diff = self.batch_size + self.img_ind - len(self.img)
         if t_diff <= 0:
@@ -251,7 +250,9 @@ class TripletDataLayer(caffe.Layer):
             t_img_name.extend(self.img[: t_diff])  # pad the rest with the images from the beginning
 
         # randomly sample a positive image from the same class
+        p_img_dir = os.path.join(self.cls_dir, self.cls[self.cls_ind], 'ok')
         p_diff = self.batch_size
+        p_img_name = []  # a positive image which is in the same class as t_img
         while p_diff > 0:
             p_img_name_temp = random.sample(self.img, p_diff)
             for i in p_img_name_temp:
@@ -268,10 +269,10 @@ class TripletDataLayer(caffe.Layer):
         n_img_name = random.sample(os.listdir(n_img_dir), self.batch_size)
 
         # load the images
-        t_img_temp = [cv2.imread(os.path.join(self.img, t_img_name[k]))
+        t_img_temp = [cv2.imread(os.path.join(p_img_dir, t_img_name[k]))
                       for k in range(self.batch_size)]
         t_img = [(t_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
-        p_img_temp = [cv2.imread(os.path.join(self.img, p_img_name[k]))
+        p_img_temp = [cv2.imread(os.path.join(p_img_dir, p_img_name[k]))
                       for k in range(self.batch_size)]
         p_img = [(p_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
         n_img_temp = [cv2.imread(os.path.join(n_img_dir, n_img_name[k]))
@@ -284,93 +285,6 @@ class TripletDataLayer(caffe.Layer):
             top[1].data[k, ...] = p_img[k]
             top[2].data[k, ...] = n_img[k]
         self.img_ind += self.batch_size
-
-    # No need for a data layer to implement the 'reshape' function
-    def backward(self, top, propagate_down, bottom):
-        pass
-
-
-# Layer that fetches the images and feeds the siamese network
-# (actually as above but fetch the second image randomly from positive or negative class)
-class SiameseDataLayer(caffe.Layer):
-    def setup(self, bottom, top):
-        assert len(bottom) == 0, 'Data layer should not have a bottom for input'
-        assert len(top) == 2, 'Data layer for the siamese network should have 2 tops'
-        params = yaml.load(self.param_str_)
-        self.batch_size = params['batch_size']
-        self.cls_dir = params['cls_dir']
-        self.all_dir = params['all_dir']
-        self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
-        self.cls = os.listdir(self.cls_dir)  # class list at current epoch
-        self.cls.remove('useless')
-        self.cls_ind = len(self.cls) - 1  # class in process
-        self.img = []  # image list within a class
-        self.img_ind = 0  # image in process
-
-    # No need for a data layer to implement the 'reshape' function
-    def reshape(self, bottom, top):
-        pass
-
-    def forward(self, bottom, top):
-        if self.img_ind >= len(self.img):
-            self.cls_ind += 1
-            if self.cls_ind == len(self.cls):
-                random.shuffle(self.cls)
-                self.cls_ind = 0
-                print("INFO: an epoch done.")
-            self.img = os.listdir(os.path.join(self.cls_dir, self.cls[self.cls_ind]))
-            random.shuffle(self.img)
-            self.img_ind = 0
-
-        t_img_name = []  # an image in process
-
-        # fetch an image in process
-        t_diff = self.batch_size + self.img_ind - len(self.img)
-        if t_diff <= 0:
-            t_img_name = self.img[self.img_ind: self.img_ind + self.batch_size]
-        else:
-            t_img_name = self.img[self.img_ind: len(self.img)]
-            t_img_name.extend(self.img[: t_diff])  # pad the rest with the image from the beginning of the class
-        t_img_temp = [cv2.imread(os.path.join(self.cls_dir, self.cls[self.cls_ind], t_img_name[k]))
-                      for k in range(self.batch_size)]
-        t_img = [(t_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
-        # iterate over a batch
-        for k in range(self.batch_size):
-            top[0].data[k, ...] = t_img[k]
-
-        choice = random.randint(0, 1)
-        if choice == 0:
-            # randomly sample a positive image from the same class
-            p_diff = self.batch_size
-            p_img_name = []  # a positive image which is in the same class as t_img
-            while p_diff > 0:
-                p_img_name_temp = random.sample(self.img, p_diff)
-                for i in p_img_name_temp:
-                    if i in t_img_name or i in p_img_name:
-                        p_img_name_temp.remove(i)
-                p_img_name.extend(p_img_name_temp)
-                p_diff = self.batch_size - len(p_img_name)
-            p_img_temp = [cv2.imread(os.path.join(self.cls_dir, self.cls[self.cls_ind], p_img_name[k]))
-                          for k in range(self.batch_size)]
-            p_img = [(p_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
-            for k in range(self.batch_size):
-                top[1].data[k, ...] = p_img[k]
-        else:
-            # randomly sample a negative image from a different class
-            n_diff = self.batch_size
-            n_img_name = []  # a negative image which is not in the same class as t_img
-            while n_diff > 0:
-                n_img_name_temp = random.sample(os.listdir(self.all_dir), n_diff)
-                for i in n_img_name_temp:
-                    if i in self.img or i in n_img_name:
-                        n_img_name_temp.remove(i)
-                n_img_name.extend(n_img_name_temp)
-                n_diff = self.batch_size - len(n_img_name)
-            n_img_temp = [cv2.imread(os.path.join(self.all_dir, n_img_name[k]))
-                          for k in range(self.batch_size)]
-            n_img = [(n_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.batch_size)]
-            for k in range(self.batch_size):
-                top[1].data[k, ...] = n_img[k]
 
     # No need for a data layer to implement the 'reshape' function
     def backward(self, top, propagate_down, bottom):

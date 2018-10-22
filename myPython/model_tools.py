@@ -13,11 +13,11 @@ class ModelTools:
         # open the prototxt
         f_proto = open(self.proto, 'r')
         self.lines = f_proto.readlines()
-        # # build the net
-        # self.net = caffe.Net(self.proto, self.weights, caffe.TEST)
-        # # setting
-        # caffe.set_mode_gpu()
-        # caffe.set_device(gpu)
+        # build the net
+        self.net = caffe.Net(self.proto, self.weights, caffe.TRAIN)
+        # setting
+        caffe.set_mode_gpu()
+        caffe.set_device(gpu)
 
     # print the shape of all the weight blobs stored in .caffemodel file
     def check_blob_shape(self):
