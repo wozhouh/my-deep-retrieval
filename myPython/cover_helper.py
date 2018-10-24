@@ -165,7 +165,6 @@ class CoverDataset:
         for c in os.listdir(self.cls_dir):
             cls_path = os.path.join(self.cls_dir, c)
             img_list = os.listdir(cls_path)
-            img_query = ''
             img_answer = ''
             if len(img_list) >= 3:
                 img_query = (random.sample(img_list, 1))[0]
