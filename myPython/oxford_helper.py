@@ -28,10 +28,10 @@ class ImageHelper:
         # Load and reshape the means to subtract to the inputs
         self.means = np.array([103.93900299,  116.77899933,  123.68000031], dtype=np.float32)[None, :, None, None]
 
-    def prepare_image_and_grid_regions_for_network(self, fname, roi=None):
+    def prepare_image_and_grid_regions_for_network(self, fname):
         # Extract image, resize at desired size, and extract roi region if
         # available. Then compute the rmac grid in the net format: ID X Y W H
-        I, im_resized = self.load_and_prepare_image(fname, roi)
+        I, im_resized = self.load_and_prepare_image(fname)
         if self.L == 0:
             # Encode query in mac format instead of rmac, so only one region
             # Regions are in ID X Y W H format

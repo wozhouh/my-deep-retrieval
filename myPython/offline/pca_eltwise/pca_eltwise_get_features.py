@@ -9,9 +9,8 @@ import numpy as np
 import caffe
 import argparse
 from tqdm import tqdm
-import sys
-sys.path.append('/home/processyuan/NetworkOptimization/deep-retrieval/myPython')
-from class_helper import *
+sys.path.append('/home/processyuan/code/NetworkOptimization/deep-retrieval/myPython')
+from oxford_helper import *
 
 if __name__ == '__main__':
 
@@ -24,17 +23,14 @@ if __name__ == '__main__':
     parser.add_argument('--weights', type=str, required=True, help='Path to the caffemodel file')
     parser.add_argument('--dataset', type=str, required=False, help='Path to the Oxford / Paris directory')
     parser.add_argument('--dataset_name', type=str, required=False, help='Dataset name')
-    parser.add_argument('--eval_binary', type=str, required=False,
-                        help='Path to the compute_ap binary to evaluate Oxford / Paris')
     parser.add_argument('--features_dir', type=str, required=False,
                         help='Path to a temporary directory to store ROI-pooling features and PCA transformation')
     parser.set_defaults(gpu=0)
     parser.set_defaults(S=512)
     parser.set_defaults(L=2)
     parser.set_defaults(dataset_name='Oxford')
-    parser.set_defaults(dataset='/home/processyuan/data/Oxford/')
-    parser.set_defaults(eval_binary='/home/processyuan/NetworkOptimization/deep-retrieval/eval/compute_ap')
-    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/deep-retrieval/features/pca_eltwise/')
+    parser.set_defaults(dataset='/home/processyuan/data/Oxford/train-512')
+    parser.set_defaults(features_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/features/temp/')
     args = parser.parse_args()
 
     S = args.S
@@ -46,19 +42,20 @@ if __name__ == '__main__':
     net = caffe.Net(args.proto, args.weights, caffe.TEST)
 
     # Load the dataset and the image helper
-    dataset = Dataset(args.dataset)
+    oxford_dataset = OxfordDataset(args.dataset)
     image_helper = ImageHelper(S, L)
 
     # Features are extracted here
     master = 'rmac/normalized'
-    branch = ['pooled_rois/normalized',
-              'pooled_rois_branch_16/normalized',
-              'pooled_rois_branch_8/normalized',
-              'pooled_rois_branch_4/normalized']
+    # branch = ['pooled_rois/normalized',
+    #           'pooled_rois_branch_16/normalized',
+    #           'pooled_rois_branch_8/normalized',
+    #           'pooled_rois_branch_4/normalized']
+    branch = ['pooled_rois/normalized']
     num_branch = len(branch)
 
-    N_queries = dataset.N_queries
-    N_dataset = dataset.N_images
+    N_queries = oxford_dataset.N_queries
+    N_dataset = oxford_dataset.N_images
     pooled_rois_queries_list = []
     pooled_rois_dataset_list = []
     dim_branch = [net.blobs[branch[k]].data.shape[1] for k in range(num_branch)]
@@ -69,8 +66,7 @@ if __name__ == '__main__':
 
     # queries: get ROI-pooling features
     for i in tqdm(range(N_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
-        I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i),
-                                                                       roi=dataset.get_query_roi(i))
+        I, R = image_helper.prepare_image_and_grid_regions_for_network(oxford_dataset.get_query_filename(i))
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])
@@ -91,7 +87,7 @@ if __name__ == '__main__':
     # dataset: get ROI-pooling features
     for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
         # Load image, process image, get image regions, feed into the network, get descriptor, and store
-        I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_filename(i), roi=None)
+        I, R = image_helper.prepare_image_and_grid_regions_for_network(oxford_dataset.get_filename(i))
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])

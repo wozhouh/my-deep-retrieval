@@ -12,8 +12,8 @@ import caffe
 import argparse
 from tqdm import tqdm
 import sys
-sys.path.append('/home/processyuan/NetworkOptimization/deep-retrieval/myPython')
-from class_helper import *
+sys.path.append('/home/processyuan/code/NetworkOptimization/deep-retrieval/myPython')
+from oxford_helper import *
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
@@ -24,6 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--gpu', type=int, required=False, help='GPU ID to use (e.g. 0)')
     parser.add_argument('--S', type=int, required=False, help='Resize larger side of image to S pixels (e.g. 800)')
     parser.add_argument('--L', type=int, required=False, help='Use L spatial levels (e.g. 2)')
+    parser.add_argument('--dim', type=int, required=False, help='dim of Embedding after PCA')
     parser.add_argument('--proto', type=str, required=True, help='Path to the prototxt file')
     parser.add_argument('--weights', type=str, required=True, help='Path to the caffemodel file')
     parser.add_argument('--dataset', type=str, required=False, help='Path to the Oxford / Paris directory')
@@ -37,11 +38,12 @@ if __name__ == '__main__':
     parser.set_defaults(gpu=0)
     parser.set_defaults(S=512)
     parser.set_defaults(L=2)
+    parser.set_defaults(dim=None)
     parser.set_defaults(dataset_name='Oxford')
-    parser.set_defaults(dataset='/home/processyuan/data/Oxford/')
-    parser.set_defaults(eval_binary='/home/processyuan/NetworkOptimization/deep-retrieval/eval/compute_ap')
-    parser.set_defaults(temp_dir='/home/processyuan/NetworkOptimization/deep-retrieval/eval/eval_test/')
-    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/deep-retrieval/features/pca_eltwise/')
+    parser.set_defaults(dataset='/home/processyuan/data/Oxford/uni-oxford/')
+    parser.set_defaults(eval_binary='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/compute_ap')
+    parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/temp/')
+    parser.set_defaults(features_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/features/temp/')
     args = parser.parse_args()
 
     S = args.S
@@ -53,24 +55,29 @@ if __name__ == '__main__':
     net = caffe.Net(args.proto, args.weights, caffe.TEST)
 
     # Load the dataset and the image helper
-    dataset = Dataset(args.dataset)
+    oxford_dataset = OxfordDataset(args.dataset)
     image_helper = ImageHelper(S, L)
 
     # features are extracted here, keep the same with pca_get_features.py
     master = 'rmac/normalized'
-    branch = ['pooled_rois/normalized',
-              'pooled_rois_branch_16/normalized',
-              'pooled_rois_branch_8/normalized',
-              'pooled_rois_branch_4/normalized']
     # branch = ['pooled_rois/normalized',
-    #           'pooled_rois_branch_16/normalized']
+    #           'pooled_rois_branch_16/normalized',
+    #           'pooled_rois_branch_8/normalized',
+    #           'pooled_rois_branch_4/normalized']
+    branch = ['pooled_rois/normalized']
+
     num_branch = len(branch)
 
-    N_queries = dataset.N_queries
-    N_dataset = dataset.N_images
+    N_queries = oxford_dataset.N_queries
+    N_dataset = oxford_dataset.N_images
     dim_branch = [net.blobs[branch[k]].data.shape[1] for k in range(num_branch)]
     dim_master = net.blobs[master].data.shape[1]
     eps = 1e-8
+
+    if args.dim is None:
+        pca_dim = dim_master
+    else:
+        pca_dim = args.dim
 
     # saved region-wise features
     pooled_rois_queries_fname = "{0}{1}_S{2}_L{3}_ROIpooling_queries.npy" \
@@ -78,17 +85,17 @@ if __name__ == '__main__':
     pooled_rois_dataset_fname = "{0}{1}_S{2}_L{3}_ROIpooling_dataset.npy" \
         .format(args.features_dir, args.dataset_name, S, L)
 
-    features_master_queries = np.zeros((N_queries, dim_master), dtype=np.float32)
-    features_master_dataset = np.zeros((N_dataset, dim_master), dtype=np.float32)
-    features_branch_queries = np.zeros((N_queries, dim_master), dtype=np.float32)
-    features_branch_dataset = np.zeros((N_dataset, dim_master), dtype=np.float32)
+    features_master_queries = np.zeros((N_queries, pca_dim), dtype=np.float32)
+    features_master_dataset = np.zeros((N_dataset, pca_dim), dtype=np.float32)
+    features_branch_queries = np.zeros((N_queries, pca_dim), dtype=np.float32)
+    features_branch_dataset = np.zeros((N_dataset, pca_dim), dtype=np.float32)
 
     # load the data of features and perform PCA by scikit-learn
     q, d = np.load(pooled_rois_queries_fname), np.load(pooled_rois_dataset_fname)
     pooled_rois_features = np.vstack((q, d))
     scaler = preprocessing.StandardScaler().fit(pooled_rois_features)
     pooled_rois_features_scaler = scaler.transform(pooled_rois_features)
-    pca = PCA(n_components=dim_master, copy=True, whiten=True)
+    pca = PCA(n_components=pca_dim, copy=True, whiten=True)
     pca.fit(pooled_rois_features_scaler)
     np.save("{0}concat_PCA_components.npy".format(args.features_dir), pca.components_)
     np.save("{0}concat_PCA_mean.npy".format(args.features_dir), pca.mean_)
@@ -96,8 +103,7 @@ if __name__ == '__main__':
 
     # First part, queries
     for i in tqdm(range(N_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
-        I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i),
-                                                                       roi=dataset.get_query_roi(i))
+        I, R = image_helper.prepare_image_and_grid_regions_for_network(oxford_dataset.get_query_filename(i))
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])
@@ -117,11 +123,12 @@ if __name__ == '__main__':
         features_branch_queries[i] = features_branch_queries_rmac_norm
 
     features_queries = np.dstack((features_master_queries, features_branch_queries)).sum(axis=2)
+    # features_queries = features_branch_queries
     features_queries /= np.sqrt((features_queries ** 2).sum(axis=1))[:, None]
 
     # Second part, dataset
     for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
-        I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_filename(i), roi=None)
+        I, R = image_helper.prepare_image_and_grid_regions_for_network(oxford_dataset.get_filename(i))
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])
@@ -141,10 +148,11 @@ if __name__ == '__main__':
         features_branch_dataset[i] = features_branch_dataset_rmac_norm
 
     features_dataset = np.dstack((features_master_dataset, features_branch_dataset)).sum(axis=2)
+    # features_dataset = features_branch_dataset
     features_dataset /= np.sqrt((features_dataset ** 2).sum(axis=1))[:, None]
 
     # Compute similarity
     sim = features_queries.dot(features_dataset.T)
 
     # Score
-    dataset.score(sim, args.temp_dir, args.eval_binary)
+    oxford_dataset.score(sim, args.temp_dir, args.eval_binary)
