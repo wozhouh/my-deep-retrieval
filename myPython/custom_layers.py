@@ -65,7 +65,7 @@ class AggregateLayer(caffe.Layer):
                     bottom[0].diff[k * self.num_rois + j] = top[0].diff[k]
 
 
-# Layer that fetches pre-calculated features from .npy for loss calculation
+# Layer that fetches pre-calculated features from .npy for loss calculation when distilling
 class FeatureLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -208,7 +208,8 @@ class ResizeLayer(caffe.Layer):
             pass
 
 
-# Layer that fetches the images and feeds the triplet siamese network
+# A data layer that fetches the images and feeds the triplet siamese network
+# Fully shuffling the data but not the hard negative mining
 class TripletDataLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 0, 'Data layer should not have a bottom for input'
@@ -219,7 +220,8 @@ class TripletDataLayer(caffe.Layer):
         # self.useless_dir = os.path.join(self.cls_dir, 'useless')
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
         self.cls = os.listdir(self.cls_dir)   # list of classes
-        self.cls.remove('junk')  # except 'useless'
+        if 'junk' in self.cls:
+            self.cls.remove('junk')  # except 'junk'
         self.cls_ind = len(self.cls) - 1  # init: suppose an epoch is done
         self.img = []  # list of images within the current class
         self.img_ind = 0  # index of the images in process
@@ -241,7 +243,7 @@ class TripletDataLayer(caffe.Layer):
             random.shuffle(self.img)
             self.img_ind = 0
 
-        # fetch an image in process
+        # fetch the images in process
         t_diff = self.batch_size + self.img_ind - len(self.img)
         if t_diff <= 0:
             t_img_name = self.img[self.img_ind: self.img_ind + self.batch_size]
@@ -286,6 +288,81 @@ class TripletDataLayer(caffe.Layer):
             top[2].data[k, ...] = n_img[k]
         self.img_ind += self.batch_size
 
-    # No need for a data layer to implement the 'reshape' function
+    # No need for a data layer to implement the 'backward' function
+    def backward(self, top, propagate_down, bottom):
+        pass
+
+# A data layer that fetches images from the same and different class to form a batch (half by half)
+class BinDataLayer(caffe.Layer):
+    def setup(self, bottom, top):
+        assert len(bottom) == 0, 'Data layer should not have a bottom for input'
+        assert len(top) == 2, 'BinDataLayer should have 2 tops'
+        params = yaml.load(self.param_str_)
+        self.batch_size = params['batch_size']
+        self.cls_dir = params['cls_dir']
+        self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
+        self.cls = os.listdir(self.cls_dir)  # list of classes
+        if 'junk' in self.cls:
+            self.cls.remove('junk')  # except 'junk'
+        self.cls_ind = len(self.cls) - 1  # init: suppose an epoch is done
+        self.img = []  # list of images within the current class
+        self.img_ind = 0  # index of the images in process
+        self.pos_num = self.batch_size / 2  # number of positive samples in the batch
+        self.neg_num = self.batch_size - self.pos_num  # number of negative samples in the batch
+
+
+    # Fix the image shape here to the Paris dataset (384, 512, 3)
+    def reshape(self, bottom, top):
+        top[0].reshape(*[self.batch_size, 3, 384, 512])  # images of 3 channels
+        top[1].reshape(*[self.batch_size, 1, 1, 1])  # labels
+
+    def forward(self, bottom, top):
+        if self.img_ind >= len(self.img):
+            self.cls_ind += 1
+            if self.cls_ind >= len(self.cls):
+                random.shuffle(self.cls)
+                self.cls_ind = 0
+            self.img = os.listdir(os.path.join(self.cls_dir, self.cls[self.cls_ind]))
+            random.shuffle(self.img)
+            self.img_ind = 0
+
+        # fetch the images within the same class
+        p_diff = self.pos_num + self.img_ind - len(self.img)
+        if p_diff <= 0:
+            p_img_name = self.img[self.img_ind: self.img_ind + self.pos_num]
+        else:
+            p_img_name = self.img[self.img_ind: len(self.img)]
+            p_img_name.extend(self.img[: p_diff])  # pad the rest with the images from the beginning
+
+        p_img_full_name = [os.path.join(self.cls_dir, self.cls[self.cls_ind], i)
+                           for i in p_img_name]
+        p_labels = []
+        for k in range(self.pos_num):
+            p_labels.append(int(self.cls[self.cls_ind]))
+
+        # randomly sample a negative image from a different class
+        cls_temp = list(self.cls)
+        cls_temp.remove(self.cls[self.cls_ind])
+        n_img_cls = random.sample(cls_temp, self.neg_num)
+        n_img_full_name = []
+        n_labels = []
+        for d in n_img_cls:
+            n_img_dir = os.path.join(self.cls_dir, d)
+            n_img_temp = (random.sample(os.listdir(n_img_dir), 1))[0]
+            n_img_full_name.append(os.path.join(n_img_dir, n_img_temp))
+            n_labels.append(int(d))
+
+        # load the images
+        p_img_temp = [cv2.imread(p_img_full_name[k]) for k in range(self.pos_num)]
+        p_img = [(p_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.pos_num)]
+        n_img_temp = [cv2.imread(n_img_full_name[k]) for k in range(self.neg_num)]
+        n_img = [(n_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.neg_num)]
+
+        top[0].data[...] = np.array(p_img + n_img)
+        top[1].data[...] = np.array(p_labels + n_labels).reshape(self.batch_size, 1, 1, 1)
+
+        self.img_ind += self.pos_num
+
+    # No need for a data layer to implement the 'backward' function
     def backward(self, top, propagate_down, bottom):
         pass

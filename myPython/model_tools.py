@@ -203,8 +203,8 @@ if __name__ == "__main__":
 
     # model_tools.check_blob_data(["pooled_rois/centered", "pooled_rois/pca_512"])
 
-    # # comparison
-    # model_tools.compare_model(other_proto=args.compare)
+    # comparison
+    model_tools.compare_model(other_proto=args.compare)
 
     # # deploy to train
     # model_tools.add_learning_params(new_proto=args.compare, l=0, h=4584)

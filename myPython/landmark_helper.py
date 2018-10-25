@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Python class with common operations on the landmark dataset
+# Python class with common operations on the Landmark dataset
 
-# import download_helper  # used in Python 3, annotated first
 import argparse
 import os
-from urllib.request import urlretrieve
+import cv2
+import random
+# from urllib.request import urlretrieve  # used in Python 3, annotated first
 
 
 class LandMarkDataset:
@@ -13,12 +14,12 @@ class LandMarkDataset:
         self.root_dir = root_dir
         self.csv_dir = os.path.join(self.root_dir, 'csv')
         self.csv_file = os.path.join(self.csv_dir, 'train.csv')
-        self.training_dir = os.path.join(self.root_dir, 'training')
-        self.cls_dir = os.path.join(self.training_dir, 'cls')
+        self.raw_dir = os.path.join(self.root_dir, 'raw')
+        self.cls_dir = os.path.join(self.root_dir, 'cls')
         self.url_dict = {}
-        if not os.path.exists(self.training_dir):
-            os.makedirs(self.training_dir)
-            os.makedirs(self.cls_dir)
+        if not os.path.exists(self.raw_dir):
+            os.makedirs(self.raw_dir)
+            os.makedirs(os.path.join(self.raw_dir, 'cls'))
 
     # get the image url of each landmark which has image between l and h
     def read_url_from_file(self, l, h):
@@ -39,18 +40,20 @@ class LandMarkDataset:
         img_cnt = 0
         keys = url_temp.keys()
         for k in keys:
-            if 100 <= len(url_temp[k]) <= 150:
+            if l <= len(url_temp[k]) <= h:
                 self.url_dict[k] = url_temp[k]
                 img_cnt += len(self.url_dict[k])
         print('Total number of landmarks selected: %d' % len(self.url_dict.keys()))
         print('Total number of images selected: %d' % img_cnt)
 
     # download the images from the url (run read_url_from_file() first)
+    # skip the images whose urls are not accessible
     def download_image(self):
+        raw_cls_dir = os.path.join(self.raw_dir, 'raw-cls')
         broken_url = []
         downloaded_id = []
-        broken_log = os.path.join(self.cls_dir, 'broken_url.log')
-        downloaded_log = os.path.join(self.cls_dir, 'downloaded_id.log')
+        broken_log = os.path.join(raw_cls_dir, 'broken_url.log')
+        downloaded_log = os.path.join(raw_cls_dir, 'downloaded_id.log')
         # check which ids have been downloaded
         if os.path.exists(downloaded_log):
             r_downloaded_log = open(downloaded_log, 'r')
@@ -71,7 +74,7 @@ class LandMarkDataset:
             if landmark_id in downloaded_id:
                 print("landmark %s downloaded" % landmark_id)
                 continue
-            cls_path = os.path.join(self.cls_dir, str(landmark_id))
+            cls_path = os.path.join(raw_cls_dir, str(landmark_id))
             if not os.path.exists(cls_path):
                 os.makedirs(cls_path)
             for k, url in enumerate(self.url_dict[landmark_id]):
@@ -92,6 +95,43 @@ class LandMarkDataset:
         w_downloaded_log.close()
         w_broken_log.close()
 
+    # simply clean the dataset by deleting the images whose resolution is lower than the given
+    # and whose height is larger than the width
+    def delete_small_images(self, img_h=384, img_w=512):
+        raw_cls_dir = os.path.join(self.raw_dir, 'raw-cls')
+        for c in os.listdir(raw_cls_dir):
+            raw_cls_path = os.path.join(raw_cls_dir, c)
+            cls_path = os.path.join(self.cls_dir, c)
+            if not os.path.exists(cls_path):
+                os.makedirs(cls_path)
+            for i in os.listdir(raw_cls_path):
+                img_src_path = os.path.join(raw_cls_path, i)
+                img_dst_path = os.path.join(cls_path, i)
+                img = cv2.imread(img_src_path)
+                if img is None:
+                    os.remove(img_src_path)
+                    continue
+                else:
+                    if img_h < img.shape[0] < img.shape[1] and img.shape[1] > img_w:
+                        img_resized = cv2.resize(img, (img_w, img_h))
+                        cv2.imwrite(img_dst_path, img_resized)
+
+    # write an annotation file for making lmdb
+    def make_landmark_cls_annotations(self):
+        cls_txt = os.path.join(self.root_dir, 'cls.txt')
+        f = open(cls_txt, 'w')
+        lines = []
+        for c in os.listdir(self.cls_dir):
+            cls_path = os.path.join(self.cls_dir, c)
+            for i in os.listdir(cls_path):
+                img_path = os.path.join(c, i)
+                line = img_path + ' ' + c + '\n'
+                lines.append(line)
+        random.shuffle(lines)
+        for line in lines:
+            f.write(line)
+        f.close()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='build the landmark dataset')
@@ -100,5 +140,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     landmark_dataset = LandMarkDataset(args.root_dir)
-    landmark_dataset.read_url_from_file(l=100, h=150)
-    landmark_dataset.download_image()
+
+    # # download the images from urls (used on Windows)
+    # landmark_dataset.read_url_from_file(l=100, h=300)
+    # landmark_dataset.download_image()
+
+    landmark_dataset.delete_small_images()
+    # landmark_dataset.make_landmark_cls_annotations()

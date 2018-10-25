@@ -12,7 +12,7 @@ import argparse
 from tqdm import tqdm
 import sys
 sys.path.append('/home/processyuan/NetworkOptimization/deep-retrieval/myPython')
-from class_helper import *
+from oxford_helper import *
 
 if __name__ == '__main__':
 
@@ -34,8 +34,8 @@ if __name__ == '__main__':
     parser.set_defaults(L=2)
     parser.set_defaults(dataset_name='Oxford')
     parser.set_defaults(dataset='/home/processyuan/data/Oxford/')
-    parser.set_defaults(eval_binary='/home/processyuan/NetworkOptimization/deep-retrieval/eval/compute_ap')
-    parser.set_defaults(features_dir='/home/processyuan/NetworkOptimization/deep-retrieval/features/pca_concat/')
+    parser.set_defaults(eval_binary='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/compute_ap')
+    parser.set_defaults(features_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/features/pca_concat/')
     args = parser.parse_args()
 
     S = args.S
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     net = caffe.Net(args.proto, args.weights, caffe.TEST)
 
     # Load the dataset and the image helper
-    dataset = Dataset(args.dataset)
+    oxford_dataset = OxfordDataset(args.dataset)
     image_helper = ImageHelper(S, L)
 
     # Features are extracted here
@@ -56,8 +56,8 @@ if __name__ == '__main__':
               'pooled_rois_branch_4/normalized']
     num_branch = len(branch)
 
-    N_queries = dataset.N_queries
-    N_dataset = dataset.N_images
+    N_queries = oxford_dataset.N_queries
+    N_dataset = oxford_dataset.N_images
     pooled_rois_queries_list = []
     pooled_rois_dataset_list = []
     for k in range(num_branch):
@@ -66,8 +66,7 @@ if __name__ == '__main__':
 
     # queries: get ROI-pooling features
     for i in tqdm(range(N_queries), file=sys.stdout, leave=False, dynamic_ncols=True):
-        I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_query_filename(i),
-                                                                       roi=dataset.get_query_roi(i))
+        I, R = image_helper.prepare_image_and_grid_regions_for_network(oxford_dataset.get_query_filename(i))
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])
@@ -88,7 +87,7 @@ if __name__ == '__main__':
     # dataset: get ROI-pooling features
     for i in tqdm(range(N_dataset), file=sys.stdout, leave=False, dynamic_ncols=True):
         # Load image, process image, get image regions, feed into the network, get descriptor, and store
-        I, R = image_helper.prepare_image_and_grid_regions_for_network(dataset.get_filename(i), roi=None)
+        I, R = image_helper.prepare_image_and_grid_regions_for_network(oxford_dataset.get_filename(i))
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
         net.blobs['rois'].reshape(R.shape[0], R.shape[1])

@@ -23334,6 +23334,6 @@ layer {
 	bottom: "n_rmac/normalized"
 	top: "loss"
 	triplet_loss_param {
-		margin: 1.8
+		margin: 1.0
 	}
 }
