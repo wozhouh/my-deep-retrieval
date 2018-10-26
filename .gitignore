@@ -4,8 +4,8 @@ caffemodel/
 log/
 *log/
 eval/compute_ap
-eval/eval_*/
-eval/cover_*/
+eval/eval*/
+eval/cover*/
 *.npy
 *.pyc
 *.log

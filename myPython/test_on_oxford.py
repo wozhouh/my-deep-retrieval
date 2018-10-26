@@ -13,16 +13,17 @@ import os
 from collections import OrderedDict
 import subprocess
 
+
 class ImageHelper:
     def __init__(self, S, L, means):
         self.S = S
         self.L = L
         self.means = means
 
-    def prepare_image_and_grid_regions_for_network(self, fname, roi=None):
+    def prepare_image_and_grid_regions_for_network(self, fname):
         # Extract image, resize at desired size, and extract roi region if
         # available. Then compute the rmac grid in the net format: ID X Y W H
-        I, im_resized = self.load_and_prepare_image(fname, roi)
+        I, im_resized = self.load_and_prepare_image(fname)
         if self.L == 0:
             # Encode query in mac format instead of rmac, so only one region
             # Regions are in ID X Y W H format
@@ -38,24 +39,17 @@ class ImageHelper:
     def get_rmac_features(self, I, R, net, end_layer):
         net.blobs['data'].reshape(I.shape[0], 3, int(I.shape[2]), int(I.shape[3]))
         net.blobs['data'].data[:] = I
-        # net.blobs['rois'].reshape(R.shape[0], R.shape[1])
-        # net.blobs['rois'].data[:] = R.astype(np.float32)
+        net.blobs['rois'].reshape(R.shape[0], R.shape[1])
+        net.blobs['rois'].data[:] = R.astype(np.float32)
         net.forward(end=end_layer)
         return np.squeeze(net.blobs[end_layer].data)
 
-    def load_and_prepare_image(self, fname, roi=None):
+    def load_and_prepare_image(self, fname):
         # Read image, get aspect ratio, and resize such as the largest side equals S
         im = cv2.imread(fname)
-        im_size_hw = np.array(im.shape[0:2])
-        if self.S != np.max(im_size_hw):
-            ratio = float(self.S) / np.max(im_size_hw)
-            new_size = tuple(np.round(im_size_hw * ratio).astype(np.int32))
-            im_resized = cv2.resize(im, (new_size[1], new_size[0]))
-        else:
-            im_resized = im
         # Transpose for network and subtract mean
-        I = im_resized.transpose(2, 0, 1) - self.means
-        return I, im_resized
+        I = im.transpose(2, 0, 1) - self.means
+        return I, im
 
     def pack_regions_for_network(self, all_regions):
         n_regs = np.sum([len(e) for e in all_regions])
@@ -128,17 +122,7 @@ class ImageHelper:
             if regions_xywh[i][1] + regions_xywh[i][3] > H:
                 regions_xywh[i][1] -= ((regions_xywh[i][1] + regions_xywh[i][3]) - H)
         return np.array(regions_xywh).astype(np.float32)
-    '''
-    for an image of 384x512, the generated rois as below:
-    [[0.   0.   0. 383. 383.]
-     [0. 128.   0. 511. 383.]
-    [0.    0.   0. 255. 255.]
-    [0.  128.   0. 383. 255.]
-    [0.  256.   0. 511. 255.]
-    [0.   0.  128. 255. 383.]
-    [0.  128. 128. 383. 383.]
-    [0. 256. 128. 511. 383.]]
-    '''
+
 
 class Dataset:
     def __init__(self, path, eval_binary_path):
@@ -241,7 +225,7 @@ class Dataset:
 
 
 def extract_features(dataset, image_helper, net, args):
-    Ss = [args.S, ] if not args.multires else [args.S - 256, args.S, args.S + 256]  # multi-resolution of (256, 512, 768)
+    Ss = [args.S]
     # First part, queries
     for S in Ss:
         # Set the scale of the image helper
@@ -281,7 +265,7 @@ def extract_features(dataset, image_helper, net, args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Model Evaluation on Oxford dataset')
+    parser = argparse.ArgumentParser(description='Evaluate Oxford / Paris')
     parser.add_argument('--gpu', type=int, required=False, help='GPU ID to use (e.g. 0)')
     parser.add_argument('--S', type=int, required=False, help='Resize larger side of image to S pixels (e.g. 800)')
     parser.add_argument('--L', type=int, required=False, help='Use L spatial levels (e.g. 2)')
@@ -291,11 +275,8 @@ if __name__ == '__main__':
     parser.add_argument('--dataset_name', type=str, required=False, help='Dataset name')
     parser.add_argument('--eval_binary', type=str, required=False, help='Path to the compute_ap binary to evaluate Oxford / Paris')
     parser.add_argument('--temp_dir', type=str, required=False, help='Path to a temporary directory to store features and scores')
-    parser.add_argument('--multires', dest='multires', action='store_true', help='Enable multiresolution features')
     parser.add_argument('--aqe', type=int, required=False, help='Average query expansion with k neighbors')
     parser.add_argument('--dbe', type=int, required=False, help='Database expansion with k neighbors')
-    parser.add_argument('--end', type=str, required=False, help='Define the output layer of the net')
-    parser.set_defaults(multires=False)
     parser.set_defaults(dataset_name='Oxford')
     parser.set_defaults(dataset='/home/processyuan/data/Oxford/uni-oxford/')
     parser.set_defaults(eval_binary='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/compute_ap')
