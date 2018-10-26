@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     # Compute similarity
     sim = features_queries.dot(features_dataset.T)
-    np.save(os.path.join(args.temp_dir, 'sim.npy'), sim)
+    # np.save(os.path.join(args.temp_dir, 'sim.npy'), sim)
     # sim = np.load(os.path.join(args.temp_dir, 'sim.npy'))  # test
 
     # Calculates the precision and mAP

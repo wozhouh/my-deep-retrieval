@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.set_defaults(weights='/home/processyuan/code/NetworkOptimization/deep-retrieval/'
                                 'caffemodel/deep_image_retrieval_model.caffemodel')
     parser.set_defaults(dataset='/home/processyuan/data/cover')
-    parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/eval_test/')
+    parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/temp/')
     parser.set_defaults(end='rmac/normalized')
     parser.set_defaults(multires=False)
     args = parser.parse_args()

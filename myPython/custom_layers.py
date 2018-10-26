@@ -8,6 +8,7 @@ import yaml
 import random
 import cv2
 import numpy as np
+import Queue
 import region_generator
 
 
@@ -163,14 +164,14 @@ class RigidGridLayer(caffe.Layer):
 
         # iterate over a batch
         if self.batch_size == 1:
-            top[0].data[:] = R[: self.num_region, :]
+            top[0].data[:] = np.array(R[: self.num_region, :])
         else:
             reg = np.zeros((self.num_region * self.batch_size, self.dim_rois), dtype=np.float32)
             for k in range(self.batch_size):
-                R_temp = R
+                R_temp = np.array(R)
                 R_temp[:, 0] = k  # image index in the batch
                 reg[k * self.num_region: (k + 1) * self.num_region, :] = R_temp
-            top[0].data[:] = reg
+            top[0].data[:] = np.array(reg)
 
     def backward(self, top, propagate_down, bottom):
         if propagate_down[0]:
@@ -210,6 +211,7 @@ class ResizeLayer(caffe.Layer):
 
 # A data layer that fetches the images and feeds the triplet siamese network
 # Fully shuffling the data but not the hard negative mining
+# !!! Deprecated Layer !!! --> turn to BinDataLayer instead
 class TripletDataLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 0, 'Data layer should not have a bottom for input'
@@ -292,6 +294,7 @@ class TripletDataLayer(caffe.Layer):
     def backward(self, top, propagate_down, bottom):
         pass
 
+
 # A data layer that fetches images from the same and different class to form a batch (half by half)
 class BinDataLayer(caffe.Layer):
     def setup(self, bottom, top):
@@ -302,14 +305,9 @@ class BinDataLayer(caffe.Layer):
         self.cls_dir = params['cls_dir']
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
         self.cls = os.listdir(self.cls_dir)  # list of classes
-        if 'junk' in self.cls:
-            self.cls.remove('junk')  # except 'junk'
-        self.cls_ind = len(self.cls) - 1  # init: suppose an epoch is done
-        self.img = []  # list of images within the current class
-        self.img_ind = 0  # index of the images in process
-        self.pos_num = self.batch_size / 2  # number of positive samples in the batch
-        self.neg_num = self.batch_size - self.pos_num  # number of negative samples in the batch
-
+        self.img_queue = Queue.Queue(maxsize=0)  # queue for fetching iamges in an epoch
+        self.label_queue = Queue.Queue(maxsize=0)  # queue for corresponding labels in an epoch
+        self.ind = 0
 
     # Fix the image shape here to the Paris dataset (384, 512, 3)
     def reshape(self, bottom, top):
@@ -317,52 +315,64 @@ class BinDataLayer(caffe.Layer):
         top[1].reshape(*[self.batch_size, 1, 1, 1])  # labels
 
     def forward(self, bottom, top):
-        if self.img_ind >= len(self.img):
-            self.cls_ind += 1
-            if self.cls_ind >= len(self.cls):
-                random.shuffle(self.cls)
-                self.cls_ind = 0
-            self.img = os.listdir(os.path.join(self.cls_dir, self.cls[self.cls_ind]))
-            random.shuffle(self.img)
-            self.img_ind = 0
-
-        # fetch the images within the same class
-        p_diff = self.pos_num + self.img_ind - len(self.img)
-        if p_diff <= 0:
-            p_img_name = self.img[self.img_ind: self.img_ind + self.pos_num]
-        else:
-            p_img_name = self.img[self.img_ind: len(self.img)]
-            p_img_name.extend(self.img[: p_diff])  # pad the rest with the images from the beginning
-
-        p_img_full_name = [os.path.join(self.cls_dir, self.cls[self.cls_ind], i)
-                           for i in p_img_name]
-        p_labels = []
-        for k in range(self.pos_num):
-            p_labels.append(int(self.cls[self.cls_ind]))
-
-        # randomly sample a negative image from a different class
-        cls_temp = list(self.cls)
-        cls_temp.remove(self.cls[self.cls_ind])
-        n_img_cls = random.sample(cls_temp, self.neg_num)
-        n_img_full_name = []
-        n_labels = []
-        for d in n_img_cls:
-            n_img_dir = os.path.join(self.cls_dir, d)
-            n_img_temp = (random.sample(os.listdir(n_img_dir), 1))[0]
-            n_img_full_name.append(os.path.join(n_img_dir, n_img_temp))
-            n_labels.append(int(d))
-
-        # load the images
-        p_img_temp = [cv2.imread(p_img_full_name[k]) for k in range(self.pos_num)]
-        p_img = [(p_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.pos_num)]
-        n_img_temp = [cv2.imread(n_img_full_name[k]) for k in range(self.neg_num)]
-        n_img = [(n_img_temp[k].transpose(2, 0, 1) - self.mean) for k in range(self.neg_num)]
-
-        top[0].data[...] = np.array(p_img + n_img)
-        top[1].data[...] = np.array(p_labels + n_labels).reshape(self.batch_size, 1, 1, 1)
-
-        self.img_ind += self.pos_num
+        if self.label_queue.empty():
+            print('INFO: An epoch is done.')
+            self.get_epoch_data()
+        img_path_list = self.img_queue.get()
+        labels_list = self.label_queue.get()
+        img_temp = np.array([cv2.imread(i) for i in img_path_list])
+        labels = np.array(labels_list).reshape(self.batch_size, 1, 1, 1)
+        img = [(i.transpose(2, 0, 1) - self.mean) for i in img_temp]
+        top[0].data[...] = img
+        top[1].data[...] = labels
 
     # No need for a data layer to implement the 'backward' function
     def backward(self, top, propagate_down, bottom):
         pass
+
+    # when an epoch is done, shuffle the data
+    def get_epoch_data(self):
+        img_queue_temp = []  # list of list for fetching images in an epoch
+        labels_queue_temp = []  # list of list for corresponding labels in an epoch
+        pos_num = self.batch_size / 2  # number of positive samples in the batch
+        neg_num = self.batch_size - pos_num  # number of negative samples in the batch
+        for c in self.cls:
+            img_ind = 0  # index of the images in process
+            cls_path = os.path.join(self.cls_dir, c)
+            cls_except = list(self.cls)
+            cls_except.remove(c)
+            img = os.listdir(cls_path)
+            random.shuffle(img)
+            while pos_num + img_ind <= len(img):
+                # fetch the images within the same class
+                img_path_list = []
+                labels_list = []
+                for k in range(pos_num):
+                    img_path = os.path.join(cls_path, img[img_ind + k])
+                    img_path_list.append(img_path)
+                    labels_list.append(int(c))
+
+                # randomly sample a negative image from  different classes
+                neg_img_cls = random.sample(cls_except, neg_num)
+                for n_cls in neg_img_cls:
+                    n_img_dir = os.path.join(self.cls_dir, n_cls)
+                    n_img_name = (random.sample(os.listdir(n_img_dir), 1))[0]
+                    img_path_list.append(os.path.join(n_img_dir, n_img_name))
+                    labels_list.append(int(n_cls))
+                img_ind += pos_num
+
+                # load the images
+                img_queue_temp.append(img_path_list)
+                labels_queue_temp.append(labels_list)
+
+        # shuffle the images and the corresponding labels in he same order
+        randnum = random.randint(0, 1000000)
+        random.seed(randnum)
+        random.shuffle(img_queue_temp)
+        random.seed(randnum)
+        random.shuffle(labels_queue_temp)
+
+        # push into the queue
+        for i, k in enumerate(labels_queue_temp):
+            self.img_queue.put(img_queue_temp[i])
+            self.label_queue.put(k)

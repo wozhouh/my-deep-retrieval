@@ -20,6 +20,8 @@ class LandMarkDataset:
         if not os.path.exists(self.raw_dir):
             os.makedirs(self.raw_dir)
             os.makedirs(os.path.join(self.raw_dir, 'cls'))
+        if not os.path.exists(self.cls_dir):
+            os.makedirs(self.cls_dir)
 
     # get the image url of each landmark which has image between l and h
     def read_url_from_file(self, l, h):
@@ -97,7 +99,7 @@ class LandMarkDataset:
 
     # simply clean the dataset by deleting the images whose resolution is lower than the given
     # and whose height is larger than the width
-    def delete_small_images(self, img_h=384, img_w=512):
+    def unite_images_size(self, img_h=384, img_w=512):
         raw_cls_dir = os.path.join(self.raw_dir, 'raw-cls')
         for c in os.listdir(raw_cls_dir):
             raw_cls_path = os.path.join(raw_cls_dir, c)
@@ -112,9 +114,9 @@ class LandMarkDataset:
                     os.remove(img_src_path)
                     continue
                 else:
-                    if img_h < img.shape[0] < img.shape[1] and img.shape[1] > img_w:
-                        img_resized = cv2.resize(img, (img_w, img_h))
-                        cv2.imwrite(img_dst_path, img_resized)
+                    if img.shape[1] >= img.shape[0] >= img_h and img.shape[1] >= img_w:
+                            img_resized = cv2.resize(img, (img_w, img_h))
+                            cv2.imwrite(img_dst_path, img_resized)
 
     # write an annotation file for making lmdb
     def make_landmark_cls_annotations(self):
@@ -145,5 +147,5 @@ if __name__ == '__main__':
     # landmark_dataset.read_url_from_file(l=100, h=300)
     # landmark_dataset.download_image()
 
-    landmark_dataset.delete_small_images()
+    landmark_dataset.unite_images_size()
     # landmark_dataset.make_landmark_cls_annotations()
