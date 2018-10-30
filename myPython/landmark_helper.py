@@ -137,14 +137,14 @@ class LandMarkDataset:
                                 img_src_w = int(float(img_src_h) * img_src_ratio)
                                 img_resized = cv2.resize(img, (img_src_w, img_src_h))
                                 # crop the center part on the axis of width
-                                img_cropped = img_resized[:, img_src_w-img_w/2: img_src_w+img_w/2, :]
+                                img_cropped = img_resized[:, img_src_w/2-img_w/2: img_src_w/2+img_w/2, :]
                             # too high
                             else:
                                 img_src_w = img_w
                                 img_src_h = int(float(img_src_w) / img_src_ratio)
                                 img_resized = cv2.resize(img, (img_src_w, img_src_h))
                                 # crop the center part on the axis of height
-                                img_cropped = img_resized[img_src_h-img_h/2: img_src_h+img_h/2, :, :]
+                                img_cropped = img_resized[img_src_h/2-img_h/2: img_src_h/2+img_h/2, :, :]
                             cv2.imwrite(img_dst_path, img_cropped)
                         else:
                             useless_cnt += 1
