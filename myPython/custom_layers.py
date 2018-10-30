@@ -238,11 +238,11 @@ class TripletDataLayer(caffe.Layer):
         self.img = []  # list of images within the current class
         self.img_ind = 0  # index of the images in process
 
-    # Fix the image shape here to the Paris dataset (384, 512, 3)
+    # Fix the image shape here to the Paris dataset (288, 384, 3)
     def reshape(self, bottom, top):
-        top[0].reshape(*[self.batch_size, 3, 384, 512])
-        top[1].reshape(*[self.batch_size, 3, 384, 512])
-        top[2].reshape(*[self.batch_size, 3, 384, 512])
+        top[0].reshape(*[self.batch_size, 3, 288, 384])
+        top[1].reshape(*[self.batch_size, 3, 288, 384])
+        top[2].reshape(*[self.batch_size, 3, 288, 384])
 
     def forward(self, bottom, top):
         if self.img_ind >= len(self.img):
