@@ -97,16 +97,21 @@ class LandMarkDataset:
         w_downloaded_log.close()
         w_broken_log.close()
 
-    # simply clean the dataset by deleting the images whose resolution is lower than the given
-    # and whose height is larger than the width
-    def unite_images_size(self, img_h=384, img_w=512):
+    # simply clean the dataset by deleting the images whose resolution is lower than the given and crop/resize the rest
+    def unite_images_size(self, img_h=288, img_w=384, least_img_per_cls=10, method="crop"):
+        img_dst_ratio = float(img_w) / float(img_h)
         raw_cls_dir = os.path.join(self.raw_dir, 'raw-cls')
+        useless_cnt = 0
+        useful_cnt = 0
         for c in os.listdir(raw_cls_dir):
             raw_cls_path = os.path.join(raw_cls_dir, c)
             cls_path = os.path.join(self.cls_dir, c)
+            img_num = len(os.listdir(raw_cls_path))
+            if img_num < least_img_per_cls:
+                continue
             if not os.path.exists(cls_path):
                 os.makedirs(cls_path)
-            for i in os.listdir(raw_cls_path):
+            for i in os.listdir(raw_cls_path) :
                 img_src_path = os.path.join(raw_cls_path, i)
                 img_dst_path = os.path.join(cls_path, i)
                 img = cv2.imread(img_src_path)
@@ -114,9 +119,36 @@ class LandMarkDataset:
                     os.remove(img_src_path)
                     continue
                 else:
-                    if img.shape[1] >= img.shape[0] >= img_h and img.shape[1] >= img_w:
+                    if method == "resize":
+                        if img.shape[1] >= img.shape[0] >= img_h and img.shape[1] >= img_w:
+                            useful_cnt += 1
+                            print("processing the %d image" % useful_cnt)
                             img_resized = cv2.resize(img, (img_w, img_h))
                             cv2.imwrite(img_dst_path, img_resized)
+                    else:
+                        # give up the images which are too small
+                        if img.shape[0] >= img_h and img.shape[1] >= img_w:
+                            useful_cnt += 1
+                            print("processing the %d image" % useful_cnt)
+                            img_src_ratio = float(img.shape[1]) / float(img.shape[0])
+                            # too wide
+                            if img_src_ratio > img_dst_ratio:
+                                img_src_h = img_h
+                                img_src_w = int(float(img_src_h) * img_src_ratio)
+                                img_resized = cv2.resize(img, (img_src_w, img_src_h))
+                                # crop the center part on the axis of width
+                                img_cropped = img_resized[:, img_src_w-img_w/2: img_src_w+img_w/2, :]
+                            # too high
+                            else:
+                                img_src_w = img_w
+                                img_src_h = int(float(img_src_w) / img_src_ratio)
+                                img_resized = cv2.resize(img, (img_src_w, img_src_h))
+                                # crop the center part on the axis of height
+                                img_cropped = img_resized[img_src_h-img_h/2: img_src_h+img_h/2, :, :]
+                            cv2.imwrite(img_dst_path, img_cropped)
+                        else:
+                            useless_cnt += 1
+        print("%d images finished, %d images deprecated" % (useful_cnt, useless_cnt))
 
     # write an annotation file for making lmdb
     def make_landmark_cls_annotations(self):
