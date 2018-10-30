@@ -313,6 +313,7 @@ class BinDataLayer(caffe.Layer):
         params = yaml.load(self.param_str_)
         self.batch_size = params['batch_size']
         self.cls_dir = params['cls_dir']
+        self.dataset = params['dataset']
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
         self.cls = os.listdir(self.cls_dir)  # list of classes
         self.img_queue = Queue.Queue(maxsize=0)  # queue for fetching iamges in an epoch
@@ -321,7 +322,12 @@ class BinDataLayer(caffe.Layer):
 
     # Fix the image shape here to the Paris dataset (288, 384, 3)
     def reshape(self, bottom, top):
-        top[0].reshape(*[self.batch_size, 3, 288, 384])  # images of 3 channels
+        if self.dataset == 'landmark':
+            top[0].reshape(*[self.batch_size, 3, 288, 384])
+        elif self.dataset == 'paris':
+            top[0].reshape(*[self.batch_size, 3, 384, 512])
+        else:
+            top[0].reshape(*[self.batch_size, 3, 280, 496])
         top[1].reshape(*[self.batch_size, 1, 1, 1])  # labels
 
     def forward(self, bottom, top):

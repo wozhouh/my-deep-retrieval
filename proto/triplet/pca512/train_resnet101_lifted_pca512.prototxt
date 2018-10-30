@@ -10,7 +10,7 @@ layer {
 	python_param {
 		module: "custom_layers"
 		layer: "BinDataLayer"
-		param_str: "{'batch_size': 64, 'cls_dir': '/home/gordonwzhe/data/Landmark/cls/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
+		param_str: "{'batch_size': 64, 'cls_dir': '/home/gordonwzhe/data/Landmark/cls/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'landmark'}"
 	}
 }
 
@@ -25,7 +25,7 @@ layer {
 	python_param {
 		module: "custom_layers"
 		layer: "BinDataLayer"
-		param_str: "{'batch_size': 4, 'cls_dir': '/home/gordonwzhe/data/Paris/val/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
+		param_str: "{'batch_size': 4, 'cls_dir': '/home/gordonwzhe/data/Paris/val/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'paris'}"
 	}
 }
 
@@ -34,6 +34,24 @@ layer {
 	type: "Python"
 	bottom: "data"
 	top: "rois"
+	include {
+		phase: TRAIN
+	}
+	python_param {
+		module: 'custom_layers'
+		layer: 'RigidGridLayer'
+		param_str: "{'dataset': 'landmark'}"
+	}
+}
+
+layer {
+	name: "rois"
+	type: "Python"
+	bottom: "data"
+	top: "rois"
+	include {
+		phase: TEST
+	}
 	python_param {
 		module: 'custom_layers'
 		layer: 'RigidGridLayer'

@@ -150,6 +150,18 @@ class LandMarkDataset:
                             useless_cnt += 1
         print("%d images finished, %d images deprecated" % (useful_cnt, useless_cnt))
 
+    # count how many images are there in evert class
+    def count_img_per_class(self):
+        cnt_dict = {}
+        for c in os.listdir(self.cls_dir):
+            cls_path = os.path.join(self.cls_dir, c)
+            img_num = len(os.listdir(cls_path))
+            if img_num in cnt_dict.keys():
+                cnt_dict[img_num] = cnt_dict[img_num] + 1
+            else:
+                cnt_dict[img_num] = 1
+        print(cnt_dict)
+
     # write an annotation file for making lmdb
     def make_landmark_cls_annotations(self):
         cls_txt = os.path.join(self.root_dir, 'cls.txt')
@@ -179,5 +191,6 @@ if __name__ == '__main__':
     # landmark_dataset.read_url_from_file(l=100, h=300)
     # landmark_dataset.download_image()
 
-    landmark_dataset.unite_images_size()
+    # landmark_dataset.unite_images_size()
+    landmark_dataset.count_img_per_class()
     # landmark_dataset.make_landmark_cls_annotations()
