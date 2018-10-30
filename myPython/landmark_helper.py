@@ -153,6 +153,7 @@ class LandMarkDataset:
     # count how many images are there in evert class
     def count_img_per_class(self):
         cnt_dict = {}
+        img_cnt = 0
         for c in os.listdir(self.cls_dir):
             cls_path = os.path.join(self.cls_dir, c)
             img_num = len(os.listdir(cls_path))
@@ -160,6 +161,9 @@ class LandMarkDataset:
                 cnt_dict[img_num] = cnt_dict[img_num] + 1
             else:
                 cnt_dict[img_num] = 1
+        for k in cnt_dict.keys():
+            img_num += k * cnt_dict[k]
+        print("Total number of images: %d" % img_num)
         print(cnt_dict)
 
     # write an annotation file for making lmdb
