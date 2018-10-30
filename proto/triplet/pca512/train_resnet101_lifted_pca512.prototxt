@@ -10,7 +10,7 @@ layer {
 	python_param {
 		module: "custom_layers"
 		layer: "BinDataLayer"
-		param_str: "{'batch_size': 8, 'cls_dir': '/home/processyuan/data/Landmark/cls/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
+		param_str: "{'batch_size': 64, 'cls_dir': '/home/gordonwzhe/data/Landmark/cls/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
 	}
 }
 
@@ -25,7 +25,7 @@ layer {
 	python_param {
 		module: "custom_layers"
 		layer: "BinDataLayer"
-		param_str: "{'batch_size': 1, 'cls_dir': '/home/processyuan/data/Paris/val/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
+		param_str: "{'batch_size': 4, 'cls_dir': '/home/gordonwzhe/data/Paris/val/', 'mean': [103.93900299, 116.77899933, 123.68000031]}"
 	}
 }
 
@@ -37,7 +37,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'RigidGridLayer'
-		param_str: "{'dataset': 'paris'}"
+		param_str: "{'dataset': 'landmark'}"
 	}
 }
 
@@ -7720,7 +7720,7 @@ layer {
 	param {
 		name: "pooled_rois/centered_2"
 		lr_mult: 2.0
-		decay_mult: 1.0
+		decay_mult: 0.0
 	}
   scale_param {
       bias_term: true
@@ -7746,7 +7746,7 @@ layer {
 	param {
 		name: "pooled_rois/pca_2"
 		lr_mult: 2.0
-		decay_mult: 1.0
+		decay_mult: 0.0
 	}
   inner_product_param {
     num_output: 512 # output PCA dimensionality 

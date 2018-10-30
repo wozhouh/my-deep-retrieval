@@ -98,7 +98,7 @@ class LandMarkDataset:
         w_broken_log.close()
 
     # simply clean the dataset by deleting the images whose resolution is lower than the given and crop/resize the rest
-    def unite_images_size(self, img_h=288, img_w=384, least_img_per_cls=10, method="crop"):
+    def unite_images_size(self, img_h=288, img_w=384, least_img_per_cls=3, method="crop"):
         img_dst_ratio = float(img_w) / float(img_h)
         raw_cls_dir = os.path.join(self.raw_dir, 'raw-cls')
         useless_cnt = 0

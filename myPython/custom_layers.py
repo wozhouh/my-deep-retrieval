@@ -127,6 +127,14 @@ class RigidGridLayer(caffe.Layer):
                                     [0.,  0., 128.,255., 383.],
                                     [0., 128.,128.,383., 383.],
                                     [0., 256.,128.,511., 383.]])
+        self.landmark_rois = np.array([[0., 0., 0., 287., 287.],
+                                    [0., 96., 0., 383., 287.],
+                                    [0., 0., 0., 191., 191.],
+                                    [0., 96., 0., 287., 191.],
+                                    [0., 192., 0., 383., 191.],
+                                    [0., 0., 96., 191., 287.],
+                                    [0., 96., 96., 287., 287.],
+                                    [0., 192., 96., 383., 287.]])
 
     def reshape(self, bottom, top):
         top[0].reshape(*[self.batch_size * self.num_region, self.dim_rois])
@@ -158,6 +166,8 @@ class RigidGridLayer(caffe.Layer):
              [0. 256. 128. 511. 383.]]
             '''
             R = self.paris_rois
+        elif self.dataset == 'landmark':
+            R = self.landmark_rois
         else:
             all_regions = [region_generator.get_rmac_region_coordinates(self.img_h, self.img_w, 2)]
             R = region_generator.pack_regions_for_network(all_regions)  # for the cover images, R,shape = [8, 5]
