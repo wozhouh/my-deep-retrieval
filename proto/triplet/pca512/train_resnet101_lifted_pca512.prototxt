@@ -7708,9 +7708,9 @@ layer {
 }
 # Mean center done with a scaling (at 1) + shifting. The shifting needs to be copied into the model weights.
 layer {
-  name: "pooled_rois/centered"
+  name: "pooled_rois/centered_512"
   bottom: "pooled_rois/normalized_flat"
-  top: "pooled_rois/centered"
+  top: "pooled_rois/centered_512"
   type: "Scale"
 	param {
 		name: "pooled_rois/centered_1"
@@ -7758,7 +7758,7 @@ layer {
       value: 0
     }
   }
-  bottom: "pooled_rois/centered"
+  bottom: "pooled_rois/centered_512"
   top: "pooled_rois/pca_512"
 }
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again

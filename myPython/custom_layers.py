@@ -319,9 +319,9 @@ class BinDataLayer(caffe.Layer):
         self.label_queue = Queue.Queue(maxsize=0)  # queue for corresponding labels in an epoch
         self.ind = 0
 
-    # Fix the image shape here to the Paris dataset (384, 512, 3)
+    # Fix the image shape here to the Paris dataset (288, 384, 3)
     def reshape(self, bottom, top):
-        top[0].reshape(*[self.batch_size, 3, 384, 512])  # images of 3 channels
+        top[0].reshape(*[self.batch_size, 3, 288, 384])  # images of 3 channels
         top[1].reshape(*[self.batch_size, 1, 1, 1])  # labels
 
     def forward(self, bottom, top):
