@@ -4,11 +4,11 @@ net: "/home/gordonwzhe/code/my-deep-retrieval/proto/triplet/pca512/train_resnet1
 # test_iter specifies how many forward passes the test should carry out.
 test_iter: 445
 # Carry out testing every 'test_interval' training iterations.
-test_interval: 1000
+test_interval: 2000
 # The base learning rate, momentum and the weight decay of the network.
-base_lr: 0.0002
+base_lr: 0.0001
 momentum: 0.9
-weight_decay: 0.0005
+weight_decay: 0.0002
 # The learning rate policy
 lr_policy: "fixed"
 # lr_policy: "multistep"
@@ -18,9 +18,9 @@ lr_policy: "fixed"
 # Display every 100 iterations
 display: 100
 # The maximum number of iterations
-max_iter: 3526
+max_iter: 4500
 # snapshot intermediate results
 snapshot: 1000
-snapshot_prefix: "/home/gordonwzhe/code/my-deep-retrieval/proto/triplet/pca512/train_resnet101_lifted_pca512_landmark"
+snapshot_prefix: "/home/gordonwzhe/code/my-deep-retrieval/caffemodel/triplet/pca512/train_resnet101_lifted_pca512_landmark"
 # solver mode: CPU or GPU
 solver_mode: GPU

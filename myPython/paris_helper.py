@@ -36,7 +36,7 @@ class ParisDataset:
 
         if os.path.exists(self.triplet_dir):
             self.cls_list = os.listdir(self.triplet_dir)
-            self.cls_list.remove('junk')
+            self.cls_list.remove('useless')
 
     # test set is copied from 'cls' directory and resized to given shape and images in blacklist are removed
     def make_test_set(self, img_h=None, img_w=None):
