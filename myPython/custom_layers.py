@@ -167,6 +167,17 @@ class RigidGridLayer(caffe.Layer):
             '''
             R = self.paris_rois
         elif self.dataset == 'landmark':
+            '''
+           (1, 3, 288, 384)
+           [[0., 0., 0., 287., 287.],
+            [0., 96., 0., 383., 287.],
+            [0., 0., 0., 191., 191.],
+            [0., 96., 0., 287., 191.],
+            [0., 192., 0., 383., 191.],
+            [0., 0., 96., 191., 287.],
+            [0., 96., 96., 287., 287.],
+            [0., 192., 96., 383., 287.]]
+           '''
             R = self.landmark_rois
         else:
             all_regions = [region_generator.get_rmac_region_coordinates(self.img_h, self.img_w, 2)]
@@ -350,7 +361,7 @@ class BinDataLayer(caffe.Layer):
     def get_epoch_data(self):
         img_queue_temp = []  # list of list for fetching images in an epoch
         labels_queue_temp = []  # list of list for corresponding labels in an epoch
-        pos_num = self.batch_size / 2  # number of positive samples in the batch
+        pos_num = self.batch_size / 4  # number of positive samples in the batch
         neg_num = self.batch_size - pos_num  # number of negative samples in the batch
         for c in self.cls:
             img_ind = 0  # index of the images in process
@@ -368,7 +379,7 @@ class BinDataLayer(caffe.Layer):
                     img_path_list.append(img_path)
                     labels_list.append(int(c))
 
-                # randomly sample a negative image from  different classes
+                # randomly sample a negative image from different classes
                 neg_img_cls = random.sample(cls_except, neg_num)
                 for n_cls in neg_img_cls:
                     n_img_dir = os.path.join(self.cls_dir, n_cls)
