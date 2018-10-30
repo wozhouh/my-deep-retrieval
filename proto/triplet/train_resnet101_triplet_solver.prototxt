@@ -2,9 +2,9 @@
 # net: "/home/processyuan/code/NetworkOptimization/deep-retrieval/proto/triplet/pca512/train_resnet101_lifted_pca512_BaseNet.prototxt"
 net: "/home/gordonwzhe/code/my-deep-retrieval/proto/triplet/pca512/train_resnet101_lifted_pca512.prototxt"
 # test_iter specifies how many forward passes the test should carry out.
-test_iter: 445
+test_iter: 0
 # Carry out testing every 'test_interval' training iterations.
-test_interval: 2000
+test_interval: 200000
 # The base learning rate, momentum and the weight decay of the network.
 base_lr: 0.0001
 momentum: 0.9
