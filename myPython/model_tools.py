@@ -23,15 +23,15 @@ class ModelTools:
     def check_blob_shape(self):
         for layer in self.net.params.keys():
             print(layer)
-            for dim in range(len(self.net.params[layer])):
-                print(self.net.params[layer][dim].data.shape)
+            for dim in self.net.params[layer]:
+                print(dim.data.shape)
 
     # print the datas of all the weight blobs in the list of layers
     # param 'layers' is a list of layer names
     def check_blob_data(self, layers):
         for l in layers:
-            for k in range(len(self.net.params[l])):
-                print(self.net.params[l][k].data)
+            for k in self.net.params[l]:
+                print(k.data)
             print('\n')
 
     # compare which layers in the two models are different
@@ -140,6 +140,7 @@ class ModelTools:
         # firstly, copy
         for line in self.lines:
             f_new_proto.write(line)
+            layer_name = ""
             if 'name' in line:
                 layer_name = line.split('"')[1]  # find the layer name
 
@@ -186,14 +187,34 @@ class ModelTools:
 
         f_new_proto.close()
 
+    # clip the blob shape
+    def clip_blob_data(self, layer, clipped_dim=256):
+        src_blob_data = [dim.data[...] for dim in self.net.params[layer]]
+        clipped_src_data = [d[:clipped_dim] for d in src_blob_data]
+        clipped_src_shape = [c.shape for c in clipped_src_data]
+        print("clipped shape: ")
+        print(clipped_src_shape)
+        return clipped_src_data
+
+    # assign the new blob to the caffemodel (keep the rest the same)
+    def assign_blob_data(self, layers, new_layers, new_proto, new_weights, clipped_dim):
+        new_net = caffe.Net(new_proto, self.weights, caffe.TEST)
+        for k, layer in enumerate(layers):
+            print(new_layers[k])
+            new_blob_data = self.clip_blob_data(layer, clipped_dim=clipped_dim)
+            for l in range(len(new_blob_data)):
+                new_net.params[new_layers[k]][l].data[...] = new_blob_data[l]
+                print(new_net.params[new_layers[k]][l].data[...])
+        new_net.save(new_weights)
+
 
 if __name__ == "__main__":
     # configure
     parser = argparse.ArgumentParser(description='print the shape of weights stored in caffemodel')
     parser.add_argument('--proto', type=str, required=True, help='Path to the prototxt file')
     parser.add_argument('--weights', type=str, required=True, help='Path to the caffemodel file')
-    parser.add_argument('--compare', type=str, required=False, default=None, help="Path to the prototxt for comparison")
-    parser.add_argument('--out_weights', type=str, required=False, default=None, help="Path to the saved caffemodel")
+    parser.add_argument('--new_proto', type=str, required=False, default=None, help="Path to the prototxt for comparison")
+    parser.add_argument('--new_weights', type=str, required=False, default=None, help="Path to the saved caffemodel")
     parser.add_argument('--gpu', type=int, required=False, help='index of Used GPU')
     parser.set_defaults(gpu=0)
     args = parser.parse_args()
@@ -201,16 +222,23 @@ if __name__ == "__main__":
     # init
     model_tools = ModelTools(args.proto, args.weights, args.gpu)
 
-    # model_tools.check_blob_data(["pooled_rois/centered", "pooled_rois/pca_512"])
+    # # clip the blob data of the original model and assign it to the new model
+    # layers = ["pooled_rois/pca"]
+    # new_layers = ["pooled_rois/pca_256"]
+    # model_tools.check_blob_data(layers)
+    # model_tools.assign_blob_data(layers, new_layers, args.new_proto, args.new_weights, clipped_dim=256)
 
-    # comparison
-    model_tools.compare_model(other_proto=args.compare)
+    # # check the blob shape of the model
+    # model_tools.clip_blob_data("pooled_rois/centered_512")
 
-    # # deploy to train
-    # model_tools.add_learning_params(new_proto=args.compare, l=0, h=4584)
+    # # comparison between two models
+    # model_tools.compare_model(other_proto=args.new_proto)
+
+    # # .prototxt file from 'deploy' to 'trainval'
+    # model_tools.add_learning_params(new_proto=args.new_proto, l=0, h=4584)
 
     # # save the .caffemodel for the teacher network
-    # model_tools.save_teacher_network_weights(args.compare, args.out_weights)
+    # model_tools.save_teacher_network_weights(args.new_proto, args.new_weights)
 
-    # # make the prototxt of triplet network
-    # model_tools.make_triplet_network(args.compare)
+    # # make the .prototxt file of triplet network
+    # model_tools.make_triplet_network(args.new_proto)

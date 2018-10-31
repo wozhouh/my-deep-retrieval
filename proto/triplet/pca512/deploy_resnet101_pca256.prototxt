@@ -4578,10 +4578,10 @@ layer {
 }
 # And then the PCA, which is another FC layer
 layer {
-  name: "pooled_rois/pca_512"
+  name: "pooled_rois/pca_256"
   type: "InnerProduct"
   inner_product_param {
-    num_output: 512 # output PCA dimensionality 
+    num_output: 256 # output PCA dimensionality 
     weight_filler {
       type: "xavier"
     }
@@ -4591,7 +4591,7 @@ layer {
     }
   }
   bottom: "pooled_rois/centered"
-  top: "pooled_rois/pca_512"
+  top: "pooled_rois/pca_256"
 }
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
 layer {
@@ -4605,7 +4605,7 @@ layer {
 		dim: 1
 		}    
 	}
-	bottom: "pooled_rois/pca_512"
+	bottom: "pooled_rois/pca_256"
 	top: "pooled_rois/pca/reshaped"
 }
 layer {

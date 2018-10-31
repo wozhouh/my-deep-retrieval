@@ -150,7 +150,7 @@ class LandMarkDataset:
                             useless_cnt += 1
         print("%d images finished, %d images deprecated" % (useful_cnt, useless_cnt))
 
-    # count how many images are there in evert class
+    # count how many images are there in every class
     def count_img_per_class(self):
         cnt_dict = {}
         img_cnt = 0
@@ -162,8 +162,8 @@ class LandMarkDataset:
             else:
                 cnt_dict[img_num] = 1
         for k in cnt_dict.keys():
-            img_num += k * cnt_dict[k]
-        print("Total number of images: %d" % img_num)
+            img_cnt += k * cnt_dict[k]
+        print("Total number of images: %d" % img_cnt)
         print(cnt_dict)
 
     # write an annotation file for making lmdb
