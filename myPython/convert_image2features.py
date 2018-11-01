@@ -76,7 +76,7 @@ if __name__ == '__main__':
         f_lines.append(label)
         img_idx += 1
 
-    # save the features and write the txt filesop
+    # save the features and write the txt file
     features_fname = args.features_npy
     np.save(features_fname, features)
     random.shuffle(f_lines)
