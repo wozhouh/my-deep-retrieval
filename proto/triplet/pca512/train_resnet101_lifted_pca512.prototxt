@@ -10,7 +10,7 @@ layer {
 	python_param {
 		module: "custom_layers"
 		layer: "BinDataLayer"
-		param_str: "{'batch_size': 16, 'cls_dir': '/home/gordonwzhe/data/Landmark/cls/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'landmark'}"
+		param_str: "{'batch_size': 32, 'cls_dir': '/home/gordonwzhe/data/Landmark/cls/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'landmark'}"
 	}
 }
 
@@ -25,7 +25,7 @@ layer {
 	python_param {
 		module: "custom_layers"
 		layer: "BinDataLayer"
-		param_str: "{'batch_size': 4, 'cls_dir': '/home/gordonwzhe/data/Paris/val/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'paris'}"
+		param_str: "{'batch_size': 1, 'cls_dir': '/home/gordonwzhe/data/Paris/val/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'paris'}"
 	}
 }
 

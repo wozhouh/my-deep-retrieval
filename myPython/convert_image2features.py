@@ -2,6 +2,7 @@
 
 # Python script that converts the images in the dataset into feature vectors (numpy array) saved in 'features.npy'
 # and generates a .txt file indicating the image filename correspond to which row of the numpy array
+# Note test the deployed network should generate ROIs itself
 
 '''
 usage:
