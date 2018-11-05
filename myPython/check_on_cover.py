@@ -69,14 +69,14 @@ class ValCoverDataset:
     # raise the threshold of similarity for filtering and count how many items are left
     def check_threshold(self, th):
         cnt = 0
-        for q in self.old_mapped_dir:
+        for q in os.listdir(self.old_mapped_dir):
             q_path = os.path.join(self.old_mapped_dir, q)
             for img in os.listdir(q_path):
                 img_name = img.split('.jpg')[0]
                 img_score = float(img_name.split('_')[1])
                 if img_score >= th:
                     cnt += 1
-        print(cnt)
+        print('number of left images: %d' % cnt)
 
 
 if __name__ == '__main__':
@@ -85,10 +85,10 @@ if __name__ == '__main__':
     parser.add_argument('--val_dir', type=str, required=True, help='path to the output directory')
     parser.add_argument('--new_txt', type=str, required=True, help='file path to the file of mapping on the new model')
     parser.add_argument('--old_txt', type=str, required=True, help='file path to the file of mapping on the old model')
-
+    parser.add_argument('--th', type=float, required=False, help='threshold value for selecting similar images')
     args = parser.parse_args()
 
     valCoverDataset = ValCoverDataset(args.new_txt, args.old_txt, args.img_dir, args.val_dir)
-    # valCoverDataset.build_val_subset(run_all_img=True)
-    valCoverDataset.check_threshold(0.800)
+    valCoverDataset.build_val_subset(run_all_img=True)
+    # valCoverDataset.check_threshold(args.th)
 
