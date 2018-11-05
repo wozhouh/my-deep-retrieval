@@ -45,27 +45,26 @@ class ValCoverDataset:
                     src_img_path = os.path.join(self.img_dir, src_img_name)
                     open(dst_img_path, 'wb').write(open(src_img_path, 'rb').read())
         # find which line the queries are in (saved in dict)
-        new_line_idx = {}
+        old_line_idx = {}
         for k, l in enumerate(self.old_mapped_lines):
             anchor = l.strip().split("\t")[0]
             if anchor in anchor_list:
-                new_line_idx[anchor] = k
+                old_line_idx[anchor] = k
 
         # find mapped pairs and save (based on the old model)
         for a in anchor_list:
-            line = self.new_mapped_lines[new_line_idx[a]]
-            if line.startswith(a):
-                mapped_item_score_temp = (line.strip().split("\t")[1]).split(" ")
-                mapped_item = [t.split(":")[0] for t in mapped_item_score_temp]
-                mapped_score = [t.split(":")[1] for t in mapped_item_score_temp]
-                anchor_dir = os.path.join(old_mapped_dir, a)
-                os.makedirs(anchor_dir)
-                for k, item in enumerate(mapped_item):
-                    src_img_name = item + '.jpg'
-                    dst_img_name = item + '_' + mapped_score[k] + '.jpg'
-                    dst_img_path = os.path.join(anchor_dir, dst_img_name)
-                    src_img_path = os.path.join(self.img_dir, src_img_name)
-                    open(dst_img_path, 'wb').write(open(src_img_path, 'rb').read())
+            line = self.old_mapped_lines[old_line_idx[a]]
+            mapped_item_score_temp = (line.strip().split("\t")[1]).split(" ")
+            mapped_item = [t.split(":")[0] for t in mapped_item_score_temp]
+            mapped_score = [t.split(":")[1] for t in mapped_item_score_temp]
+            anchor_dir = os.path.join(old_mapped_dir, a)
+            os.makedirs(anchor_dir)
+            for k, item in enumerate(mapped_item):
+                src_img_name = item + '.jpg'
+                dst_img_name = item + '_' + mapped_score[k] + '.jpg'
+                dst_img_path = os.path.join(anchor_dir, dst_img_name)
+                src_img_path = os.path.join(self.img_dir, src_img_name)
+                open(dst_img_path, 'wb').write(open(src_img_path, 'rb').read())
 
 
 if __name__ == '__main__':
