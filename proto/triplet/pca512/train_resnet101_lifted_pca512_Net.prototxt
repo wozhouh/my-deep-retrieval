@@ -10,7 +10,7 @@ layer {
 	python_param {
 		module: "custom_layers"
 		layer: "BinDataLayer"
-		param_str: "{'batch_size': 64, 'cls_dir': '/home/gordonwzhe/data/Landmark/cls/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'landmark'}"
+		param_str: "{'batch_size': 8, 'cls_dir': '/home/processyuan/data/Landmark/clean/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'landmark'}"
 	}
 }
 
@@ -25,7 +25,8 @@ layer {
 	python_param {
 		module: "custom_layers"
 		layer: "BinDataLayer"
-		param_str: "{'batch_size': 4, 'cls_dir': '/home/gordonwzhe/data/Paris/val/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'paris'}"
+		# param_str: "{'batch_size': 8, 'cls_dir': '/home/gordonwzhe/data/Paris/val/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'paris'}"
+		param_str: "{'batch_size': 1, 'cls_dir': '/home/processyuan/data/Landmark/clean/', 'mean': [103.93900299, 116.77899933, 123.68000031], 'dataset': 'landmark'}"
 	}
 }
 
@@ -55,7 +56,8 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'RigidGridLayer'
-		param_str: "{'dataset': 'paris'}"
+		# param_str: "{'dataset': 'paris'}"
+		param_str: "{'dataset': 'landmark'}"
 	}
 }
 
@@ -4657,7 +4659,7 @@ layer {
     }
   }
   bottom: "pooled_rois/centered"
-  top: "pooled_rois/pca"
+  top: "pooled_rois/pca_512"
 }
 
 # After the FC layers the size is now n_batches x d. We reshape to n_batches x d x 1 x 1 to L2 normalize again
@@ -4672,7 +4674,7 @@ layer {
 		dim: 1
 		}    
 	}
-	bottom: "pooled_rois/pca"
+	bottom: "pooled_rois/pca_512"
 	top: "pooled_rois/pca/reshaped"
 }
 layer {
