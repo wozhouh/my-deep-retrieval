@@ -16,12 +16,15 @@ class LandMarkDataset:
         self.csv_file = os.path.join(self.csv_dir, 'train.csv')
         self.raw_dir = os.path.join(self.root_dir, 'raw')
         self.cls_dir = os.path.join(self.root_dir, 'cls')
+        self.training_dir = os.path.join(self.root_dir, 'training')
         self.url_dict = {}
         if not os.path.exists(self.raw_dir):
             os.makedirs(self.raw_dir)
             os.makedirs(os.path.join(self.raw_dir, 'cls'))
         if not os.path.exists(self.cls_dir):
             os.makedirs(self.cls_dir)
+        if not os.path.exists(self.training_dir):
+            os.makedirs(self.training_dir)
 
     # get the image url of each landmark which has image between l and h
     def read_url_from_file(self, l, h):
@@ -54,8 +57,8 @@ class LandMarkDataset:
         raw_cls_dir = os.path.join(self.raw_dir, 'raw-cls')
         broken_url = []
         downloaded_id = []
-        broken_log = os.path.join(raw_cls_dir, 'broken_url.log')
-        downloaded_log = os.path.join(raw_cls_dir, 'downloaded_id.log')
+        broken_log = os.path.join(self.raw_dir, 'broken_url.log')
+        downloaded_log = os.path.join(self.raw_dir, 'downloaded_id.log')
         # check which ids have been downloaded
         if os.path.exists(downloaded_log):
             r_downloaded_log = open(downloaded_log, 'r')
@@ -111,7 +114,7 @@ class LandMarkDataset:
                 continue
             if not os.path.exists(cls_path):
                 os.makedirs(cls_path)
-            for i in os.listdir(raw_cls_path) :
+            for i in os.listdir(raw_cls_path):
                 img_src_path = os.path.join(raw_cls_path, i)
                 img_dst_path = os.path.join(cls_path, i)
                 img = cv2.imread(img_src_path)
@@ -150,6 +153,46 @@ class LandMarkDataset:
                             useless_cnt += 1
         print("%d images finished, %d images deprecated" % (useful_cnt, useless_cnt))
 
+    # revised from "unite_images_size(...) in order to build a training set in which the images are of the same size"
+    def make_training_set(self, img_h=384, img_w=512):
+        img_dst_ratio = float(img_w) / float(img_h)
+        raw_cls_dir = os.path.join(self.raw_dir, 'raw-cls')
+        useless_cnt = 0
+        useful_cnt = 0
+        for c in os.listdir(raw_cls_dir):
+            raw_cls_path = os.path.join(raw_cls_dir, c)
+            for i in os.listdir(raw_cls_path):
+                img_src_path = os.path.join(raw_cls_path, i)
+                img_dst_path = os.path.join(self.training_dir, str(useful_cnt)+'.jpg')
+                img = cv2.imread(img_src_path)
+                if img is None:
+                    os.remove(img_src_path)
+                    continue
+                else:
+                    # give up the images which are too small
+                    if img.shape[0] >= img_h and img.shape[1] >= img_w:
+                        useful_cnt += 1
+                        print("processing the %d image" % useful_cnt)
+                        img_src_ratio = float(img.shape[1]) / float(img.shape[0])
+                        # too wide
+                        if img_src_ratio > img_dst_ratio:
+                            img_src_h = img_h
+                            img_src_w = int(float(img_src_h) * img_src_ratio)
+                            img_resized = cv2.resize(img, (img_src_w, img_src_h))
+                            # crop the center part on the axis of width
+                            img_cropped = img_resized[:, img_src_w / 2 - img_w / 2: img_src_w / 2 + img_w / 2, :]
+                        # too high
+                        else:
+                            img_src_w = img_w
+                            img_src_h = int(float(img_src_w) / img_src_ratio)
+                            img_resized = cv2.resize(img, (img_src_w, img_src_h))
+                            # crop the center part on the axis of height
+                            img_cropped = img_resized[img_src_h / 2 - img_h / 2: img_src_h / 2 + img_h / 2, :, :]
+                        cv2.imwrite(img_dst_path, img_cropped)
+                    else:
+                        useless_cnt += 1
+        print("%d images finished, %d images deprecated" % (useful_cnt, useless_cnt))
+
     # count how many images are there in every class
     def count_img_per_class(self):
         cnt_dict = {}
@@ -186,7 +229,7 @@ class LandMarkDataset:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='build the landmark dataset')
     parser.add_argument('--root_dir', type=str, required=False, help='root path to the Paris dataset')
-    parser.set_defaults(root_dir='C:\\Users\\wozhouh\\Desktop\\Landmark')
+    parser.set_defaults(root_dir='/home/processyuan/data/Landmark')
     args = parser.parse_args()
 
     landmark_dataset = LandMarkDataset(args.root_dir)
@@ -196,5 +239,7 @@ if __name__ == '__main__':
     # landmark_dataset.download_image()
 
     # landmark_dataset.unite_images_size()
-    landmark_dataset.count_img_per_class()
+    # landmark_dataset.count_img_per_class()
     # landmark_dataset.make_landmark_cls_annotations()
+
+    landmark_dataset.make_training_set()

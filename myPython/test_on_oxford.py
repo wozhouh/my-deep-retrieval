@@ -47,8 +47,12 @@ class ImageHelper:
     def load_and_prepare_image(self, fname):
         # Read image, get aspect ratio, and resize such as the largest side equals S
         im = cv2.imread(fname)
+        im_size_hw = np.array(im.shape[0:2])
+        ratio = float(self.S) / np.max(im_size_hw)
+        new_size = tuple(np.round(im_size_hw * ratio).astype(np.int32))
+        im_resized = cv2.resize(im, (new_size[1], new_size[0]))
         # Transpose for network and subtract mean
-        I = im.transpose(2, 0, 1) - self.means
+        I = im_resized.transpose(2, 0, 1) - self.means
         return I, im
 
     def pack_regions_for_network(self, all_regions):
@@ -225,7 +229,7 @@ class Dataset:
 
 
 def extract_features(dataset, image_helper, net, args):
-    Ss = [args.S]
+    Ss = [args.S-256, args.S, args.S+256]
     # First part, queries
     for S in Ss:
         # Set the scale of the image helper
@@ -277,6 +281,7 @@ if __name__ == '__main__':
     parser.add_argument('--temp_dir', type=str, required=False, help='Path to a temporary directory to store features and scores')
     parser.add_argument('--aqe', type=int, required=False, help='Average query expansion with k neighbors')
     parser.add_argument('--dbe', type=int, required=False, help='Database expansion with k neighbors')
+    parser.add_argument('--end', type=str, required=False, help='Name of the output layer')
     parser.set_defaults(dataset_name='Oxford')
     parser.set_defaults(dataset='/home/processyuan/data/Oxford/uni-oxford/')
     parser.set_defaults(eval_binary='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/compute_ap')
@@ -305,6 +310,10 @@ if __name__ == '__main__':
     # Extract features
     features_queries, features_dataset = extract_features(dataset, image_helper, net, args)
 
+    # # test the effect of clipping the length of the embedding vector
+    # features_queries_clipped = features_queries[:, :512]
+    # features_dataset_clipped = features_dataset[:, :512]
+
     # Database side expansion?
     if args.dbe is not None and args.dbe > 0:
         # Extend the database features
@@ -319,6 +328,8 @@ if __name__ == '__main__':
 
     # Compute similarity
     sim = features_queries.dot(features_dataset.T)
+    # sim = features_queries_clipped.dot(features_dataset_clipped.T)
+
     # Average query expansion?
     if args.aqe is not None and args.aqe > 0:
         # Sort the results to get the nearest neighbors, compute average
