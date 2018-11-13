@@ -3,6 +3,7 @@
 # Python script that converts the images in the dataset into feature vectors (numpy array) saved in 'features.npy'
 # and generates a .txt file indicating the image filename correspond to which row of the numpy array
 # Note that the deployed network will not generate ROIs itself
+# Different from the "convert_image2features.npy" that it stacks multi-resolution vector and normalize again
 
 import os
 import numpy as np
@@ -13,7 +14,7 @@ import random
 import region_generator as rg
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Evaluate on the cover dataset')
+    parser = argparse.ArgumentParser(description='Converting the images into embedding vector using multi-resolution')
     parser.add_argument('--gpu', type=int, required=False, help='GPU ID to use (e.g. 0)')
     parser.add_argument('--L', type=int, required=False, help='Use L spatial levels (e.g. 2)')
     parser.add_argument('--proto', type=str, required=False, help='Path to the prototxt file')
@@ -64,7 +65,7 @@ if __name__ == '__main__':
             net.forward(end=output_layer)
             features_temp.append(np.squeeze(net.blobs[output_layer].data))
         features_sum = np.dstack(features_temp).sum(axis=2)
-        features[l, :] /= np.sqrt((features_sum * features_sum).sum(axis=1))
+        features[l, :] = features_sum / np.sqrt((features_sum * features_sum).sum(axis=1))
         label = img_file + ' ' + str(l) + '\n'
         f_lines.append(label)
         print("Finished converting %s image(s)" % l)
