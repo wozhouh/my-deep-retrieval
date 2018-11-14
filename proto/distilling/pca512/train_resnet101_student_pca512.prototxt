@@ -14,12 +14,13 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/gordonwzhe/data/Paris/aug/paris_aug_lmdb"  # Paris: augmented to 19066 images (384x512)
-		batch_size: 16
+		source: "/home/processyuan/data/Landmark/training/Landmark_training_lmdb"  # Landmark: 63424 images (384x512)
+		batch_size: 8
 		backend: LMDB
 	}
 }
 
+# actually do not implement a test
 layer {
 	name: "data"
 	type: "Data"
@@ -35,7 +36,7 @@ layer {
 		mean_value: 123.68000031
 	}
 	data_param {
-		source: "/home/gordonwzhe/data/Oxford/uni-oxford/val/val_oxford_lmdb"  
+		source: "/home/processyuan/data/Landmark/training/Landmark_training_lmdb"  
 		batch_size: 1
 		backend: LMDB
 	}
@@ -52,7 +53,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'FeatureLayer'
-		param_str: "{'features': '/home/gordonwzhe/data/Paris/aug/features.npy'}"  # Paris: augmented to 19066 images (384x512)
+		param_str: "{'features': '/home/processyuan/data/Landmark/training/features.npy'}"
 	}
 }
 
@@ -67,7 +68,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'FeatureLayer'
-		param_str: "{'features': '/home/gordonwzhe/data/Oxford/uni-oxford/val/features.npy'}"  # Oxford validation set: 1000 images
+		param_str: "{'features': '/home/processyuan/data/Landmark/training/features.npy'}"
 	}
 }
 
@@ -79,7 +80,7 @@ layer {
 	python_param {
 		module: 'custom_layers'
 		layer: 'RigidGridLayer'
-		param_str: "{'dataset': 'paris'}"
+		param_str: "{'dataset': 'paris'}"  # paris: 384 x 512 x 3
 	}
 }
 

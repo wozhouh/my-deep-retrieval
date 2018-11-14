@@ -229,7 +229,8 @@ class Dataset:
 
 
 def extract_features(dataset, image_helper, net, args):
-    Ss = [args.S-256, args.S, args.S+256]
+    # Ss = [args.S-256, args.S, args.S+256]
+    Ss = [args.S]
     # First part, queries
     for S in Ss:
         # Set the scale of the image helper
