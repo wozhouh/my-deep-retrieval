@@ -1,4 +1,4 @@
-# origin ex1.1
+# origin ex1.1 
 
 all_souls_1: 50.27
 all_souls_2: 55.39
@@ -59,12 +59,12 @@ radcliffe_camera_5: 98.73
 Mean: 81.11
 Speed: (Nvidia Titan X pascal) 16.00 it/s ~62.5ms
 
-### train/test
+### train/test 
 Mean: 84.65
 
 
 
-# origin ex1.2
+# origin ex1.2 
 
 all_souls_1: 55.56
 all_souls_2: 67.21
@@ -127,7 +127,7 @@ Speed: (Nvidia Titan X pascal) 29.60 it/s -> 16.00it/s -> 10.38 it/s ~192.6ms
 
 
 
-# raw baseline ex2.1
+# raw baseline ex2.1 
 
 all_souls_1: 46.45
 all_souls_2: 53.05
@@ -189,7 +189,7 @@ Mean: 76.75
 
 
 
-# raw baseline ex2.2
+# raw baseline ex2.2 
 
 all_souls_1: 39.92
 all_souls_2: 42.33
@@ -251,7 +251,7 @@ Mean: 68.33
 
 
 
-# raw concat ex3.1
+# raw concat ex3.1 
 
 all_souls_1: 45.86
 all_souls_2: 50.69
@@ -313,7 +313,7 @@ Mean: 76.21
 
 
 
-# raw concat ex3.3
+# raw concat ex3.3 
 
 all_souls_1: 46.29
 all_souls_2: 50.29
@@ -375,7 +375,7 @@ Mean: 76.08
 
 
 
-# raw concat ex3.4
+# raw concat ex3.4 
 
 all_souls_1: 46.22
 all_souls_2: 51.68
@@ -437,7 +437,7 @@ Mean: 76.56
 
 
 
-# raw/master concat ex4.1
+# raw/master concat ex4.1 
 
 all_souls_1: 50.28                       
 all_souls_2: 55.22
@@ -499,7 +499,7 @@ Mean: 81.24
 
 
 
-# PCA concat ex5.1
+# PCA concat ex5.1 
 
 all_souls_1: 51.91
 all_souls_2: 58.01
@@ -561,7 +561,7 @@ Mean: 21.26
 
 
 
-# PCA concat ex5.3
+# PCA concat ex5.3 
 
 all_souls_1: 48.19
 all_souls_2: 51.61
@@ -623,7 +623,7 @@ Mean: 79.57
 
 
 
-# PCA concat ex5.4
+# PCA concat ex5.4 
 
 all_souls_1: 46.55                                                                                                                                                                                          
 all_souls_2: 51.43
@@ -685,7 +685,7 @@ Mean: 81.62
 
 
 
-# PCA concat ex5.5
+# PCA concat ex5.5 
 
 all_souls_1: 45.72                                                                      
 all_souls_2: 49.21
@@ -747,7 +747,7 @@ Mean: 81.73
 
 
 
-# PCA concat ex5.6
+# PCA concat ex5.6 
 
 all_souls_1: 45.68
 all_souls_2: 49.38
@@ -812,7 +812,7 @@ Mean: 85.43
 
 
 
-# PCA concat ex6.1
+# PCA concat ex6.1 
 
 all_souls_1: 45.87                                                 
 all_souls_2: 49.39
@@ -876,7 +876,7 @@ Memory: 2297MB
 
 
 
-# PCA concat ex6.3
+# PCA concat ex6.3 
 
 all_souls_1: 49.66
 all_souls_2: 53.97
@@ -938,7 +938,7 @@ Mean: 80.99
 
 
 
-# R-MAC eltwise ex7.1
+# R-MAC eltwise ex7.1 
 
 all_souls_1: 52.22
 all_souls_2: 57.36
