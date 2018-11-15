@@ -2,7 +2,7 @@ features/
 caffemodel/
 .idea/
 log/
-*log/
+*/log/
 eval/compute_ap
 eval/eval*/
 eval/cover*/

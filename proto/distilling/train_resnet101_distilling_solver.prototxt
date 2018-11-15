@@ -15,7 +15,7 @@ gamma: 0.50
 stepvalue: 7928
 stepvalue: 15856
 stepvalue: 23784
-stepvalue: 31712  
+stepvalue: 31712
 # Display every 100 iterations
 display: 100
 # The maximum number of iterations
