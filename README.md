@@ -1,6 +1,6 @@
 # my Deep Retrieval
 
-This respository origins from a [public implementation](https://github.com/figitaki/deep-retrieval) of [Deep Image Retrieval](https://link.springer.com/content/pdf/10.1007%2F978-3-319-46466-4_15.pdf). Although learned form dataset of landmarks, the global representation it extracts from images is a rebust solution for retrieving homologus frames from a large datapool.
+This respository origins from a [public implementation](https://github.com/figitaki/deep-retrieval) of [Deep Image Retrieval](https://link.springer.com/content/pdf/10.1007%2F978-3-319-46466-4_15.pdf). Although learned form dataset of landmarks, the global representation it extracts from images is a rebust solution for retrieving same-origin frames from a large datapool.
 
 Note that the [original implementation](https://github.com/wozhouh/my-deep-retrieval/blob/master/test.py) provides an option of multi-resolution, and we find that it does improve the performance on Oxford, which is measured by [mAP](https://github.com/wozhouh/my-deep-retrieval/blob/master/eval/compute_ap.cpp). It is a natural idea whether the feature maps of different sizes extracted from the middle layers could improve the descriptor and take similar effects, so we have the following attempts.
 
