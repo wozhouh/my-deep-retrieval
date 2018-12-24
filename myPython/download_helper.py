@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Python function which downloads the cover images by "cmsid"
-# usage: get_img(csmid, img_path)
+# usage: get_img(csmid, img_download_path)
 
 import time
 import urllib.request
