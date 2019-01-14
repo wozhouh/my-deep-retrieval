@@ -49,24 +49,28 @@ class AggregateLayer(caffe.Layer):
         top[0].reshape(*tmp_shape)
 
     def forward(self, bottom, top):
+        # # original implementation that supports batch size 1 only
         # top[0].data[:] = bottom[0].data.sum(axis=0)
+        # sums up all the RoIs within a batch
         for k in range(self.batch_size):
             bottom_data = bottom[0].data[k * self.num_rois: (k + 1) * self.num_rois, ...]
             top[0].data[k, ...] = bottom_data.sum(axis=0)
 
     def backward(self, top, propagate_down, bottom):
         """Get top diff and compute diff in bottom."""
+        # # original implementation that supports batch size 1 only
         # if propagate_down[0]:
         #     num = bottom[0].data.shape[0]
         #     for k in range(num):
         #         bottom[0].diff[k] = top[0].diff[0]
+        # backprops the gradients to each RoIs within a batch
         if propagate_down[0]:
             for k in range(self.batch_size):
                 for j in range(self.num_rois):
                     bottom[0].diff[k * self.num_rois + j] = top[0].diff[k]
 
 
-# Layer that fetches pre-calculated features from .npy for loss calculation when distilling
+# Layer that fetches pre-calculated features from .npy for l2-loss calculation when distilling
 class FeatureLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -111,30 +115,30 @@ class RigidGridLayer(caffe.Layer):
         self.img_h = bottom[0].data.shape[2]  # for the cover images, h = 280
         self.img_w = bottom[0].data.shape[3]  # for the cover images, w = 496
         self.batch_size = bottom[0].data.shape[0]  # bottom: (batch_size, channels(3), h(280), w(496))
-        self.cover_rois = np.array([[0.,  0.,  0., 279., 279.],
+        self.cover_rois = np.array([[0., 0., 0., 279., 279.],
                                     [0., 216., 0., 495., 279.],
-                                    [0.,  0.,  0., 185., 185.],
+                                    [0., 0., 0., 185., 185.],
                                     [0., 155., 0., 340., 185.],
                                     [0., 310., 0., 495., 185.],
-                                    [0.,  0., 94., 185., 279.],
-                                    [0., 155.,94., 340., 279.],
-                                    [0., 310.,94., 495., 279.]])
-        self.paris_rois = np.array([[0.,  0.,  0., 383., 383.],
+                                    [0., 0., 94., 185., 279.],
+                                    [0., 155., 94., 340., 279.],
+                                    [0., 310., 94., 495., 279.]])
+        self.paris_rois = np.array([[0., 0., 0., 383., 383.],
                                     [0., 128., 0., 511., 383.],
-                                    [0.,  0.,  0., 255., 255.],
+                                    [0., 0., 0., 255., 255.],
                                     [0., 128., 0., 383., 255.],
                                     [0., 256., 0., 511., 255.],
-                                    [0.,  0., 128.,255., 383.],
-                                    [0., 128.,128.,383., 383.],
-                                    [0., 256.,128.,511., 383.]])
+                                    [0., 0., 128., 255., 383.],
+                                    [0., 128., 128., 383., 383.],
+                                    [0., 256., 128., 511., 383.]])
         self.landmark_rois = np.array([[0., 0., 0., 287., 287.],
-                                    [0., 96., 0., 383., 287.],
-                                    [0., 0., 0., 191., 191.],
-                                    [0., 96., 0., 287., 191.],
-                                    [0., 192., 0., 383., 191.],
-                                    [0., 0., 96., 191., 287.],
-                                    [0., 96., 96., 287., 287.],
-                                    [0., 192., 96., 383., 287.]])
+                                       [0., 96., 0., 383., 287.],
+                                       [0., 0., 0., 191., 191.],
+                                       [0., 96., 0., 287., 191.],
+                                       [0., 192., 0., 383., 191.],
+                                       [0., 0., 96., 191., 287.],
+                                       [0., 96., 96., 287., 287.],
+                                       [0., 192., 96., 383., 287.]])
 
     def reshape(self, bottom, top):
         top[0].reshape(*[self.batch_size * self.num_region, self.dim_rois])
@@ -202,7 +206,7 @@ class RigidGridLayer(caffe.Layer):
             pass
 
 
-# Layer that resizes the image to the given height and width and then substracts the mean value of channels
+# Layer that resizes the image to the given height and width and then subtracts the mean value of channels
 class ResizeLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 1, 'This layer can only have one bottom'
@@ -231,7 +235,7 @@ class ResizeLayer(caffe.Layer):
 
 
 # A data layer that fetches the images and feeds the triplet siamese network
-# Fully shuffling the data but not the hard negative mining
+# Fully shuffling the data but not deploying the hard negative mining
 # !!! Deprecated Layer !!! --> turn to BinDataLayer instead
 class TripletDataLayer(caffe.Layer):
     def setup(self, bottom, top):
@@ -242,9 +246,9 @@ class TripletDataLayer(caffe.Layer):
         self.cls_dir = params['cls_dir']
         # self.useless_dir = os.path.join(self.cls_dir, 'useless')
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
-        self.cls = os.listdir(self.cls_dir)   # list of classes
-        if 'junk' in self.cls:
-            self.cls.remove('junk')  # except 'junk'
+        self.cls = os.listdir(self.cls_dir)  # list of classes
+        # if 'junk' in self.cls:
+        #     self.cls.remove('junk')  # except 'junk'
         self.cls_ind = len(self.cls) - 1  # init: suppose an epoch is done
         self.img = []  # list of images within the current class
         self.img_ind = 0  # index of the images in process
@@ -289,7 +293,7 @@ class TripletDataLayer(caffe.Layer):
         # randomly sample a negative image from a different class
         n_cls = -1
         while n_cls == self.cls_ind or n_cls == -1:
-            n_cls = random.randint(0, len(self.cls)-1)
+            n_cls = random.randint(0, len(self.cls) - 1)
         n_img_dir = os.path.join(self.cls_dir, self.cls[n_cls])
         n_img_name = random.sample(os.listdir(n_img_dir), self.batch_size)
 
@@ -316,7 +320,7 @@ class TripletDataLayer(caffe.Layer):
         pass
 
 
-# A data layer that fetches images from the same and different class to form a batch (half by half)
+# A data layer that fetches images from the same and different classes to form a batch
 class BinDataLayer(caffe.Layer):
     def setup(self, bottom, top):
         assert len(bottom) == 0, 'Data layer should not have a bottom for input'
@@ -327,11 +331,11 @@ class BinDataLayer(caffe.Layer):
         self.dataset = params['dataset']
         self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
         self.cls = os.listdir(self.cls_dir)  # list of classes
-        self.img_queue = Queue.Queue(maxsize=0)  # queue for fetching iamges in an epoch
+        self.img_queue = Queue.Queue(maxsize=0)  # queue for fetching images in an epoch
         self.label_queue = Queue.Queue(maxsize=0)  # queue for corresponding labels in an epoch
         self.ind = 0
 
-    # Fix the image shape here to the Paris dataset (288, 384, 3)
+    # Fix the image shape here to the certain dataset (288, 384, 3)
     def reshape(self, bottom, top):
         if self.dataset == 'landmark':
             top[0].reshape(*[self.batch_size, 3, 288, 384])
@@ -357,11 +361,11 @@ class BinDataLayer(caffe.Layer):
     def backward(self, top, propagate_down, bottom):
         pass
 
-    # when an epoch is done, shuffle the data
+    # when an epoch is done, shuffle the data and cache them into two queues of images and labels, respectively
     def get_epoch_data(self):
         img_queue_temp = []  # list of list for fetching images in an epoch
         labels_queue_temp = []  # list of list for corresponding labels in an epoch
-        pos_num = self.batch_size / 4  # number of positive samples in the batch
+        pos_num = self.batch_size / 2  # number of positive samples in the batch
         neg_num = self.batch_size - pos_num  # number of negative samples in the batch
         for c in self.cls:
             img_ind = 0  # index of the images in process
@@ -379,7 +383,7 @@ class BinDataLayer(caffe.Layer):
                     img_path_list.append(img_path)
                     labels_list.append(int(c))
 
-                # randomly sample a negative image from different classes
+                # randomly sample negative images from different classes (one image from one negative class)
                 neg_img_cls = random.sample(cls_except, neg_num)
                 for n_cls in neg_img_cls:
                     n_img_dir = os.path.join(self.cls_dir, n_cls)
@@ -403,3 +407,177 @@ class BinDataLayer(caffe.Layer):
         for i, k in enumerate(labels_queue_temp):
             self.img_queue.put(img_queue_temp[i])
             self.label_queue.put(k)
+
+
+# A data layer that fetches images from the same and different classes to form a batch
+# Directly revised from BinDataLayer
+class BinDataWithoutLabelLayer(caffe.Layer):
+    def setup(self, bottom, top):
+        assert len(bottom) == 0, 'Data layer should not have a bottom for input'
+        assert len(top) == 1, 'BinDataWithoutLabelLayer should have 1 tops'
+        params = yaml.load(self.param_str_)
+        self.batch_size = params['batch_size']
+        self.cls_dir = params['cls_dir']
+        self.dataset = params['dataset']
+        self.mean = np.array(params['mean'], dtype=np.float32)[:, None, None]
+        self.cls = os.listdir(self.cls_dir)  # list of classes
+        self.img_queue = Queue.Queue(maxsize=0)  # queue for fetching images in an epoch
+        self.ind = 0
+
+    # Fix the image shape here to the certain dataset (288, 384, 3)
+    def reshape(self, bottom, top):
+        if self.dataset == 'landmark':
+            top[0].reshape(*[self.batch_size, 3, 288, 384])
+        elif self.dataset == 'paris':
+            top[0].reshape(*[self.batch_size, 3, 384, 512])
+        else:
+            top[0].reshape(*[self.batch_size, 3, 280, 496])
+
+    def forward(self, bottom, top):
+        if self.img_queue.empty():
+            print('INFO: An epoch is done.')
+            self.get_epoch_data()
+        img_path_list = self.img_queue.get()
+        img_temp = np.array([cv2.imread(i) for i in img_path_list])
+        img = [(i.transpose(2, 0, 1) - self.mean) for i in img_temp]
+        top[0].data[...] = img
+
+    # No need for a data layer to implement the 'backward' function
+    def backward(self, top, propagate_down, bottom):
+        pass
+
+    # when an epoch is done, shuffle the data and cache them into two queues of images and labels, respectively
+    def get_epoch_data(self):
+        img_queue_temp = []  # list of list for fetching images in an epoch
+        pos_num = self.batch_size / 2 + 1  # number of positive samples in the batch
+        neg_num = self.batch_size - pos_num  # number of negative samples in the batch
+        for c in self.cls:
+            img_ind = 0  # index of the images in process
+            cls_path = os.path.join(self.cls_dir, c)
+            cls_except = list(self.cls)
+            cls_except.remove(c)
+            img = os.listdir(cls_path)
+            random.shuffle(img)
+            while pos_num + img_ind <= len(img):
+                # fetch the images within the same class
+                img_path_list = []
+                for k in range(pos_num):
+                    img_path = os.path.join(cls_path, img[img_ind + k])
+                    img_path_list.append(img_path)
+
+                # randomly sample negative images from different classes (one image from one negative class)
+                neg_img_cls = random.sample(cls_except, neg_num)
+                for n_cls in neg_img_cls:
+                    n_img_dir = os.path.join(self.cls_dir, n_cls)
+                    n_img_name = (random.sample(os.listdir(n_img_dir), 1))[0]
+                    img_path_list.append(os.path.join(n_img_dir, n_img_name))
+                img_ind += pos_num
+
+                # put the batches (in the form of list) into a list
+                img_queue_temp.append(img_path_list)
+
+        # shuffle the images and the corresponding labels in he same order
+        random.shuffle(img_queue_temp)
+
+        # push into the queue
+        for i, k in enumerate(img_queue_temp):
+            self.img_queue.put(img_queue_temp[i])
+
+
+# A loss layer that makes the embedding model of lower dimensionality learn from the l2-distance difference
+# between pairs of higher dimensionality
+# Perform hard sample mining via methods similar to lifted structured feature embedding
+class PairLiftedStructuredLossLayer(caffe.Layer):
+    def setup(self, bottom, top):
+        assert len(bottom) == 2, 'PairLiftedStructuredLossLayer should have 2 bottoms'
+        assert len(top) == 1, 'Loss Layer should only have 1 top'
+        assert bottom[0].num == bottom[1].num, "Two inputs must have the same batch size"
+        self.batch_size = bottom[0].num
+        self.num_pairs = int(self.batch_size * (self.batch_size - 1) / 2)  # number of combination in the batch
+        # the following are saved when forward for reuse when backward
+        self.exp_temp = np.zeros([self.num_pairs])
+        self.sum_temp = 0.
+        self.dis_0 = np.zeros([self.num_pairs, bottom[0].shape[1]])
+        self.dis_1 = np.zeros([self.num_pairs, bottom[1].shape[1]])
+        self.sim_0 = np.zeros([self.num_pairs])
+        self.sim_1 = np.zeros([self.num_pairs])
+        self.sim_diff = np.zeros([self.num_pairs])
+        self.bottom_idx_to_pair = []  # save that each pair includes which two features
+        for i in range(self.batch_size):
+            for j in range(i + 1, self.batch_size):
+                self.bottom_idx_to_pair.append((i, j))
+
+    def reshape(self, bottom, top):
+        top[0].reshape(1)
+
+    def forward(self, bottom, top):
+        idx = 0
+        for i in range(self.batch_size):
+            for j in range(i + 1, self.batch_size):
+                self.dis_0[idx] = np.squeeze(bottom[0].data[i]) - np.squeeze(bottom[0].data[j])  # [dim_0]
+                self.dis_1[idx] = np.squeeze(bottom[1].data[i]) - np.squeeze(bottom[1].data[j])  # [dim_1]
+                self.sim_0[idx] = np.sum(self.dis_0[idx] ** 2)  # [1]
+                self.sim_1[idx] = np.sum(self.dis_1[idx] ** 2)  # [1]
+                idx += 1
+        self.sim_diff = self.sim_0 - self.sim_1
+        self.exp_temp = np.exp(self.sim_diff ** 2)  # [num_pairs]
+        self.sum_temp = np.sum(self.exp_temp)  # [1]
+        top[0].data[...] = np.log(self.sum_temp) / self.num_pairs  # [1]
+
+    def backward(self, top, propagate_down, bottom):
+        if propagate_down[0]:
+            grad = np.zeros([self.batch_size, bottom[0].shape[1]])
+            grad_loss_to_dis = self.exp_temp * 2. * self.sim_diff / self.sum_temp / self.num_pairs
+            # match the diff of distance to idx in the batch
+            for k in range(self.num_pairs):
+                grad[(self.bottom_idx_to_pair[k])[0]] += 2. * self.dis_0[k] * grad_loss_to_dis[k]
+                grad[(self.bottom_idx_to_pair[k])[1]] -= 2. * self.dis_0[k] * grad_loss_to_dis[k]
+            bottom[0].diff[...] = np.reshape(grad, [self.batch_size, -1, 1, 1])
+
+
+# A loss layer that makes the embedding model of lower dimensionality learn from the l2-distance difference
+# between pairs of higher dimensionality
+class PairL2LossLayer(caffe.Layer):
+    def setup(self, bottom, top):
+        assert len(bottom) == 2, 'PairL2LossTestLayer should have 2 bottoms'
+        assert len(top) == 1, 'Loss Layer should only have 1 top'
+        assert bottom[0].num == bottom[1].num, "Two inputs must have the same batch size"
+        self.batch_size = bottom[0].num
+        self.num_pairs = int(self.batch_size * (self.batch_size - 1) / 2)
+        # the following are saved when forward for reuse when backward
+        self.sum_temp = 0.
+        self.dis_0 = np.zeros([self.num_pairs, bottom[0].shape[1]])
+        self.dis_1 = np.zeros([self.num_pairs, bottom[1].shape[1]])
+        self.sim_0 = np.zeros([self.num_pairs])
+        self.sim_1 = np.zeros([self.num_pairs])
+        self.sim_diff = np.zeros([self.num_pairs])
+        self.bottom_idx_to_pair = []  # save that each pair includes which two features
+        for i in range(self.batch_size):
+            for j in range(i + 1, self.batch_size):
+                self.bottom_idx_to_pair.append((i, j))
+
+    def reshape(self, bottom, top):
+        top[0].reshape(1)
+
+    def forward(self, bottom, top):
+        idx = 0
+        for i in range(self.batch_size):
+            for j in range(i + 1, self.batch_size):
+                self.dis_0[idx] = np.squeeze(bottom[0].data[i]) - np.squeeze(bottom[0].data[j])  # [dim_0]
+                self.dis_1[idx] = np.squeeze(bottom[1].data[i]) - np.squeeze(bottom[1].data[j])  # [dim_1]
+                self.sim_0[idx] = np.sum(self.dis_0[idx] ** 2)  # [1]
+                self.sim_1[idx] = np.sum(self.dis_1[idx] ** 2)  # [1]
+                idx += 1
+
+        self.sim_diff = self.sim_0 - self.sim_1
+        top[0].data[...] = np.sum(self.sim_diff ** 2) / self.num_pairs  # [1]
+
+    def backward(self, top, propagate_down, bottom):
+        if propagate_down[0]:
+            grad = np.zeros([self.batch_size, bottom[0].shape[1]])
+            grad_loss_to_dis = 2. * self.sim_diff / self.num_pairs
+            # match the diff of distance to idx in the batch
+            for k in range(self.num_pairs):
+                grad[(self.bottom_idx_to_pair[k])[0]] += 2. * self.dis_0[k] * grad_loss_to_dis[k]
+                grad[(self.bottom_idx_to_pair[k])[1]] -= 2. * self.dis_0[k] * grad_loss_to_dis[k]
+            bottom[0].diff[...] = np.reshape(grad, [self.batch_size, -1, 1, 1])

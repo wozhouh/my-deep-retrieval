@@ -8,8 +8,11 @@ import argparse
 import cv2
 import random
 import subprocess
-import region_generator as rg
 from collections import OrderedDict
+import sys
+sys.path.append(os.path.abspath("../"))
+import region_generator as rg
+
 
 # resize the image so that the longer side equals the given size
 def transform_image(size, src, dst):
@@ -230,7 +233,7 @@ class OxfordDataset:
             img_sum += img.mean(axis=0).mean(axis=0)
         return img_sum / len(fname)
 
-    # make a dataset with the same images in which the resolution is united
+    # make a dataset in which the resolution of images is united
     def make_uni_dataset(self, new_path, img_h, img_w):
         new_jpg_dir = os.path.join(new_path, 'jpg')
         new_lab_dir = os.path.join(new_path, 'lab')
@@ -251,58 +254,69 @@ class OxfordDataset:
             f_dst_path = os.path.join(new_lab_dir, f)
             open(f_dst_path, 'w').write(open(f_src_path, 'r').read())
 
-    # generate the annotation file (image file name + class index) and classify the images of different classes into their own directory 
-    def make_cls_annotation(self, img_h, img_w):
-        cls_dir = 'cls'
-        lines_labels = []
-        # name of every class (11 in total)
-        cls_names = []
-        cls_filenames = {}
-        for name in self.q_names:
-            cls = name[: -2]
-            if cls not in cls_names:
-                cls_names.append(cls)
-        # make the directory of every class
-        for k, cls in enumerate(cls_names):
-            cls_temp = []
-            for txt in os.listdir(self.lab_root):
-                # we choose the 'good' and 'ok' images as positive samples
-                if txt.startswith(cls) and (txt.endswith('_good.txt') or txt.endswith('_ok.txt')):
-                    f = open(os.path.join(self.lab_root, txt), 'r')
-                    lines = f.readlines()
-                    for line in lines:
-                        cls_temp.append(line.strip()+'.jpg')
-            cls_filenames[cls] = cls_temp
-            cls_root = os.path.join(self.path, cls_dir, cls)
+    # classify the images into a separate directory in which they are among the top-k of the query
+    def make_queries_sim_cluster(self, features_txt_path, features_npy_path, cluster_dir_path, num_display=50):
+        features = np.load(features_npy_path)
+        q_filename = self.filename_to_name.keys()
+        q_idx = []
+        random.shuffle(q_filename)
+        features_txt_lines = open(features_txt_path, 'r').readlines()
+        for l in features_txt_lines:
+            for q in q_filename:
+                if q in l:
+                    q_idx.append(int(l.strip().split('\t')[0]))
+                    break
 
-        # delete if exists
-        if not os.path.exists(cls_root):
-            os.makedirs(cls_root)
-        else:
-            for f in os.listdir(cls_root):
-                full_name = os.path.join(cls_root, f)
-                if os.path.isfile(full_name):
-                    os.remove(full_name)
-        # copy the images
-        for img in set(cls_temp):
-            img_src_path = os.path.join(self.img_root, img)
-            img_dst_path = os.path.join(cls_root, img)
-            img_src = cv2.imread(img_src_path)
-            img_dst = cv2.resize(img_src, (img_w, img_h))
-            cv2.imwrite(img_dst_path, img_dst)
-            # open(dst_img, 'wb').write(open(src_img, 'rb').read()) # save the origin image
-            lines_labels.append(img+' '+str(k)+'\n')
+        sim = features.dot(features.T)
+        for k in q_idx:
+            top_k = np.argsort(sim[k])[-num_display:]
+            dst_dir = os.path.join(cluster_dir_path, str(k))
+            os.makedirs(dst_dir)
+            img_query_name = features_txt_lines[k].strip().split('\t')[1]
+            # choose top-k to display
+            for i in range(num_display):
+                img_idx = top_k[-i - 1]
+                img_raw_name = features_txt_lines[img_idx].strip().split('\t')[1]
+                img_filename = img_raw_name + '.jpg'
+                img_raw_idx = self.img_filenames.index(img_raw_name)
+                # judge whether the image found is in the groundtruth list
+                if img_raw_idx in self.relevants[self.filename_to_name[img_query_name]]:
+                    postfix = '_good'
+                elif img_raw_idx in self.non_relevants[self.filename_to_name[img_query_name]]:
+                    postfix = '_bad'
+                else:
+                    postfix = ''
+                # copy
+                img_src_path = os.path.join(self.img_root, img_filename)
+                img_dst_path = os.path.join(dst_dir, str(i).zfill(5) + '_' + img_filename.split('.jpg')[0] + '_' + str(
+                    sim[k, img_idx]) + postfix + '.jpg')
+                open(img_dst_path, 'wb').write(open(img_src_path, 'rb').read())
 
-        # write the labels into file 
-        labels = os.path.join(self.path, cls_dir, 'training.txt')
-        random.shuffle(lines_labels)
-        if os.path.isfile(labels):
-            os.remove(labels)
-        f_labels = open(labels, 'w')
-        for line in lines_labels:
-            f_labels.write(line)
-
-        f_labels.close()
+    # put the images annotated as 'good' or 'ok' into separate directories for all buildings
+    def cls_img_into_dir(self, num_useless=120):
+        cls_dir = os.path.join(self.path, "cls")
+        os.makedirs(cls_dir)
+        img_list = os.listdir(self.img_root)
+        for txt in os.listdir(self.lab_root):
+            if 'good' in txt or 'ok' in txt:
+                cls_path = os.path.join(cls_dir, txt.strip().split('_')[0])
+                if not os.path.exists(cls_path):
+                    os.makedirs(cls_path)
+                txt_lines = open(os.path.join(self.lab_root, txt), 'r').readlines()
+                for l in txt_lines:
+                    img_raw_name = l.strip() + '.jpg'
+                    if img_raw_name in img_list:
+                        img_list.remove(img_raw_name)
+                        img_src_path = os.path.join(self.img_root, img_raw_name)
+                        img_dst_path = os.path.join(cls_path, img_raw_name)
+                        open(img_dst_path, 'wb').write(open(img_src_path, 'rb').read())
+        random.shuffle(img_list)
+        non_relevant_dir = os.path.join(cls_dir, 'non')
+        os.makedirs(non_relevant_dir)
+        for i in img_list[:num_useless]:
+            img_src_path = os.path.join(self.img_root, i)
+            img_dst_path = os.path.join(non_relevant_dir, i)
+            open(img_dst_path, 'wb').write(open(img_src_path, 'rb').read())
 
 
 if __name__ == '__main__':
@@ -312,6 +326,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     oxford_dataset = OxfordDataset(args.root_dir)
+    oxford_dataset.load()
 
     # # make the training set and the test set of the Oxford dataset
     # training_dir = '/home/gordonwzhe/data/Oxford/training/'
@@ -324,3 +339,11 @@ if __name__ == '__main__':
     # # make a dataset with the same images in which the resolution is united
     # new_dataset_path = '/home/gordonwzhe/data/Oxford/uni-oxford/'
     # oxford_dataset.make_uni_dataset(new_dataset_path, img_h=384, img_w=512)
+
+    oxford_dataset.make_queries_sim_cluster(
+        features_txt_path='/home/processyuan/data/Oxford/features/features.txt',
+        features_npy_path='/home/processyuan/data/Oxford/features/reduce512/features.npy',
+        cluster_dir_path='/home/processyuan/data/Oxford/eval/reduce512/'
+    )
+
+    # oxford_dataset.cls_img_into_dir()

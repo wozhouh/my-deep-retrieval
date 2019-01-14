@@ -7,7 +7,7 @@ import os
 import cv2
 import random
 import shutil
-from urllib.request import urlretrieve  # used in Python 3, annotated first
+# from urllib.request import urlretrieve  # used in Python 3, annotated first
 
 
 class LandMarkDataset:
@@ -17,15 +17,12 @@ class LandMarkDataset:
         self.csv_train_file = os.path.join(self.csv_dir, 'train.csv')
         self.raw_dir = os.path.join(self.root_dir, 'raw')
         self.cls_dir = os.path.join(self.root_dir, 'cls')
-        self.training_dir = os.path.join(self.root_dir, 'training')
         self.url_dict = {}
         if not os.path.exists(self.raw_dir):
             os.makedirs(self.raw_dir)
             os.makedirs(os.path.join(self.raw_dir, 'cls'))
         if not os.path.exists(self.cls_dir):
             os.makedirs(self.cls_dir)
-        if not os.path.exists(self.training_dir):
-            os.makedirs(self.training_dir)
 
     # get the image url of each landmark which has image between l and h
     def read_url_from_file(self, img_num_l, img_num_h):
@@ -81,7 +78,7 @@ class LandMarkDataset:
         for landmark_id in self.url_dict.keys():
             # skip the landmark id downloaded already
             if landmark_id in downloaded_id:
-                print("landmark %s downloaded" % landmark_id)
+                print("INFO: landmark %s downloaded" % landmark_id)
                 continue
             # make a new directory to save the images named by landmark id
             cls_path = os.path.join(raw_cls_dir, str(landmark_id))
@@ -93,14 +90,15 @@ class LandMarkDataset:
                     # skip if the url is in the broken list
                     if url not in broken_url:
                         try:
+                            print('INFO: downloading from url %s ...' % url)
                             urlretrieve(url, img_path)
                         except Exception as e:
                             # if fails to download, add the url to the broken list
                             w_broken_log.write(url + '\n')
-                            print('image of url %s missing ...' % url)
+                            print('WARNING: image of url %s missing ...' % url)
             # add the landmark id to a list after finishes downloading
             w_downloaded_log.write(str(landmark_id)+'\n')
-            print("%d images of landmark %d downloaded" % (len(self.url_dict[landmark_id]), landmark_id))
+            print("INFO: %d images of landmark %d downloaded" % (len(self.url_dict[landmark_id]), landmark_id))
 
         w_downloaded_log.close()
         w_broken_log.close()
@@ -114,8 +112,7 @@ class LandMarkDataset:
         for c in os.listdir(raw_cls_dir):
             raw_cls_path = os.path.join(raw_cls_dir, c)
             cls_path = os.path.join(self.cls_dir, c)
-            img_num = len(os.listdir(raw_cls_path))
-            if img_num < least_img_per_cls:
+            if len(os.listdir(raw_cls_path)) < least_img_per_cls:
                 continue
             if not os.path.exists(cls_path):
                 os.makedirs(cls_path)
@@ -158,46 +155,6 @@ class LandMarkDataset:
                             cv2.imwrite(img_dst_path, img_cropped)
                         else:
                             useless_cnt += 1
-        print("%d images finished, %d images deprecated" % (useful_cnt, useless_cnt))
-
-    # revised from "unite_images_size(...)" in order to build a training set in which the images are of the same size
-    def make_training_set(self, img_h=384, img_w=512):
-        img_dst_ratio = float(img_w) / float(img_h)
-        raw_cls_dir = os.path.join(self.raw_dir, 'raw-cls')
-        useless_cnt = 0
-        useful_cnt = 0
-        for c in os.listdir(raw_cls_dir):
-            raw_cls_path = os.path.join(raw_cls_dir, c)
-            for i in os.listdir(raw_cls_path):
-                img_src_path = os.path.join(raw_cls_path, i)
-                img_dst_path = os.path.join(self.training_dir, str(useful_cnt)+'.jpg')
-                img = cv2.imread(img_src_path)
-                if img is None:
-                    os.remove(img_src_path)
-                    continue
-                else:
-                    # give up the images which are too small
-                    if img.shape[0] >= img_h and img.shape[1] >= img_w:
-                        useful_cnt += 1
-                        print("processing the %d image" % useful_cnt)
-                        img_src_ratio = float(img.shape[1]) / float(img.shape[0])
-                        # too wide
-                        if img_src_ratio > img_dst_ratio:
-                            img_src_h = img_h
-                            img_src_w = int(float(img_src_h) * img_src_ratio)
-                            img_resized = cv2.resize(img, (img_src_w, img_src_h))
-                            # crop the center part on the axis of width
-                            img_cropped = img_resized[:, img_src_w / 2 - img_w / 2: img_src_w / 2 + img_w / 2, :]
-                        # too high
-                        else:
-                            img_src_w = img_w
-                            img_src_h = int(float(img_src_w) / img_src_ratio)
-                            img_resized = cv2.resize(img, (img_src_w, img_src_h))
-                            # crop the center part on the axis of height
-                            img_cropped = img_resized[img_src_h / 2 - img_h / 2: img_src_h / 2 + img_h / 2, :, :]
-                        cv2.imwrite(img_dst_path, img_cropped)
-                    else:
-                        useless_cnt += 1
         print("%d images finished, %d images deprecated" % (useful_cnt, useless_cnt))
 
     # count how many classes with the given number of images
@@ -243,12 +200,14 @@ class LandMarkDataset:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='build the landmark dataset')
-    parser.add_argument('--root_dir', type=str, required=False, help='root path to the Paris dataset')
+    parser.add_argument('--root_dir', type=str, required=False, help='root path to the Landmark dataset')
     parser.set_defaults(root_dir='/home/processyuan/data/Landmark')
     args = parser.parse_args()
 
     landmark_dataset = LandMarkDataset(args.root_dir)
 
-    # download the images from URLs (used on Windows with Python3)
-    landmark_dataset.read_url_from_file(l=100, h=300)
-    landmark_dataset.download_image()
+    # # download the images from URLs (used on Windows with Python3)
+    # landmark_dataset.read_url_from_file(img_num_l=100, img_num_h=1000)
+    # landmark_dataset.download_image()
+
+    landmark_dataset.unite_images_size(img_h=288, img_w=384, least_img_per_cls=3, method="crop")

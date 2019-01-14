@@ -8,6 +8,8 @@ import os
 import random
 import cv2
 import shutil
+import sys
+sys.path.append(os.path.abspath("../"))
 from region_generator import *
 
 

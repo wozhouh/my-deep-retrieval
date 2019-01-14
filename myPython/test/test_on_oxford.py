@@ -1,7 +1,13 @@
 # Python script that modified from original test.py to provide a uniform standard to evaluate the model
 # different from test.py that it does not resize when loading the original image
 # and it does not load the annotated roi for queries as test.py does
-# and it sets default for parser and adds "end_layer" as parser
+# and it sets default for parser and adds "end_layer" as a parser option
+
+'''
+python test_on_oxford.py \
+    --proto ../proto/distilling/pca512/deploy_resnet101_pca512.prototxt \
+    --weights ../caffemodel/triplet/pca512/train_resnet101_pca512_template.caffemodel
+'''
 
 import sys
 import numpy as np
@@ -311,10 +317,6 @@ if __name__ == '__main__':
     # Extract features
     features_queries, features_dataset = extract_features(dataset, image_helper, net, args)
 
-    # # test the effect of clipping the length of the embedding vector
-    # features_queries_clipped = features_queries[:, :512]
-    # features_dataset_clipped = features_dataset[:, :512]
-
     # Database side expansion?
     if args.dbe is not None and args.dbe > 0:
         # Extend the database features
@@ -329,7 +331,6 @@ if __name__ == '__main__':
 
     # Compute similarity
     sim = features_queries.dot(features_dataset.T)
-    # sim = features_queries_clipped.dot(features_dataset_clipped.T)
 
     # Average query expansion?
     if args.aqe is not None and args.aqe > 0:

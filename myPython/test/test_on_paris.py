@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Python script that tests the model on the cover dataset by mean precision and mAP
+# Python script that tests the model on the Paris dataset by mean precision and mAP
 
 import sys
 import caffe
 from tqdm import tqdm
-from paris_helper import *
+sys.path.append(os.path.abspath("../"))
+from dataset_helper.paris_helper import *
 
 
 if __name__ == '__main__':
@@ -25,7 +26,6 @@ if __name__ == '__main__':
     parser.set_defaults(dataset='/home/processyuan/data/Paris')
     parser.set_defaults(temp_dir='/home/processyuan/code/NetworkOptimization/deep-retrieval/eval/temp/')
     parser.set_defaults(end='rmac/normalized')
-    parser.set_defaults(multires=False)
     args = parser.parse_args()
 
     # Configure caffe and load the network ResNet-101
