@@ -111,6 +111,8 @@ The configuration of models and their weights are under the path 'proto/' and 'c
 │   ├── deploy_resnet101_normpython.prototxt     /* original model with Python normalize_layer
 ```
 
+The weights of the original model and the distilled one could be downloaded from the [Google Drive](https://drive.google.com/drive/folders/1Fv9G2hemf0kPThxCvGCZZ6OIhvChGWsP).
+
 # Deep Retrieval
 
 This package contains the pretrained ResNet101 model and evaluation script for the method proposed in the following papers:
