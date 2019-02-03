@@ -46,7 +46,7 @@ For further enhancemnet, we refer to knowledge distiiling to transfer the abilit
 |original|80.45|98.87|187MB|
 |three-resolution|82.90|98.97|187MB|
 |original fine-tuned|80.52|99.03|187MB|
-|single-resolution: pca-concat-pca|2048|79.45|98.82|217MB|
+|single-resolution: pca-concat-pca|79.45|98.82|217MB|
 |single-resolution: 1x1conv-eltwise-pca|78.75|98.80|196MB|
 |single-resolution: concat-pca-relu|74.18|/|196MB|
 
