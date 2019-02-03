@@ -72,6 +72,45 @@ We validates the models mentioned above on the cover dataset by percision (numbe
 
 Actually we also try another way to reduce the dimensionality, that is, train the model with [pair loss](https://github.com/wozhouh/my-deep-retrieval/tree/master/proto/reduce) by calculating the distance of all the pairs within a batch, and it reaches similar effects as "triplet512" above, which is about a mAP of 78.5x on uni-oxford dataset.
 
+### Dataset && Code
+The dataset used here includes [Oxford dataset](http://www.robots.ox.ac.uk/~vgg/data/oxbuildings/), [Paris dataset](http://www.robots.ox.ac.uk/~vgg/data/parisbuildings/), [Landmark dataset](https://www.kaggle.com/c/landmark-recognition-challenge) and cover dataset. 
+
+The Python code is under the path 'myPython/' as follow:
+
+```
+├── myPython/
+│   ├── custom_layers.py              /* custom Python layers
+│   ├── model_tools.py                /* visualization and modification of Caffe weights
+│   ├── region_generator.py           /* RoI generator given the resolution
+│   ├── check_on_cover.py             /* test of precision and recall under different similarity threshold on cover dataset
+│   ├── train.py                      /* train using Caffe PythonAPI
+│   ├── dataset_helper/               /* operations on several dataset
+│   │   ├── cover_helper.py           /* cover
+│   │   ├── landmark_helper.py        /* Landmark
+│   │   ├── paris_helper.py           /* Paris
+│   │   ├── oxford_helper.py          /* Oxford
+│   │   ├── download_helper.py        /* download images by cmsid
+│   ├── test/                         /* evaluation
+│   │   ├── test_on_oxford.py         /* Oxford
+│   │   ├── test_on_paris.py          /* Paris
+│   │   ├── test_on_landmark.py       /* Landmark
+│   │   ├── test_on_cover.py          /* cover
+│   │   ├── test_SimilarCluster.py    /* visualization of the similar clusters
+│   ├── convert/                      /* convert the images into embeddings
+│   ├── offline/                      /* offline PCA experiments
+```
+
+The configuration of models and their weights are under the path 'proto/' and 'caffemodel/' as follow：
+```
+├── proto/
+│   ├── offline/                      /* offline PCA experiments
+│   ├── distilling/                   /* knowledge distilling（including the 3-resolution teacher model）
+│   ├── triplet/                      /* training with triplet-loss
+│   ├── reduce/                       /* training with pair loss (parallel for the RoI features，serial for the embeddings)
+│   ├── deploy_resnet101.prototxt     /* original model
+│   ├── deploy_resnet101_normpython.prototxt     /* original model with Python normalize_layer
+```
+
 # Deep Retrieval
 
 This package contains the pretrained ResNet101 model and evaluation script for the method proposed in the following papers:
